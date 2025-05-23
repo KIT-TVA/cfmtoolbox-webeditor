@@ -14,6 +14,7 @@ env:
 jobs:
   build-and-push-image:
     strategy:
+      fail-fast: false
       matrix:
         component: ["backend", "frontend"]
     runs-on: ubuntu-latest
