@@ -1,0 +1,221 @@
+meta {
+  name: JSON to UVL
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8000/convert/fromjson/uvl/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "featuremodel":{
+    "root": {
+      "name": "pizza",
+      "instance_cardinality": {
+        "intervals": [
+          {
+            "lower": 1,
+            "upper": 1
+          }
+        ]
+      },
+      "group_type_cardinality": {
+        "intervals": [
+          {
+            "lower": 0,
+            "upper": 2
+          }
+        ]
+      },
+      "group_instance_cardinality": {
+        "intervals": [
+          {
+            "lower": 2,
+            "upper": null
+          }
+        ]
+      },
+      "children": [
+        {
+          "name": "pizza_0",
+          "instance_cardinality": {
+            "intervals": [
+              {
+                "lower": 0,
+                "upper": null
+              }
+            ]
+          },
+          "group_type_cardinality": {
+            "intervals": [
+              {
+                "lower": 2,
+                "upper": 2
+              }
+            ]
+          },
+          "group_instance_cardinality": {
+            "intervals": [
+              {
+                "lower": 2,
+                "upper": null
+              }
+            ]
+          },
+          "children": [
+            {
+              "name": "cheese",
+              "instance_cardinality": {
+                "intervals": [
+                  {
+                    "lower": 1,
+                    "upper": 1
+                  }
+                ]
+              },
+              "group_type_cardinality": {
+                "intervals": []
+              },
+              "group_instance_cardinality": {
+                "intervals": []
+              },
+              "children": []
+            },
+            {
+              "name": "tomatosauce",
+              "instance_cardinality": {
+                "intervals": [
+                  {
+                    "lower": 1,
+                    "upper": 1
+                  }
+                ]
+              },
+              "group_type_cardinality": {
+                "intervals": []
+              },
+              "group_instance_cardinality": {
+                "intervals": []
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "pizza_1",
+          "instance_cardinality": {
+            "intervals": [
+              {
+                "lower": 0,
+                "upper": null
+              }
+            ]
+          },
+          "group_type_cardinality": {
+            "intervals": [
+              {
+                "lower": 0,
+                "upper": 2
+              }
+            ]
+          },
+          "group_instance_cardinality": {
+            "intervals": [
+              {
+                "lower": 0,
+                "upper": null
+              }
+            ]
+          },
+          "children": [
+            {
+              "name": "salad",
+              "instance_cardinality": {
+                "intervals": [
+                  {
+                    "lower": 0,
+                    "upper": null
+                  }
+                ]
+              },
+              "group_type_cardinality": {
+                "intervals": []
+              },
+              "group_instance_cardinality": {
+                "intervals": []
+              },
+              "children": []
+            },
+            {
+              "name": "pineapple",
+              "instance_cardinality": {
+                "intervals": [
+                  {
+                    "lower": 0,
+                    "upper": null
+                  }
+                ]
+              },
+              "group_type_cardinality": {
+                "intervals": []
+              },
+              "group_instance_cardinality": {
+                "intervals": []
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "constraints": [
+      {
+        "require": true,
+        "first_feature_name": "pizza",
+        "first_cardinality": {
+          "intervals": [
+            {
+              "lower": 1,
+              "upper": null
+            }
+          ]
+        },
+        "second_feature_name": "pizza_0",
+        "second_cardinality": {
+          "intervals": [
+            {
+              "lower": 1,
+              "upper": null
+            }
+          ]
+        }
+      },
+      {
+        "require": true,
+        "first_feature_name": "pizza",
+        "first_cardinality": {
+          "intervals": [
+            {
+              "lower": 1,
+              "upper": null
+            }
+          ]
+        },
+        "second_feature_name": "pizza_1",
+        "second_cardinality": {
+          "intervals": [
+            {
+              "lower": 1,
+              "upper": null
+            }
+          ]
+        }
+      }
+    ]
+  }
+  }
+}

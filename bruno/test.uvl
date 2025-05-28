@@ -1,0 +1,9 @@
+features
+	pizza
+		mandatory
+			cheese
+			tomatosauce
+		optional
+			salad
+			pineapple	
+
