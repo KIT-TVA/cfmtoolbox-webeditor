@@ -1,4 +1,4 @@
-name: Build and publish the backend Docker image
+name: Build and publish the Docker image
 
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -45,3 +45,23 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  deploy:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/private.key
+          sudo chmod 600 ~/.ssh/private.key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "$SSH_CONFIG" > ~/.ssh/config
+          ssh bwc -C "ls -lah" 
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.KEY}}
+          SSH_KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+          SSH_CONFIG: ${{secrets.CONFIG}}
