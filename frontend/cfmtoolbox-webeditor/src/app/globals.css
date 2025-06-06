@@ -19,3 +19,14 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.feature_toolbar {
+  background-color: blue;
+  border: solid yellow 10px;
+  padding: 10px;
+  text-shadow: #0a0a0a;
+}
+
+.feature_toolbar_input {
+  color: #0a0a0a;
+}

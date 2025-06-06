@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -12,41 +12,95 @@ import {
   useEdgesState,
   Connection,
   Position,
+  NodeToolbar,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { input } from "framer-motion/client";
 
 const FeatureNode = ({
   data,
 }: {
-  data: { label: string; min?: number; max?: number };
-}) => (
-  <div className="p-2 border-2 rounded-lg shadow bg-white">
-    <div className="font-bold text-blue-700">{data.label}</div>
-    {data.min !== undefined && data.max !== undefined && (
-      <div className="text-xs text-gray-600">
-        [{data.min}..{data.max}]
-      </div>
-    )}
-    <Handle type="target" position={Position.Top} />
-    <Handle type="source" position={Position.Bottom} />
-  </div>
-);
+  data: {
+    label: string;
+    min?: number;
+    max?: number;
+    forceToolbarVisible: boolean;
+  };
+}) => {
+  const [label, setLabel] = useState(data.label);
+
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLabel(e.target.value);
+    data.label = e.target.value;
+    console.log("data.label after change: ", data.label);
+  };
+  return (
+    <div className="p-2 border-2 rounded-lg shadow bg-white">
+      <div className="font-bold text-blue-700">{data.label}</div>
+      {data.min !== undefined && data.max !== undefined && (
+        <div className="text-xs text-gray-600">
+          [{data.min}..{data.max}]
+        </div>
+      )}
+      <Handle type="target" position={Position.Top} />
+      <Handle type="source" position={Position.Bottom} />
+      <NodeToolbar
+        className="feature_toolbar"
+        isVisible={data.forceToolbarVisible || undefined}
+        position={Position.Left}
+      >
+        <label>Name</label>
+        <input
+          className="feature_toolbar_input"
+          value={label}
+          onChange={handleLabelChange}
+        ></input>
+      </NodeToolbar>
+    </div>
+  );
+};
 
 const RootNode = ({
   data,
 }: {
-  data: { label: string; min?: number; max?: number };
-}) => (
-  <div className="p-2 border-2 rounded-lg shadow bg-white">
-    <div className="font-bold text-blue-700">{data.label}</div>
-    {data.min !== undefined && data.max !== undefined && (
-      <div className="text-xs text-gray-600">
-        [{data.min}..{data.max}]
-      </div>
-    )}
-    <Handle type="source" position={Position.Bottom} />
-  </div>
-);
+  data: {
+    label: string;
+    min?: number;
+    max?: number;
+    forceToolbarVisible: boolean;
+  };
+}) => {
+  const [label, setLabel] = useState(data.label);
+
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLabel(e.target.value);
+    data.label = e.target.value;
+    console.log("data.label after change: ", data.label);
+  };
+  return (
+    <div className="p-2 border-2 rounded-lg shadow bg-white">
+      <div className="font-bold text-blue-700">{data.label}</div>
+      {data.min !== undefined && data.max !== undefined && (
+        <div className="text-xs text-gray-600">
+          [{data.min}..{data.max}]
+        </div>
+      )}
+      <Handle type="source" position={Position.Bottom} />
+      <NodeToolbar
+        className="feature_toolbar"
+        isVisible={data.forceToolbarVisible || undefined}
+        position={Position.Left}
+      >
+        <label>Name</label>
+        <input
+          className="feature_toolbar_input"
+          value={label}
+          onChange={handleLabelChange}
+        ></input>
+      </NodeToolbar>
+    </div>
+  );
+};
 
 const nodeTypes = {
   feature: FeatureNode,
@@ -93,7 +147,11 @@ export default function FeatureModelEditor() {
       id,
       type: "feature",
       position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: `Feature ${id}`, min: 0, max: 1 },
+      data: {
+        label: `Feature ${id}`,
+        min: 0,
+        max: 1,
+      },
     };
     setNodes((nds) => [...nds, newNode]);
   };
