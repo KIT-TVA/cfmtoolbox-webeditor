@@ -1,0 +1,36 @@
+name: Build and publish the Docker image
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/private.key
+          sudo chmod 600 ~/.ssh/private.key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "$SSH_CONFIG" > ~/.ssh/config
+          # We're building the images on the server because we cannot pull from a private organization owned repo
+          ssh bwc "cd cfmtoolbox-webeditor/frontend && sudo docker build . -t ghcr.io/kit-tva/cfmtoolbox-webeditor-frontend:main"
+          ssh bwc "cd cfmtoolbox-webeditor/backend && sudo docker build . -t ghcr.io/kit-tva/cfmtoolbox-webeditor-backend:main"
+          ssh bwc "cd cfmtoolbox-webeditor && sudo docker compose down && sudo docker compose up -d"
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.KEY}}
+          SSH_KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
+          SSH_CONFIG: ${{secrets.CONFIG}}
