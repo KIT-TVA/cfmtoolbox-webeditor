@@ -15,7 +15,6 @@ import {
   NodeToolbar,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { input } from "framer-motion/client";
 
 const FeatureNode = ({
   data,
@@ -139,7 +138,7 @@ export default function FeatureModelEditor() {
 
   const onConnect = useCallback((params: Connection) => {
     setEdges((eds) => addEdge(params, eds));
-  }, []);
+  }, [setEdges]);
 
   const addFeatureNode = () => {
     const id = `${nodes.length + 1}`;
