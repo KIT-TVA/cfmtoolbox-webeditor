@@ -5,7 +5,11 @@ import string
 import subprocess
 
 import aiofiles
-from fastapi import FastAPI, Response, UploadFile, status
+from fastapi import BackgroundTasks, FastAPI, Response, UploadFile, status
+from fastapi.responses import FileResponse
+
+from .types import CFMJson
+from .utils import EnhancedJSONEncoder
 
 app = FastAPI()
 
@@ -14,7 +18,7 @@ app = FastAPI()
 async def convert_to_json(file_type: str, featuremodel: UploadFile):
     match file_type:
         case "UVL" | "uvl":
-            return await handle_uvl_file(featuremodel)
+            return await receive_uvl_file(featuremodel)
         case _:
             return Response(
                 content="Unsupported file type",
@@ -22,15 +26,13 @@ async def convert_to_json(file_type: str, featuremodel: UploadFile):
             )
 
 
-async def handle_uvl_file(featuremodel: UploadFile) -> dict:
+async def receive_uvl_file(featuremodel: UploadFile) -> dict:
     filename = generate_random_filename(8, "uvl")
     result_filename = filename.replace(".uvl", ".json")
     async with aiofiles.open(filename, "wb") as out_file:
         while content := await featuremodel.read(1024):  # Read in 1024b chunks
             await out_file.write(content)
-    subprocess.run(
-        ["cfmtoolbox", "--import", filename, "--export", result_filename, "convert"], check=True
-    )
+    call_cfm_toolbox_conversion(filename, result_filename)
     async with aiofiles.open(result_filename, "rb") as result_file:
         content = await result_file.read()
     featuremodel_json = json.loads(content)
@@ -42,10 +44,36 @@ async def handle_uvl_file(featuremodel: UploadFile) -> dict:
 
 
 @app.post("/convert/fromjson/{file_type}/", status_code=214)  # 214 - Transformation applied
-async def convert_to_uvl(file_type: str, featuremodel: str): ...
+async def convert_to_uvl(file_type: str, featuremodel: CFMJson, background_tasks: BackgroundTasks):
+    """
+    Endpoint for converting from JSON to UVL format.
+    """
+    match file_type:
+        case "UVL" | "uvl":
+            return await create_uvl_file(featuremodel, background_tasks)
+        case _:
+            return Response(
+                content="Unsupported file type",
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
 
 
-# TODO: Implement json to UVL conversion
+async def create_uvl_file(featuremodel: CFMJson, background_tasks: BackgroundTasks) -> Response:
+    """
+    Create a UVL file from the provided CFMJson object.
+    """
+    filename = generate_random_filename(8, "json")
+    result_filename = filename.replace(".json", ".uvl")
+    async with aiofiles.open(filename, "w") as out_file:
+        await out_file.write(json.dumps(featuremodel, cls=EnhancedJSONEncoder))
+    call_cfm_toolbox_conversion(filename, result_filename)
+
+    # Cleanup temp files
+    background_tasks.add_task(
+        lambda files: [os.remove(f) for f in files], [filename, result_filename]
+    )
+
+    return FileResponse(path=result_filename, filename=result_filename, status_code=214)
 
 
 def generate_random_filename(length: int, extension: str = None) -> str:
@@ -56,3 +84,13 @@ def generate_random_filename(length: int, extension: str = None) -> str:
         return f"{random_string}.{extension}"
     else:
         return random_string
+
+
+def call_cfm_toolbox_conversion(input_file: str, output_file: str) -> None:
+    """
+    Call the cfmtoolbox command line tool to convert files.
+    """
+    subprocess.run(
+        ["cfmtoolbox", "--import", input_file, "--export", output_file, "convert"],
+        check=True,
+    )
