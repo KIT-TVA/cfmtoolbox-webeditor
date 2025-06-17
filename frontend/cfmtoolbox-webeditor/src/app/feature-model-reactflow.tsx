@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -16,6 +16,7 @@ import "@xyflow/react/dist/style.css";
 import FeatureNode from "./components/FeatureNode";
 import RootNode from "./components/RootNode";
 import FeatureEdge from "./components/FeatureEdge";
+import AddFeatureModal from "./components/AddFeature";
 
 const nodeTypes = {
   feature: FeatureNode,
@@ -67,6 +68,11 @@ const initialEdges = [
 export default function FeatureModelEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newFeatureName, setNewFeatureName] = useState('');
+  const [cardinality, setCardinality] = useState('');
+  const [parentId, setParentId] = useState('');
+
 
   const onConnect = useCallback(
     (params: Connection) =>
@@ -76,25 +82,60 @@ export default function FeatureModelEditor() {
     [setEdges]
   );
 
-  const addFeatureNode = () => {
-    const id = `${nodes.length + 1}`;
+  const handleAddFeature = () => {
+    if (!newFeatureName || !parentId) return alert("Name und Parent müssen angegeben sein.");
+    const newId = `${nodes.length + 1}`;
+    
     const newNode = {
-      id,
-      type: "feature",
-      position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: `Feature ${id}`, min: 0, max: 1, showGroupArc: false },
+      id: newId,
+      data: { label: `${newFeatureName}`, min: 0, max: 1, showGroupArc: false },
+      position: { x: Math.random() * 250, y: Math.random() * 250 }, // Optional: bessere Positionierung
+      type: 'feature',
     };
+  
+    const newEdge = {
+      id: `e-${parentId}-${newId}`,
+      source: parentId,
+      target: newId,
+      type: 'edge',
+      data: {
+        cardinality: '1..n',
+      }
+    };
+  
     setNodes((nds) => [...nds, newNode]);
+    setEdges((eds) => [...eds, newEdge]);
+    setIsModalOpen(false);
+  
+    // Reset Form
+    setNewFeatureName('');
+    setCardinality('');
+    setParentId('');
   };
+
+  
+  
 
   return (
     <div style={{ width: "100%", height: "100vh" }}>
       <button
-        onClick={addFeatureNode}
+        onClick={() => setIsModalOpen(true)}
         className="m-2 px-4 py-1 bg-blue-600 text-white rounded"
       >
         Add Feature
       </button>
+      <AddFeatureModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddFeature={handleAddFeature}
+        newFeatureName={newFeatureName}
+        setNewFeatureName={setNewFeatureName}
+        cardinality={cardinality}
+        setCardinality={setCardinality}
+        parentId={parentId}
+        setParentId={setParentId}
+        nodes={nodes}
+      />
       <ReactFlowProvider>
         <ReactFlow
           nodes={nodes}
