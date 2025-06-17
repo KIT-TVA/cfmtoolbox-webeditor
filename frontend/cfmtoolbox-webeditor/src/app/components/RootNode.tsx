@@ -47,7 +47,7 @@ const RootNode = ({ data }: { data: RootNodeData }) => {
           />
         </svg>
       )}
-      <NodeToolbar
+      <NodeToolbar className="feature_toolbar"
         isVisible={data.forceToolbarVisible || undefined}
         position={Position.Left}
       >
