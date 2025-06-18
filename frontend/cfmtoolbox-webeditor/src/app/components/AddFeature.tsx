@@ -1,4 +1,5 @@
 
+import { group } from "console";
 import React from "react";
 
 interface AddFeatureModalProps {
@@ -7,8 +8,18 @@ interface AddFeatureModalProps {
   onAddFeature: () => void;
   newFeatureName: string;
   setNewFeatureName: React.Dispatch<React.SetStateAction<string>>;
-  cardinality: string;
-  setCardinality: React.Dispatch<React.SetStateAction<string>>;
+  featureInstanceCardinalityMin: string;
+  setFeatureInstanceCardinalityMin: React.Dispatch<React.SetStateAction<string>>;
+  featureInstanceCardinalityMax: string;
+  setFeatureInstanceCardinalityMax: React.Dispatch<React.SetStateAction<string>>;
+  groupTypeCardinalityMin: string;
+  setGroupTypeCardinalityMin: React.Dispatch<React.SetStateAction<string>>;
+  groupTypeCardinalityMax: string;
+  setGroupTypeCardinalityMax: React.Dispatch<React.SetStateAction<string>>;
+  groupInstanceCardinalityMin: string;
+  setGroupInstanceCardinalityMin: React.Dispatch<React.SetStateAction<string>>;
+  groupInstanceCardinalityMax: string;
+  setGroupInstanceCardinalityMax: React.Dispatch<React.SetStateAction<string>>;
   parentId: string;
   setParentId: React.Dispatch<React.SetStateAction<string>>;
   nodes: any[];
@@ -20,8 +31,18 @@ export default function AddFeatureModal({
   onAddFeature,
   newFeatureName,
   setNewFeatureName,
-  cardinality,
-  setCardinality,
+  featureInstanceCardinalityMin,
+  setFeatureInstanceCardinalityMin,
+  featureInstanceCardinalityMax,
+  setFeatureInstanceCardinalityMax,
+  groupInstanceCardinalityMin,
+  setGroupInstanceCardinalityMin,
+  groupInstanceCardinalityMax,
+  setGroupInstanceCardinalityMax,
+  groupTypeCardinalityMin,
+  setGroupTypeCardinalityMin,
+  groupTypeCardinalityMax,
+  setGroupTypeCardinalityMax,
   parentId,
   setParentId,
   nodes,
@@ -41,13 +62,93 @@ export default function AddFeatureModal({
           onChange={(e) => setNewFeatureName(e.target.value)}
         />
 
-        <label className="block mb-2">Kardinalität:</label>
-        <input
-          type="text"
-          className="w-full border rounded p-2 mb-4"
-          value={cardinality}
-          onChange={(e) => setCardinality(e.target.value)}
-        />
+<label className="block mb-2">Feature-Instanzkardinalität:</label>
+  <div className="flex gap-2">
+    
+    <input
+       type="text"
+       className="w-1/2 border rounded p-2"
+       placeholder="Min"
+       value={featureInstanceCardinalityMin}
+       onChange={(e) => {
+         const value = e.target.value;
+         if (/^\d*$/.test(value) || value === '*') {
+           setFeatureInstanceCardinalityMin(value);
+         }
+        }}
+    />
+     <input
+      type="text"
+      className="w-1/2 border rounded p-2"
+      placeholder="Max"
+      value={featureInstanceCardinalityMax}
+      onChange={(e) => {
+        const value = e.target.value;
+        if (/^\d*$/.test(value) || value === '*') {
+          setFeatureInstanceCardinalityMax(value);
+        }
+      }}
+    />
+    
+  </div>
+  <label className="block mb-2">Gruppentypkardinalität:</label>
+  <div className="flex gap-2">
+    
+    <input
+       type="text"
+       className="w-1/2 border rounded p-2"
+       placeholder="Min"
+       value={groupTypeCardinalityMin}
+       onChange={(e) => {
+         const value = e.target.value;
+         if (/^\d*$/.test(value) || value === '*') {
+           setGroupTypeCardinalityMin(value);
+         }
+        }}
+    />
+     <input
+      type="text"
+      className="w-1/2 border rounded p-2"
+      placeholder="Max"
+      value={groupTypeCardinalityMax}
+      onChange={(e) => {
+        const value = e.target.value;
+        if (/^\d*$/.test(value) || value === '*') {
+          setGroupTypeCardinalityMax(value);
+        }
+      }}
+    />
+    
+  </div>
+  <label className="block mb-2">Gruppeninstanzkardinalität:</label>
+  <div className="flex gap-2">
+    
+    <input
+       type="text"
+       className="w-1/2 border rounded p-2"
+       placeholder="Min"
+       value={groupInstanceCardinalityMin}
+       onChange={(e) => {
+         const value = e.target.value;
+         if (/^\d*$/.test(value) || value === '*') {
+           setGroupInstanceCardinalityMin(value);
+         }
+        }}
+    />
+     <input
+      type="text"
+      className="w-1/2 border rounded p-2"
+      placeholder="Max"
+      value={groupInstanceCardinalityMax}
+      onChange={(e) => {
+        const value = e.target.value;
+        if (/^\d*$/.test(value) || value === '*') {
+          setGroupInstanceCardinalityMax(value);
+        }
+      }}
+    />
+    
+  </div>
 
         <label className="block mb-2">Parent Node:</label>
         <select

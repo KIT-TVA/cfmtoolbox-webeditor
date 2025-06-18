@@ -3,10 +3,14 @@ import { Handle, Position, NodeToolbar } from "@xyflow/react";
 
 type FeatureNodeData = {
   label: string;
-  min?: number;
-  max?: number;
+  featureInstanceCardinalityMin: string;
+  featureInstanceCardinalityMax: string;
   forceToolbarVisible: boolean;
   showGroupArc: boolean;
+  groupTypeCardinalityMin?: string;
+  groupTypeCardinalityMax?: string;
+  groupInstanceCardinalityMin?: string; 
+  groupInstanceCardinalityMax?: string;
 };
 
 const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
@@ -22,9 +26,9 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
   return (
     <div className="p-2 border-2 rounded-lg shadow bg-white">
       <div className="font-bold text-blue-700">{data.label}</div>
-      {data.min !== undefined && data.max !== undefined && (
+      {data.featureInstanceCardinalityMin !== undefined && data.featureInstanceCardinalityMax !== undefined && (
         <div className="text-xs text-gray-600">
-          ⟨{data.min}..{data.max}⟩
+          ⟨{data.featureInstanceCardinalityMin},{data.featureInstanceCardinalityMax}⟩
         </div>
       )}
       <Handle type="target" position={Position.Top} />
@@ -48,6 +52,24 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
           />
         </svg>
       )}
+
+<div
+        style={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          width: "100%",
+          marginTop: "5px",
+          textAlign: "center",
+          fontSize: "0.75rem",
+          color: "#4B5563",
+        }}
+      >
+        <div>[{data.groupTypeCardinalityMin},{data.groupTypeCardinalityMax}]</div>
+        <div>⟨{data.groupInstanceCardinalityMin},{data.groupInstanceCardinalityMax}⟩</div>
+      </div>
+
+
       <NodeToolbar className="feature_toolbar"
         isVisible={data.forceToolbarVisible || undefined}
         position={Position.Left}

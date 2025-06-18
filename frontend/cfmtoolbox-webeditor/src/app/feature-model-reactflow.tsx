@@ -17,6 +17,7 @@ import FeatureNode from "./components/FeatureNode";
 import RootNode from "./components/RootNode";
 import FeatureEdge from "./components/FeatureEdge";
 import AddFeatureModal from "./components/AddFeature";
+import { group } from "console";
 
 const nodeTypes = {
   feature: FeatureNode,
@@ -32,19 +33,19 @@ const initialNodes = [
     id: "1",
     type: "root",
     position: { x: 100, y: 100 },
-    data: { label: "Root Feature", min: 1, max: 1, showGroupArc: false },
+    data: { label: "Root Feature", featureInstanceCardinalityMin: "1", featureInstanceCardinalityMax: "0", showGroupArc: false, groupTypeCardinalityMin: "1", groupTypeCardinalityMax: "*", groupInstanceCardinalityMin: "1", groupInstanceCardinalityMax: "*"},
   },
   {
     id: "2",
     type: "feature",
     position: { x: 100, y: 250 },
-    data: { label: "Sub Feature A", min: 0, max: 1, showGroupArc: false },
+    data: { label: "Sub Feature A", featureInstanceCardinalityMin: "1", featureInstanceCardinalityMax: "0", showGroupArc: false, groupTypeCardinalityMin: "1", groupTypeCardinalityMax: "*", groupInstanceCardinalityMin: "1", groupInstanceCardinalityMax: "*" },
   },
   {
     id: "3",
     type: "feature",
     position: { x: 300, y: 250 },
-    data: { label: "Sub Feature B", min: 1, max: 2, showGroupArc: false },
+    data: { label: "Sub Feature B", featureInstanceCardinalityMin: "1", featureInstanceCardinalityMax: "0", showGroupArc: false, groupTypeCardinalityMin: "1", groupTypeCardinalityMax: "*", groupInstanceCardinalityMin: "1", groupInstanceCardinalityMax: "*" },
   },
 ];
 
@@ -70,7 +71,12 @@ export default function FeatureModelEditor() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newFeatureName, setNewFeatureName] = useState('');
-  const [cardinality, setCardinality] = useState('');
+  const [featureInstanceCardinalityMin, setFeatureInstanceCardinalityMin] = useState('');
+  const [featureInstanceCardinalityMax, setFeatureInstanceCardinalityMax] = useState('');
+  const [groupTypeCardinalityMin, setGroupTypeCardinalityMin] = useState('');
+  const [groupTypeCardinalityMax, setGroupTypeCardinalityMax] = useState('');
+  const [groupInstanceCardinalityMin, setGroupInstanceCardinalityMin] = useState('');
+  const [groupInstanceCardinalityMax, setGroupInstanceCardinalityMax] = useState('');
   const [parentId, setParentId] = useState('');
 
 
@@ -83,13 +89,13 @@ export default function FeatureModelEditor() {
   );
 
   const handleAddFeature = () => {
-    if (!newFeatureName || !parentId) return alert("Name und Parent müssen angegeben sein.");
+    //if (!newFeatureName || !parentId) return alert("Name und Parent müssen angegeben sein.");
     const newId = `${nodes.length + 1}`;
-    
+
     const newNode = {
       id: newId,
-      data: { label: `${newFeatureName}`, min: 0, max: 1, showGroupArc: false },
-      position: { x: Math.random() * 250, y: Math.random() * 250 }, // Optional: bessere Positionierung
+      data: { label: `${newFeatureName}`, featureInstanceCardinalityMin: `${featureInstanceCardinalityMin}`, featureInstanceCardinalityMax: `${featureInstanceCardinalityMax}`, showGroupArc: false, groupTypeCardinalityMin: `${groupTypeCardinalityMin}`, groupTypeCardinalityMax: `${groupTypeCardinalityMax}`, groupInstanceCardinalityMin: `${groupInstanceCardinalityMin}`, groupInstanceCardinalityMax: `${groupInstanceCardinalityMax}` },
+      position: { x: Math.random() * 250, y: Math.random() * 250 }, 
       type: 'feature',
     };
   
@@ -109,7 +115,12 @@ export default function FeatureModelEditor() {
   
     // Reset Form
     setNewFeatureName('');
-    setCardinality('');
+    setFeatureInstanceCardinalityMin('');
+    setFeatureInstanceCardinalityMax('');
+    setGroupTypeCardinalityMax('');
+    setGroupTypeCardinalityMin('');
+    setGroupInstanceCardinalityMin('');
+    setGroupInstanceCardinalityMax('');
     setParentId('');
   };
 
@@ -130,8 +141,18 @@ export default function FeatureModelEditor() {
         onAddFeature={handleAddFeature}
         newFeatureName={newFeatureName}
         setNewFeatureName={setNewFeatureName}
-        cardinality={cardinality}
-        setCardinality={setCardinality}
+        featureInstanceCardinalityMin={featureInstanceCardinalityMin}
+        setFeatureInstanceCardinalityMin={setFeatureInstanceCardinalityMin}
+        featureInstanceCardinalityMax={featureInstanceCardinalityMax}
+        setFeatureInstanceCardinalityMax={setFeatureInstanceCardinalityMax}
+        groupTypeCardinalityMin={groupTypeCardinalityMin}
+        setGroupTypeCardinalityMin={setGroupTypeCardinalityMin}
+        groupTypeCardinalityMax={groupTypeCardinalityMax}
+        setGroupTypeCardinalityMax={setGroupTypeCardinalityMax}
+        groupInstanceCardinalityMin={groupInstanceCardinalityMin}
+        setGroupInstanceCardinalityMin={setGroupInstanceCardinalityMin}
+        groupInstanceCardinalityMax={groupInstanceCardinalityMax}
+        setGroupInstanceCardinalityMax={setGroupInstanceCardinalityMax}
         parentId={parentId}
         setParentId={setParentId}
         nodes={nodes}
