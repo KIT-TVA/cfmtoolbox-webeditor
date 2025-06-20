@@ -25,6 +25,10 @@ interface AddFeatureModalProps {
     editMode?: boolean;
     selectedNode?: any;
     isRootNode?: boolean;
+    nameError?: boolean;
+    setNameError?: React.Dispatch<React.SetStateAction<boolean>>;
+    parentError?: boolean;
+    setParentError?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function AddFeatureModal({
@@ -52,6 +56,10 @@ export default function AddFeatureModal({
     editMode,
     selectedNode,
     isRootNode = false,
+    nameError = false,
+    setNameError,
+    parentError = false,
+    setParentError,
 }: AddFeatureModalProps) {
     if (!isOpen) return null;
 
@@ -69,10 +77,18 @@ export default function AddFeatureModal({
                 <label className="block mb-2">Name:</label>
                 <input
                     type="text"
-                    className="w-full border rounded p-2 mb-4"
+                    className={`w-full border rounded p-2 mb-4 ${nameError ? "border-red-500 mb-2" : "border-gray-300"}`}
                     value={newFeatureName}
-                    onChange={(e) => setNewFeatureName(e.target.value)}
+                    onChange={(e) => {
+                        setNewFeatureName(e.target.value);
+                        if (nameError && setNameError) setNameError(false);
+                    }}
                 />
+                {nameError && (
+                    <p className="text-red-600 text-sm ">Name ist ein Pflichtfeld.</p>
+                )}
+
+
                 {!isRootNode && (
                     <>
                         <label className="block mb-2">Feature-Instanzkardinalität:</label>
@@ -163,9 +179,13 @@ export default function AddFeatureModal({
                     <>
                         <label className="block mb-2">Parent Feature:</label>
                         <select
-                            className="w-full border rounded p-2 mb-4"
+                            className={`w-full border rounded p-2 mb-4 ${parentError ? "border-red-500 mb-2" : "border-gray-300"}"`}
                             value={parentId}
-                            onChange={(e) => setParentId(e.target.value)}
+                            onChange={(e) => {
+                                setParentId(e.target.value);
+                                if (parentError && setParentError) setParentError(false);
+
+                            }}
                         >
                             <option value="">-- Bitte wählen --</option>
                             {nodes
@@ -176,6 +196,9 @@ export default function AddFeatureModal({
                                     </option>
                                 ))}
                         </select>
+                        {parentError && (
+                    <p className="text-red-600 text-sm ">Parent Feature ist ein Pflichtfeld.</p>
+                )}
                     </>
                 )}
 

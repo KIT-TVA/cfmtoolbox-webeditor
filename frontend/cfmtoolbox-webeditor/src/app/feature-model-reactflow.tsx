@@ -83,6 +83,9 @@ export default function FeatureModelEditor() {
   const [parentId, setParentId] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [selectedNode, setSelectedNode] = useState<any>(null);
+  const [nameError, setNameError] = useState(false);
+  const [parentError, setParentError] = useState(false);
+
 
   const onConnect = useCallback(
     (params: Connection) =>
@@ -93,7 +96,22 @@ export default function FeatureModelEditor() {
   );
 
   const handleAddFeature = () => {
-    //if (!newFeatureName || !parentId) return alert("Name und Parent müssen angegeben sein.");
+    if (!newFeatureName.trim()) {
+      setNameError(true);
+      if (!parentId.trim()) {
+        setParentError(true);
+        return;
+      }
+      return;
+    }
+    if (!parentId.trim()) {
+      setParentError(true);
+      if (!newFeatureName.trim()) {
+        setNameError(true);
+        return;
+      }
+      return;
+    }
     const newId = `${nodes.length + 1}`;
     const parentnode = nodes.find((n) => n.id === parentId);
     const positionX = (parentnode?.position.x || 100)
@@ -118,6 +136,9 @@ export default function FeatureModelEditor() {
     setNodes((nds) => [...nds, newNode]);
     setEdges((eds) => [...eds, newEdge]);
     setIsModalOpen(false);
+    setNameError(false);
+    setParentError(false);
+
 
     // Reset Form
     setNewFeatureName('');
@@ -143,11 +164,28 @@ export default function FeatureModelEditor() {
     setSelectedNode(node);
     setEditMode(true);
     setIsModalOpen(true);
-    
+    setNameError(false);
+    setParentError(false);
+
   };
   const handleUpdateFeature = () => {
     if (!selectedNode) return;
-
+    if (!newFeatureName.trim()) {
+      setNameError(true);
+      if (!parentId.trim()) {
+        setParentError(true);
+        return;
+      }
+      return;
+    }
+    if (!parentId.trim()) {
+      setParentError(true);
+      if (!newFeatureName.trim()) {
+        setNameError(true);
+        return;
+      }
+      return;
+    }
     setNodes((prevNodes) =>
       prevNodes.map((node) =>
         node.id === selectedNode.id
@@ -219,12 +257,14 @@ export default function FeatureModelEditor() {
     setGroupInstanceCardinalityMin('');
     setGroupInstanceCardinalityMax('');
     setParentId('');
-  
+
     setEditMode(false);
     setSelectedNode(null);
     setIsModalOpen(true);
+    setNameError(false);
+    setParentError(false);
   };
-  
+
 
 
   return (
@@ -262,6 +302,10 @@ export default function FeatureModelEditor() {
         onUpdateFeature={handleUpdateFeature}
         nodes={nodes}
         selectedNode={selectedNode}
+        nameError={nameError}
+        setNameError={setNameError}
+        parentError={parentError}
+        setParentError={setParentError}
       />
       <ReactFlowProvider>
         <ReactFlow
