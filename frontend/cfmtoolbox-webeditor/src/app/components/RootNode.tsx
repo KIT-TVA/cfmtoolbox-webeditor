@@ -3,8 +3,8 @@ import { Handle, Position, NodeToolbar } from "@xyflow/react";
 
 type RootNodeData = {
   label: string;
-  featureInstanceCardinalityMin: string;
-  featureInstanceCardinalityMax: string;
+ // featureInstanceCardinalityMin: string;
+//  featureInstanceCardinalityMax: string;
   forceToolbarVisible: boolean;
   showGroupArc: boolean;
   groupTypeCardinalityMin?: string;
@@ -18,19 +18,22 @@ const RootNode = ({ data }: { data: RootNodeData }) => {
   const width = 160;
   const arcHeight = 30;
 
-  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+ /* const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLabel(e.target.value);
     data.label = e.target.value;
-  };
+  };*/
 
   return (
     <div className="p-2 border-2 rounded-lg shadow bg-white">
       <div className="font-bold text-blue-700">{data.label}</div>
-      {data.featureInstanceCardinalityMin !== undefined && data.featureInstanceCardinalityMax !== undefined && (
-        <div className="text-xs text-gray-600">
-          ⟨{data.featureInstanceCardinalityMin},{data.featureInstanceCardinalityMax}⟩
-        </div>
-      )}
+      {/*{data.featureInstanceCardinalityMin !== "" &&
+        data.featureInstanceCardinalityMax !== "" && (
+          <div className="text-xs text-gray-600">
+            ⟨{data.featureInstanceCardinalityMin},
+            {data.featureInstanceCardinalityMax}⟩
+          </div>
+        )}*/}
+      
       <Handle type="source" position={Position.Bottom} />
       {data.showGroupArc && (
         <svg
@@ -63,10 +66,22 @@ const RootNode = ({ data }: { data: RootNodeData }) => {
           color: "#4B5563",
         }}
       >
-        <div>[{data.groupTypeCardinalityMin},{data.groupTypeCardinalityMax}]</div>
-        <div>⟨{data.groupInstanceCardinalityMin},{data.groupInstanceCardinalityMax}⟩</div>
+         {data.groupTypeCardinalityMin !== "" &&
+          data.groupTypeCardinalityMax !== "" && (
+            <div>
+              [{data.groupTypeCardinalityMin},{data.groupTypeCardinalityMax}]
+            </div>
+          )}
+
+        {data.groupInstanceCardinalityMin !== "" &&
+          data.groupInstanceCardinalityMax !== "" && (
+            <div>
+              ⟨{data.groupInstanceCardinalityMin},
+              {data.groupInstanceCardinalityMax}⟩
+            </div>
+          )}
       </div>
-      <NodeToolbar className="feature_toolbar"
+      {/*<NodeToolbar className="feature_toolbar"
         isVisible={data.forceToolbarVisible || undefined}
         position={Position.Left}
       >
@@ -76,7 +91,7 @@ const RootNode = ({ data }: { data: RootNodeData }) => {
           onChange={handleLabelChange}
           className="feature_toolbar_input"
         />
-      </NodeToolbar>
+      </NodeToolbar>*/}
     </div>
   );
 };

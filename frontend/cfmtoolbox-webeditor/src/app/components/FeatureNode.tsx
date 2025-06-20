@@ -9,8 +9,9 @@ type FeatureNodeData = {
   showGroupArc: boolean;
   groupTypeCardinalityMin?: string;
   groupTypeCardinalityMax?: string;
-  groupInstanceCardinalityMin?: string; 
+  groupInstanceCardinalityMin?: string;
   groupInstanceCardinalityMax?: string;
+  parentId?: string;
 };
 
 const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
@@ -18,21 +19,26 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
   const width = 160;
   const arcHeight = 30;
 
-  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /*const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLabel(e.target.value);
     data.label = e.target.value;
-  };
+  };*/
 
   return (
-    <div className="p-2 border-2 rounded-lg shadow bg-white">
+    <div className="p-2 border-2 rounded-lg shadow bg-white relative">
       <div className="font-bold text-blue-700">{data.label}</div>
-      {data.featureInstanceCardinalityMin !== undefined && data.featureInstanceCardinalityMax !== undefined && (
-        <div className="text-xs text-gray-600">
-          ⟨{data.featureInstanceCardinalityMin},{data.featureInstanceCardinalityMax}⟩
-        </div>
-      )}
+
+      {data.featureInstanceCardinalityMin !== "" &&
+        data.featureInstanceCardinalityMax !== "" && (
+          <div className="text-xs text-gray-600">
+            ⟨{data.featureInstanceCardinalityMin},
+            {data.featureInstanceCardinalityMax}⟩
+          </div>
+        )}
+
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
+
       {data.showGroupArc && (
         <svg
           style={{
@@ -53,7 +59,7 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
         </svg>
       )}
 
-<div
+      <div
         style={{
           position: "absolute",
           top: "100%",
@@ -65,12 +71,24 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
           color: "#4B5563",
         }}
       >
-        <div>[{data.groupTypeCardinalityMin},{data.groupTypeCardinalityMax}]</div>
-        <div>⟨{data.groupInstanceCardinalityMin},{data.groupInstanceCardinalityMax}⟩</div>
+        {data.groupTypeCardinalityMin !== "" &&
+          data.groupTypeCardinalityMax !== "" && (
+            <div>
+              [{data.groupTypeCardinalityMin},{data.groupTypeCardinalityMax}]
+            </div>
+          )}
+
+        {data.groupInstanceCardinalityMin !== "" &&
+          data.groupInstanceCardinalityMax !== "" && (
+            <div>
+              ⟨{data.groupInstanceCardinalityMin},
+              {data.groupInstanceCardinalityMax}⟩
+            </div>
+          )}
       </div>
 
-
-      <NodeToolbar className="feature_toolbar"
+      {/*<NodeToolbar
+        className="feature_toolbar"
         isVisible={data.forceToolbarVisible || undefined}
         position={Position.Left}
       >
@@ -80,7 +98,7 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
           onChange={handleLabelChange}
           className="feature_toolbar_input"
         />
-      </NodeToolbar>
+      </NodeToolbar>*/}
     </div>
   );
 };
