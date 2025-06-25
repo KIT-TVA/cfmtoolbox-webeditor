@@ -74,7 +74,7 @@ const initialEdges = [
 ];
 
 export default function FeatureModelEditor() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newFeatureName, setNewFeatureName] = useState('');
@@ -351,8 +351,57 @@ export default function FeatureModelEditor() {
       setSelectedNode(null); // falls du einen aktiven Node hast
       setIsModalOpen(false);
     }
-};
+  };
+  const NODE_WIDTH = 150;
+  const NODE_HEIGHT = 40;
 
+  const isOverlapping = (nodeA: any, nodeB: any) => {
+  return !(
+    nodeA.position.x + NODE_WIDTH < nodeB.position.x ||
+    nodeB.position.x + NODE_WIDTH < nodeA.position.x ||
+    nodeA.position.y + NODE_HEIGHT < nodeB.position.y ||
+    nodeB.position.y + NODE_HEIGHT < nodeA.position.y
+  );
+};
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      let updatedNodes = applyNodeChanges(
+        changes.map((change) => {
+          if (change.type === 'position' && change.position != null) {
+            const originalNode = nodes.find((n) => n.id === change.id);
+            if (originalNode) {
+              return {
+                ...change,
+                position: {
+                  x: change.position.x,
+                  y: originalNode.position.y,
+                },
+              };
+            }
+          }
+          return change;
+        }),
+        
+        nodes
+      ) as typeof nodes; 
+      updatedNodes = updatedNodes.map((node) => {
+        for (const other of updatedNodes) {
+          if (node.id !== other.id && isOverlapping(node, other)) {
+            return {
+              ...node,
+              position: { x: other.position.x + NODE_WIDTH + 10, y: node.position.y },
+            };
+          }
+        }
+        return node;
+      });
+      
+      setNodes(updatedNodes);
+    },
+    [nodes]
+  );
+  
+  
 
 
 
@@ -409,6 +458,7 @@ export default function FeatureModelEditor() {
           edgeTypes={edgeTypes}
           fitView
           onNodeClick={handleNodeClick}
+          //onNodesChange={onNodesChange}
         >
           <MiniMap />
           <Controls />
