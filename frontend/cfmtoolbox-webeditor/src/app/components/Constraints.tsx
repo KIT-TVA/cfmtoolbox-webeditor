@@ -1,4 +1,6 @@
 import React from "react";
+import { BsFillTrashFill, BsFillPencilFill  } from "react-icons/bs";
+
 
 interface Constraint {
   id: string;
@@ -60,15 +62,15 @@ export default function ConstraintList({
               <div className="space-x-2 text-sm">
                 <button
                   onClick={() => onEdit(c.id)}
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-600 "
                 >
-                  Bearbeiten
+                  <BsFillPencilFill />
                 </button>
                 <button
                   onClick={() => onDelete(c.id)}
-                  className="text-red-600 hover:underline"
+                  className="text-red-600 "
                 >
-                  Löschen
+                  <BsFillTrashFill />
                 </button>
               </div>
             </li>
