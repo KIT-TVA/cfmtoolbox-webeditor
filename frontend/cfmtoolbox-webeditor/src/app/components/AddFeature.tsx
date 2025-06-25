@@ -1,4 +1,5 @@
 import React from "react";
+import { BsFillTrashFill } from "react-icons/bs";
 
 interface AddFeatureModalProps {
     isOpen: boolean;
@@ -29,6 +30,8 @@ interface AddFeatureModalProps {
     setNameError?: React.Dispatch<React.SetStateAction<boolean>>;
     parentError?: boolean;
     setParentError?: React.Dispatch<React.SetStateAction<boolean>>;
+    onDeleteFeature?: () => void;
+
 }
 
 export default function AddFeatureModal({
@@ -60,6 +63,7 @@ export default function AddFeatureModal({
     setNameError,
     parentError = false,
     setParentError,
+    onDeleteFeature
 }: AddFeatureModalProps) {
     if (!isOpen) return null;
 
@@ -197,22 +201,32 @@ export default function AddFeatureModal({
                                 ))}
                         </select>
                         {parentError && (
-                    <p className="text-red-600 text-sm ">Parent Feature ist ein Pflichtfeld.</p>
-                )}
+                            <p className="text-red-600 text-sm ">Parent Feature ist ein Pflichtfeld.</p>
+                        )}
                     </>
                 )}
 
 
-                <div className="flex justify-end gap-2">
-                    <button className="bg-gray-300 px-4 py-2 rounded" onClick={onClose}>
-                        Abbrechen
-                    </button>
-                    <button
-                        className="bg-blue-600 text-white px-4 py-2 rounded"
-                        onClick={editMode ? onUpdateFeature : onAddFeature}
-                    >
-                        {editMode ? "Speichern" : "Hinzufügen"}
-                    </button>
+                <div className="flex justify-between items-center mt-4">
+                    {editMode && (
+                        <button
+                            className="flex items-center text-red-600 hover:text-red-800"
+                            onClick={onDeleteFeature}
+                        >
+                            <span className="mr-1"><BsFillTrashFill /></span>
+                        </button>
+                    )}
+                    <div className="flex gap-2 ml-auto">
+                        <button className="bg-gray-300 px-4 py-2 rounded" onClick={onClose}>
+                            Abbrechen
+                        </button>
+                        <button
+                            className="bg-blue-600 text-white px-4 py-2 rounded"
+                            onClick={editMode ? onUpdateFeature : onAddFeature}
+                        >
+                            {editMode ? "Speichern" : "Hinzufügen"}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

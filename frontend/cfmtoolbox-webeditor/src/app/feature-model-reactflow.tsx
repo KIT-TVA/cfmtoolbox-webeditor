@@ -345,6 +345,14 @@ export default function FeatureModelEditor() {
     setCard2Max('');
     setConstraintModalOpen(false);
   };
+  const handleDeleteFeature = () => {
+    if (selectedNode) {
+      setNodes((prev) => prev.filter(node => node.id !== selectedNode.id));
+      setSelectedNode(null); // falls du einen aktiven Node hast
+      setIsModalOpen(false);
+    }
+};
+
 
 
 
@@ -388,6 +396,7 @@ export default function FeatureModelEditor() {
         setNameError={setNameError}
         parentError={parentError}
         setParentError={setParentError}
+        onDeleteFeature={handleDeleteFeature}
       />
       <div className="h-[80%] overflow-hidden">      <ReactFlowProvider>
         <ReactFlow
