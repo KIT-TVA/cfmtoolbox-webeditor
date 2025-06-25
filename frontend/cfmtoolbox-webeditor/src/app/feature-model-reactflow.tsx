@@ -20,6 +20,10 @@ import FeatureNode from "./components/FeatureNode";
 import RootNode from "./components/RootNode";
 import FeatureEdge from "./components/FeatureEdge";
 import AddFeatureModal from "./components/AddFeature";
+import AddConstraint from "./components/AddConstraint";
+import Constraint from "./components/Constraints";
+
+
 import { group } from "console";
 
 const nodeTypes = {
@@ -85,13 +89,7 @@ export default function FeatureModelEditor() {
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [nameError, setNameError] = useState(false);
   const [parentError, setParentError] = useState(false);
-  const [constraints, setConstraints] = useState<
-    { id: string; source: string; target: string; relation: string; card1Min: string; card1Max: string; card2Min: string; card2Max: string; }[]
-  >([
-    { id: "c1", source: "Feature A", target: "Feature B", relation: "requires", card1Min: "1", card1Max: "*", card2Min: "1", card2Max: "2" },
-  ]);
-  const [newSource, setNewSource] = useState("");
-  const [newTarget, setNewTarget] = useState("");
+  const [constraints, setConstraints] = useState([] as { id: string; source: string; target: string; relation: string; card1Min: string; card1Max: string; card2Min: string; card2Max: string; }[]);
   const [isConstraintModalOpen, setConstraintModalOpen] = useState(false);
   const [feature1, setFeature1] = useState("");
   const [card1Min, setCard1Min] = useState("");
@@ -100,6 +98,8 @@ export default function FeatureModelEditor() {
   const [feature2, setFeature2] = useState("");
   const [card2Min, setCard2Min] = useState("");
   const [card2Max, setCard2Max] = useState("");
+  const [editConstraintId, setEditConstraintId] = useState<string | null>(null);
+
 
   const addConstraint = ({ source, target, relation, card1Min, card1Max, card2Min, card2Max }: { source: string; target: string; relation: string; card1Min: string; card1Max: string; card2Min: string; card2Max: string; }) => {
     const newConstraint = {
@@ -298,14 +298,54 @@ export default function FeatureModelEditor() {
   };
 
   const handleEditConstraint = (id: string) => {
-    const newSource = prompt("Neuer Source:", constraints.find(c => c.id === id)?.source);
-    const newTarget = prompt("Neuer Target:", constraints.find(c => c.id === id)?.target);
-    if (newSource && newTarget) {
-      setConstraints(prev =>
-        prev.map(c => c.id === id ? { ...c, source: newSource, target: newTarget } : c)
-      );
-    }
+    const constraint = constraints.find(c => c.id === id);
+    if (!constraint) return;
+
+    setFeature1(constraint.source);
+    setCard1Min(constraint.card1Min);
+    setCard1Max(constraint.card1Max);
+    setRelation(constraint.relation);
+    setFeature2(constraint.target);
+    setCard2Min(constraint.card2Min);
+    setCard2Max(constraint.card2Max);
+
+    setEditConstraintId(id);
+    setConstraintModalOpen(true);
   };
+
+
+  const handleUpdateConstraint = () => {
+    if (!editConstraintId) return;
+
+    setConstraints(prev =>
+      prev.map(c =>
+        c.id === editConstraintId
+          ? {
+            ...c,
+            source: feature1,
+            target: feature2,
+            relation,
+            card1Min,
+            card1Max,
+            card2Min,
+            card2Max,
+          }
+          : c
+      )
+    );
+
+    // Zurücksetzen
+    setEditConstraintId(null);
+    setFeature1('');
+    setCard1Min('');
+    setCard1Max('');
+    setRelation('requires');
+    setFeature2('');
+    setCard2Min('');
+    setCard2Max('');
+    setConstraintModalOpen(false);
+  };
+
 
 
 
@@ -367,200 +407,62 @@ export default function FeatureModelEditor() {
         </ReactFlow>
       </ReactFlowProvider>
       </div>
-      <div className="h-[20%] bg-gray-100 border-t border-gray-300 p-4 overflow-y-auto">
-        <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-lg font-semibold">Constraints</h2>
-          <button
-            onClick={() => setConstraintModalOpen(true)}
-            className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-blue-700"
-            title="Constraint hinzufügen"
-          >
-            +
-          </button>
-        </div>
-        {/* Liste */}
-        {constraints.length === 0 ? (
-          <p className="text-gray-500">Keine Constraints vorhanden.</p>
-        ) : (
-          <ul className="space-y-2">
-            {constraints.map(c => (
-              <li key={c.id} className="flex justify-between items-center bg-white p-2 rounded shadow">
-                <span>
-                  {nodes.find(node => node.id === c.source)?.data.label}{" "}
-                  {"<"}{c.card1Min}{"..."}{c.card1Max}{">"}{" "}
-                  <strong>{c.relation}</strong>{" "}
-                  {nodes.find(node => node.id === c.target)?.data.label}{" "}
-                  {"<"}{c.card2Min}{"..."}{c.card2Max}{">"}
+      <Constraint
+        constraints={constraints}
+        nodes={nodes}
+        onEdit={handleEditConstraint}
+        onDelete={handleDeleteConstraint}
+        onAddClick={() => setConstraintModalOpen(true)}
+      />
 
-                </span>
-                <div className="space-x-2 text-sm">
-                  <button onClick={() => handleEditConstraint(c.id)} className="text-blue-600 hover:underline">
-                    Bearbeiten
-                  </button>
-                  <button onClick={() => handleDeleteConstraint(c.id)} className="text-red-600 hover:underline">
-                    Löschen
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      {isConstraintModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-            <h3 className="text-xl font-semibold mb-4">Constraint hinzufügen</h3>
+      <AddConstraint
+        isOpen={isConstraintModalOpen}
+        onClose={() => {
+          setConstraintModalOpen(false);
+          setEditConstraintId(null);
+        }}
+        onAddConstraint={() => {
+          if (editConstraintId) {
+            handleUpdateConstraint();
+          } else {
+            addConstraint({
+              source: feature1,
+              target: feature2,
+              relation,
+              card1Min,
+              card1Max,
+              card2Min,
+              card2Max,
+            });
+            setConstraintModalOpen(false);
+            setFeature1('');
+            setCard1Min('');
+            setCard1Max('');
+            setRelation('requires');
+            setFeature2('');
+            setCard2Min('');
+            setCard2Max('');
+          }
+        }}
+        feature1={feature1}
+        setFeature1={setFeature1}
+        card1Min={card1Min}
+        setCard1Min={setCard1Min}
+        card1Max={card1Max}
+        setCard1Max={setCard1Max}
+        relation={relation}
+        setRelation={setRelation}
+        feature2={feature2}
+        setFeature2={setFeature2}
+        card2Min={card2Min}
+        setCard2Min={setCard2Min}
+        card2Max={card2Max}
+        setCard2Max={setCard2Max}
+        nodes={nodes}
+        isEditMode={!!editConstraintId}
+      />
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              {/* Feature 1 Dropdown */}
-              <div className="col-span-1">
-                <label className="block mb-1 text-sm font-medium">Feature 1</label>
-                <select
-                  value={feature1}
-                  onChange={(e) => setFeature1(e.target.value)}
-                  className="w-full border px-2 py-1 rounded"
-                >
-                  <option value="">Wählen...</option>
-                  {nodes
-                    .map(node => (
-                      <option key={node.id} value={node.id}>
-                        {node.data.label}
-                      </option>
-                    ))}
-                </select>
-              </div>
 
-              {/* Cardinalität 1 */}
-              <div className="col-span-1">
-
-                <label className="block mb-1 text-sm font-medium">Kardinalität</label>
-                <div className="flex gap-2 mb-4">
-                  <input
-                    type="text"
-                    value={card1Min}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^\d*$/.test(value)) {
-                        setCard1Min(value);
-                      }
-                    }}
-                    placeholder="Min"
-                    className="w-1/2 border rounded p-2"
-                  />
-                  <input
-                    type="text"
-                    value={card1Max}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^\d*$/.test(value) || value === "*") {
-                        setCard1Max(value);
-                      }
-                    }}
-                    placeholder="Max"
-                    className="w-1/2 border rounded p-2"
-                  />
-                </div>
-              </div>
-
-              {/* Relation */}
-              <div className="col-span-2">
-                <label className="block mb-1 text-sm font-medium">Beziehung</label>
-                <select
-                  value={relation}
-                  onChange={(e) => setRelation(e.target.value)}
-                  className="w-full border px-2 py-1 rounded"
-                >
-                  <option value="requires">requires</option>
-                  <option value="excludes">excludes</option>
-                </select>
-              </div>
-
-              {/* Feature 2 Dropdown */}
-              <div className="col-span-1">
-                <label className="block mb-1 text-sm font-medium">Feature 2</label>
-                <select
-                  value={feature2}
-                  onChange={(e) => setFeature2(e.target.value)}
-                  className="w-full border px-2 py-1 rounded"
-                >
-                  <option value="">Wählen...</option>
-                  {nodes
-                    .map(node => (
-                      <option key={node.id} value={node.id}>
-                        {node.data.label}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              {/* Cardinalität 2 */}
-              <div className="col-span-1">
-                <label className="block mb-1 text-sm font-medium">Kardinalität</label>
-                <div className="flex gap-2 mb-4">
-                  <input
-                    type="text"
-                    value={card2Min}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^\d*$/.test(value)) {
-                        setCard2Min(value);
-                      }
-                    }}
-                    placeholder="Min"
-                    className="w-1/2 border rounded p-2"
-                  />
-                  <input
-                    type="text"
-                    value={card2Max}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^\d*$/.test(value) || value === "*") {
-                        setCard2Max(value);
-                      }
-                    }}
-                    placeholder="Max"
-                    className="w-1/2 border rounded p-2"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setConstraintModalOpen(false)}
-                className="px-4 py-2 border rounded hover:bg-gray-100"
-              >
-                Abbrechen
-              </button>
-              <button
-                onClick={() => {
-                  // Constraint speichern (z. B. in deine Liste)
-                  addConstraint({
-                    source: feature1,
-                    target: feature2,
-                    relation,
-                    card1Min: card1Min,
-                    card1Max: card1Max,
-                    card2Min: card2Min,
-                    card2Max: card2Max,
-                  });
-                  setConstraintModalOpen(false);
-                  setFeature1(""); setFeature2("");
-                  setRelation("requires");
-                  setCard1Min("");
-                  setCard1Max("");
-                  setCard2Max("");
-                  setCard2Min("");
-                }}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Hinzufügen
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );
