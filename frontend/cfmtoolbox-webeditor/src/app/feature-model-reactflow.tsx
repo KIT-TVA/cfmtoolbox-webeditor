@@ -13,6 +13,7 @@ import {
   NodeChange,
   applyNodeChanges,
   NodeMouseHandler,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -99,6 +100,7 @@ export default function FeatureModelEditor() {
   const [card2Min, setCard2Min] = useState("");
   const [card2Max, setCard2Max] = useState("");
   const [editConstraintId, setEditConstraintId] = useState<string | null>(null);
+  const { getNodes, getEdges } = useReactFlow();
 
 
   const addConstraint = ({ source, target, relation, card1Min, card1Max, card2Min, card2Max }: { source: string; target: string; relation: string; card1Min: string; card1Max: string; card2Min: string; card2Max: string; }) => {
@@ -143,8 +145,14 @@ export default function FeatureModelEditor() {
     }
     const newId = `${nodes.length + 1}`;
     const parentnode = nodes.find((n) => n.id === parentId);
-    const positionX = (parentnode?.position.x || 100)
-    const positionY = (parentnode?.position.y || 0) + 150; // Position below the parent node
+    const siblings = nodes.filter(n => n.data.parentId === parentId);
+    console.log("Siblings:", siblings);
+    const siblingCount = siblings.length;
+    const offsetX = siblingCount * (NODE_WIDTH + 10);
+    console.log("Sibling Count:", siblingCount, "Offset X:", offsetX);
+    const positionX = (parentnode?.position.x || 100) + offsetX;
+    const positionY = (parentnode?.position.y || 0) + 150;
+
     const newNode = {
       id: newId,
       data: { label: `${newFeatureName}`, featureInstanceCardinalityMin: `${featureInstanceCardinalityMin}`, featureInstanceCardinalityMax: `${featureInstanceCardinalityMax}`, showGroupArc: false, groupTypeCardinalityMin: `${groupTypeCardinalityMin}`, groupTypeCardinalityMax: `${groupTypeCardinalityMax}`, groupInstanceCardinalityMin: `${groupInstanceCardinalityMin}`, groupInstanceCardinalityMax: `${groupInstanceCardinalityMax}`, parentId: `${parentId}` },
@@ -215,11 +223,20 @@ export default function FeatureModelEditor() {
       }
       return;
     }
+
+    const parentNode = nodes.find(n => n.id === parentId);
+    const siblings = nodes.filter(n => n.data.parentId === parentId && n.id !== selectedNode.id);
+    const siblingCount = siblings.length;
+    const offsetX = siblingCount * (NODE_WIDTH + 10);
+    const positionX = parentNode?.position.x ?? 100 + offsetX;
+    const positionY = (parentNode?.position.y ?? 0) + 150;
+
     setNodes((prevNodes) =>
       prevNodes.map((node) =>
         node.id === selectedNode.id
           ? {
             ...node,
+            position: { x: positionX, y: positionY },
             data: {
               ...node.data,
               label: newFeatureName,
@@ -355,14 +372,12 @@ export default function FeatureModelEditor() {
   const NODE_WIDTH = 150;
   const NODE_HEIGHT = 40;
 
-  const isOverlapping = (nodeA: any, nodeB: any) => {
-  return !(
-    nodeA.position.x + NODE_WIDTH < nodeB.position.x ||
-    nodeB.position.x + NODE_WIDTH < nodeA.position.x ||
-    nodeA.position.y + NODE_HEIGHT < nodeB.position.y ||
-    nodeB.position.y + NODE_HEIGHT < nodeA.position.y
-  );
-};
+ /* const isOverlapping = (nodeA: any, nodeB: any) => {
+    return !(
+      nodeA.position.x + NODE_WIDTH < nodeB.position.x ||
+      nodeB.position.x + NODE_WIDTH < nodeA.position.x
+    );
+  };*/
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       let updatedNodes = applyNodeChanges(
@@ -381,27 +396,59 @@ export default function FeatureModelEditor() {
           }
           return change;
         }),
-        
+
         nodes
-      ) as typeof nodes; 
-      updatedNodes = updatedNodes.map((node) => {
-        for (const other of updatedNodes) {
-          if (node.id !== other.id && isOverlapping(node, other)) {
-            return {
-              ...node,
-              position: { x: other.position.x + NODE_WIDTH + 10, y: node.position.y },
-            };
+      ) as typeof nodes;
+     /* let shiftToggle = true;
+      const baseNodes = [...updatedNodes];
+      const resultNodes: any[] = [];
+      
+      for (const node of baseNodes) {
+        let newPos = { ...node.position };
+      
+        for (const other of resultNodes) {
+          if (node.id !== other.id && isOverlapping({ position: newPos }, other)) {
+            const shift = shiftToggle ? 1 : -1;
+            shiftToggle = !shiftToggle;
+      
+            newPos.x = other.position.x + shift * (NODE_WIDTH + 10);
           }
         }
-        return node;
-      });
       
+        resultNodes.push({
+          ...node,
+          position: newPos,
+        });
+      }*/
+      
+      
+
       setNodes(updatedNodes);
     },
     [nodes]
   );
-  
-  
+
+  const handleExport = () => {
+
+    const flowData = {
+      nodes,
+      edges,
+    };
+
+    const json = JSON.stringify(flowData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+
+    // Trigger Download
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'react-flow-export.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
 
 
 
@@ -414,6 +461,7 @@ export default function FeatureModelEditor() {
     >
       Add Feature
     </button>
+   
       <AddFeatureModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -448,6 +496,9 @@ export default function FeatureModelEditor() {
         onDeleteFeature={handleDeleteFeature}
       />
       <div className="h-[80%] overflow-hidden">      <ReactFlowProvider>
+         <button onClick={handleExport}>
+      Export as JSON
+    </button>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -458,7 +509,7 @@ export default function FeatureModelEditor() {
           edgeTypes={edgeTypes}
           fitView
           onNodeClick={handleNodeClick}
-          //onNodesChange={onNodesChange}
+        //onNodesChange={onNodesChange}
         >
           <MiniMap />
           <Controls />
