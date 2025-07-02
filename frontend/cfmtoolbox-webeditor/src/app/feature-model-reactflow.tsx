@@ -13,7 +13,6 @@ import {
   NodeChange,
   applyNodeChanges,
   NodeMouseHandler,
-  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
@@ -23,9 +22,7 @@ import FeatureEdge from "./components/FeatureEdge";
 import AddFeatureModal from "./components/AddFeature";
 import AddConstraint from "./components/AddConstraint";
 import Constraint from "./components/Constraints";
-
-
-import { group } from "console";
+import { v4 as uuidv4 } from "uuid";
 
 const nodeTypes = {
   feature: FeatureNode,
@@ -41,19 +38,49 @@ const initialNodes = [
     id: "1",
     type: "root",
     position: { x: 100, y: 100 },
-    data: { label: "Root Feature", featureInstanceCardinalityMin: "1", featureInstanceCardinalityMax: "0", showGroupArc: false, groupTypeCardinalityMin: "1", groupTypeCardinalityMax: "*", groupInstanceCardinalityMin: "1", groupInstanceCardinalityMax: "*", parentId: "0" },
+    data: {
+      label: "Root Feature",
+      featureInstanceCardinalityMin: "1",
+      featureInstanceCardinalityMax: "0",
+      showGroupArc: false,
+      groupTypeCardinalityMin: "1",
+      groupTypeCardinalityMax: "*",
+      groupInstanceCardinalityMin: "1",
+      groupInstanceCardinalityMax: "*",
+      parentId: "0",
+    },
   },
   {
     id: "2",
     type: "feature",
     position: { x: 100, y: 250 },
-    data: { label: "Sub Feature A", featureInstanceCardinalityMin: "1", featureInstanceCardinalityMax: "0", showGroupArc: false, groupTypeCardinalityMin: "1", groupTypeCardinalityMax: "*", groupInstanceCardinalityMin: "1", groupInstanceCardinalityMax: "*", parentId: "1" },
+    data: {
+      label: "Sub Feature A",
+      featureInstanceCardinalityMin: "1",
+      featureInstanceCardinalityMax: "0",
+      showGroupArc: false,
+      groupTypeCardinalityMin: "1",
+      groupTypeCardinalityMax: "*",
+      groupInstanceCardinalityMin: "1",
+      groupInstanceCardinalityMax: "*",
+      parentId: "1",
+    },
   },
   {
     id: "3",
     type: "feature",
     position: { x: 300, y: 250 },
-    data: { label: "Sub Feature B", featureInstanceCardinalityMin: "1", featureInstanceCardinalityMax: "0", showGroupArc: false, groupTypeCardinalityMin: "1", groupTypeCardinalityMax: "*", groupInstanceCardinalityMin: "1", groupInstanceCardinalityMax: "*", parentId: "1" },
+    data: {
+      label: "Sub Feature B",
+      featureInstanceCardinalityMin: "1",
+      featureInstanceCardinalityMax: "0",
+      showGroupArc: false,
+      groupTypeCardinalityMin: "1",
+      groupTypeCardinalityMax: "*",
+      groupInstanceCardinalityMin: "1",
+      groupInstanceCardinalityMax: "*",
+      parentId: "1",
+    },
   },
 ];
 
@@ -78,19 +105,34 @@ export default function FeatureModelEditor() {
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newFeatureName, setNewFeatureName] = useState('');
-  const [featureInstanceCardinalityMin, setFeatureInstanceCardinalityMin] = useState('');
-  const [featureInstanceCardinalityMax, setFeatureInstanceCardinalityMax] = useState('');
-  const [groupTypeCardinalityMin, setGroupTypeCardinalityMin] = useState('');
-  const [groupTypeCardinalityMax, setGroupTypeCardinalityMax] = useState('');
-  const [groupInstanceCardinalityMin, setGroupInstanceCardinalityMin] = useState('');
-  const [groupInstanceCardinalityMax, setGroupInstanceCardinalityMax] = useState('');
-  const [parentId, setParentId] = useState('');
+  const [newFeatureName, setNewFeatureName] = useState("");
+  const [featureInstanceCardinalityMin, setFeatureInstanceCardinalityMin] =
+    useState("");
+  const [featureInstanceCardinalityMax, setFeatureInstanceCardinalityMax] =
+    useState("");
+  const [groupTypeCardinalityMin, setGroupTypeCardinalityMin] = useState("");
+  const [groupTypeCardinalityMax, setGroupTypeCardinalityMax] = useState("");
+  const [groupInstanceCardinalityMin, setGroupInstanceCardinalityMin] =
+    useState("");
+  const [groupInstanceCardinalityMax, setGroupInstanceCardinalityMax] =
+    useState("");
+  const [parentId, setParentId] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [nameError, setNameError] = useState(false);
   const [parentError, setParentError] = useState(false);
-  const [constraints, setConstraints] = useState([] as { id: string; source: string; target: string; relation: string; card1Min: string; card1Max: string; card2Min: string; card2Max: string; }[]);
+  const [constraints, setConstraints] = useState(
+    [] as {
+      id: string;
+      source: string;
+      target: string;
+      relation: string;
+      card1Min: string;
+      card1Max: string;
+      card2Min: string;
+      card2Max: string;
+    }[]
+  );
   const [isConstraintModalOpen, setConstraintModalOpen] = useState(false);
   const [feature1, setFeature1] = useState("");
   const [card1Min, setCard1Min] = useState("");
@@ -100,10 +142,29 @@ export default function FeatureModelEditor() {
   const [card2Min, setCard2Min] = useState("");
   const [card2Max, setCard2Max] = useState("");
   const [editConstraintId, setEditConstraintId] = useState<string | null>(null);
-  const { getNodes, getEdges } = useReactFlow();
+  const [isNodeMenuOpen, setIsNodeMenuOpen] = useState(false);
+  const [nodeMenuPosition, setNodeMenuPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
-
-  const addConstraint = ({ source, target, relation, card1Min, card1Max, card2Min, card2Max }: { source: string; target: string; relation: string; card1Min: string; card1Max: string; card2Min: string; card2Max: string; }) => {
+  const addConstraint = ({
+    source,
+    target,
+    relation,
+    card1Min,
+    card1Max,
+    card2Min,
+    card2Max,
+  }: {
+    source: string;
+    target: string;
+    relation: string;
+    card1Min: string;
+    card1Max: string;
+    card2Min: string;
+    card2Max: string;
+  }) => {
     const newConstraint = {
       id: uuidv4(), // Generate unique ID
       source,
@@ -114,9 +175,8 @@ export default function FeatureModelEditor() {
       card2Min,
       card2Max,
     };
-    setConstraints(prev => [...prev, newConstraint]);
+    setConstraints((prev) => [...prev, newConstraint]);
   };
-
 
   const onConnect = useCallback(
     (params: Connection) =>
@@ -145,7 +205,7 @@ export default function FeatureModelEditor() {
     }
     const newId = `${nodes.length + 1}`;
     const parentnode = nodes.find((n) => n.id === parentId);
-    const siblings = nodes.filter(n => n.data.parentId === parentId);
+    const siblings = nodes.filter((n) => n.data.parentId === parentId);
     console.log("Siblings:", siblings);
     const siblingCount = siblings.length;
     const offsetX = siblingCount * (NODE_WIDTH + 10);
@@ -155,19 +215,29 @@ export default function FeatureModelEditor() {
 
     const newNode = {
       id: newId,
-      data: { label: `${newFeatureName}`, featureInstanceCardinalityMin: `${featureInstanceCardinalityMin}`, featureInstanceCardinalityMax: `${featureInstanceCardinalityMax}`, showGroupArc: false, groupTypeCardinalityMin: `${groupTypeCardinalityMin}`, groupTypeCardinalityMax: `${groupTypeCardinalityMax}`, groupInstanceCardinalityMin: `${groupInstanceCardinalityMin}`, groupInstanceCardinalityMax: `${groupInstanceCardinalityMax}`, parentId: `${parentId}` },
+      data: {
+        label: `${newFeatureName}`,
+        featureInstanceCardinalityMin: `${featureInstanceCardinalityMin}`,
+        featureInstanceCardinalityMax: `${featureInstanceCardinalityMax}`,
+        showGroupArc: false,
+        groupTypeCardinalityMin: `${groupTypeCardinalityMin}`,
+        groupTypeCardinalityMax: `${groupTypeCardinalityMax}`,
+        groupInstanceCardinalityMin: `${groupInstanceCardinalityMin}`,
+        groupInstanceCardinalityMax: `${groupInstanceCardinalityMax}`,
+        parentId: `${parentId}`,
+      },
       position: { x: positionX, y: positionY },
-      type: 'feature',
+      type: "feature",
     };
 
     const newEdge = {
       id: `e-${parentId}-${newId}`,
       source: parentId,
       target: newId,
-      type: 'edge',
+      type: "edge",
       data: {
-        cardinality: '1..n',
-      }
+        cardinality: "1..n",
+      },
     };
 
     setNodes((nds) => [...nds, newNode]);
@@ -176,35 +246,23 @@ export default function FeatureModelEditor() {
     setNameError(false);
     setParentError(false);
 
-
     // Reset Form
-    setNewFeatureName('');
-    setFeatureInstanceCardinalityMin('');
-    setFeatureInstanceCardinalityMax('');
-    setGroupTypeCardinalityMax('');
-    setGroupTypeCardinalityMin('');
-    setGroupInstanceCardinalityMin('');
-    setGroupInstanceCardinalityMax('');
-    setParentId('');
+    setNewFeatureName("");
+    setFeatureInstanceCardinalityMin("");
+    setFeatureInstanceCardinalityMax("");
+    setGroupTypeCardinalityMax("");
+    setGroupTypeCardinalityMin("");
+    setGroupInstanceCardinalityMin("");
+    setGroupInstanceCardinalityMax("");
+    setParentId("");
   };
 
   const handleNodeClick: NodeMouseHandler<any> = (event, node) => {
-    setNewFeatureName(node.data.label);
-    setFeatureInstanceCardinalityMin(node.data.featureInstanceCardinalityMin);
-    setFeatureInstanceCardinalityMax(node.data.featureInstanceCardinalityMax);
-    setGroupTypeCardinalityMin(node.data.groupTypeCardinalityMin || "");
-    setGroupTypeCardinalityMax(node.data.groupTypeCardinalityMax || "");
-    setGroupInstanceCardinalityMin(node.data.groupInstanceCardinalityMin || "");
-    setGroupInstanceCardinalityMax(node.data.groupInstanceCardinalityMax || "");
-    setParentId(node.data.parentId || "");
-
+    setNodeMenuPosition({ x: node.position.x, y: node.position.y });
     setSelectedNode(node);
-    setEditMode(true);
-    setIsModalOpen(true);
-    setNameError(false);
-    setParentError(false);
-
+    setIsNodeMenuOpen(true);
   };
+
   const handleUpdateFeature = () => {
     if (!selectedNode) return;
     if (!newFeatureName.trim()) {
@@ -224,8 +282,10 @@ export default function FeatureModelEditor() {
       return;
     }
 
-    const parentNode = nodes.find(n => n.id === parentId);
-    const siblings = nodes.filter(n => n.data.parentId === parentId && n.id !== selectedNode.id);
+    const parentNode = nodes.find((n) => n.id === parentId);
+    const siblings = nodes.filter(
+      (n) => n.data.parentId === parentId && n.id !== selectedNode.id
+    );
     const siblingCount = siblings.length;
     const offsetX = siblingCount * (NODE_WIDTH + 10);
     const positionX = parentNode?.position.x ?? 100 + offsetX;
@@ -235,20 +295,20 @@ export default function FeatureModelEditor() {
       prevNodes.map((node) =>
         node.id === selectedNode.id
           ? {
-            ...node,
-            position: { x: positionX, y: positionY },
-            data: {
-              ...node.data,
-              label: newFeatureName,
-              featureInstanceCardinalityMin,
-              featureInstanceCardinalityMax,
-              groupTypeCardinalityMin,
-              groupTypeCardinalityMax,
-              groupInstanceCardinalityMin,
-              groupInstanceCardinalityMax,
-              parentId,
-            },
-          }
+              ...node,
+              position: { x: positionX, y: positionY },
+              data: {
+                ...node.data,
+                label: newFeatureName,
+                featureInstanceCardinalityMin,
+                featureInstanceCardinalityMax,
+                groupTypeCardinalityMin,
+                groupTypeCardinalityMax,
+                groupInstanceCardinalityMin,
+                groupInstanceCardinalityMax,
+                parentId,
+              },
+            }
           : node
       )
     );
@@ -269,7 +329,7 @@ export default function FeatureModelEditor() {
             target: selectedNode.id,
             type: "edge",
             data: {
-              cardinality: '1..n',
+              cardinality: "1..n",
             },
           },
         ];
@@ -283,26 +343,67 @@ export default function FeatureModelEditor() {
     setSelectedNode(selectedNode);
 
     // Reset Form
-    setNewFeatureName('');
-    setFeatureInstanceCardinalityMin('');
-    setFeatureInstanceCardinalityMax('');
-    setGroupTypeCardinalityMax('');
-    setGroupTypeCardinalityMin('');
-    setGroupInstanceCardinalityMin('');
-    setGroupInstanceCardinalityMax('');
-    setParentId('');
+    setNewFeatureName("");
+    setFeatureInstanceCardinalityMin("");
+    setFeatureInstanceCardinalityMax("");
+    setGroupTypeCardinalityMax("");
+    setGroupTypeCardinalityMin("");
+    setGroupInstanceCardinalityMin("");
+    setGroupInstanceCardinalityMax("");
+    setParentId("");
+  };
+
+  const handleEditClick = () => {
+    setNewFeatureName(selectedNode?.data.label);
+    setFeatureInstanceCardinalityMin(
+      selectedNode?.data.featureInstanceCardinalityMin
+    );
+    setFeatureInstanceCardinalityMax(
+      selectedNode?.data.featureInstanceCardinalityMax
+    );
+    setGroupTypeCardinalityMin(
+      selectedNode?.data.groupTypeCardinalityMin || ""
+    );
+    setGroupTypeCardinalityMax(
+      selectedNode?.data.groupTypeCardinalityMax || ""
+    );
+    setGroupInstanceCardinalityMin(
+      selectedNode?.data.groupInstanceCardinalityMin || ""
+    );
+    setGroupInstanceCardinalityMax(
+      selectedNode?.data.groupInstanceCardinalityMax || ""
+    );
+    setParentId(selectedNode?.data.parentId || "");
+
+    setEditMode(true);
+    setIsModalOpen(true);
+    setNameError(false);
+    setParentError(false);
+    setIsNodeMenuOpen(false);
+  };
+
+  const handleCreateChildClick = () => {
+    setIsNodeMenuOpen(false);
+    openAddFeatureModal();
+    setParentId(selectedNode?.id || "");
+  };
+
+  const handleCreateSiblingClick = () => {
+    setIsNodeMenuOpen(false);
+    openAddFeatureModal();
+    setParentId(selectedNode?.data.parentId || "");
   };
 
   const openAddFeatureModal = () => {
     // Formulardaten zurücksetzen
-    setNewFeatureName('');
-    setFeatureInstanceCardinalityMin('');
-    setFeatureInstanceCardinalityMax('');
-    setGroupTypeCardinalityMin('');
-    setGroupTypeCardinalityMax('');
-    setGroupInstanceCardinalityMin('');
-    setGroupInstanceCardinalityMax('');
-    setParentId('');
+    setNewFeatureName("");
+    setFeatureInstanceCardinalityMin("");
+    setFeatureInstanceCardinalityMax("");
+    setGroupTypeCardinalityMin("");
+    setGroupTypeCardinalityMax("");
+    setGroupInstanceCardinalityMin("");
+    setGroupInstanceCardinalityMax("");
+    setParentId("");
 
     setEditMode(false);
     setSelectedNode(null);
@@ -311,11 +412,11 @@ export default function FeatureModelEditor() {
     setParentError(false);
   };
   const handleDeleteConstraint = (id: string) => {
-    setConstraints(prev => prev.filter(c => c.id !== id));
+    setConstraints((prev) => prev.filter((c) => c.id !== id));
   };
 
   const handleEditConstraint = (id: string) => {
-    const constraint = constraints.find(c => c.id === id);
+    const constraint = constraints.find((c) => c.id === id);
     if (!constraint) return;
 
     setFeature1(constraint.source);
@@ -330,59 +431,51 @@ export default function FeatureModelEditor() {
     setConstraintModalOpen(true);
   };
 
-
   const handleUpdateConstraint = () => {
     if (!editConstraintId) return;
 
-    setConstraints(prev =>
-      prev.map(c =>
+    setConstraints((prev) =>
+      prev.map((c) =>
         c.id === editConstraintId
           ? {
-            ...c,
-            source: feature1,
-            target: feature2,
-            relation,
-            card1Min,
-            card1Max,
-            card2Min,
-            card2Max,
-          }
+              ...c,
+              source: feature1,
+              target: feature2,
+              relation,
+              card1Min,
+              card1Max,
+              card2Min,
+              card2Max,
+            }
           : c
       )
     );
 
     // Zurücksetzen
     setEditConstraintId(null);
-    setFeature1('');
-    setCard1Min('');
-    setCard1Max('');
-    setRelation('requires');
-    setFeature2('');
-    setCard2Min('');
-    setCard2Max('');
+    setFeature1("");
+    setCard1Min("");
+    setCard1Max("");
+    setRelation("requires");
+    setFeature2("");
+    setCard2Min("");
+    setCard2Max("");
     setConstraintModalOpen(false);
   };
   const handleDeleteFeature = () => {
     if (selectedNode) {
-      setNodes((prev) => prev.filter(node => node.id !== selectedNode.id));
+      setNodes((prev) => prev.filter((node) => node.id !== selectedNode.id));
       setSelectedNode(null); // falls du einen aktiven Node hast
       setIsModalOpen(false);
     }
   };
   const NODE_WIDTH = 150;
-  const NODE_HEIGHT = 40;
 
- /* const isOverlapping = (nodeA: any, nodeB: any) => {
-    return !(
-      nodeA.position.x + NODE_WIDTH < nodeB.position.x ||
-      nodeB.position.x + NODE_WIDTH < nodeA.position.x
-    );
-  };*/
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      let updatedNodes = applyNodeChanges(
+      const updatedNodes = applyNodeChanges(
         changes.map((change) => {
-          if (change.type === 'position' && change.position != null) {
+          if (change.type === "position" && change.position != null) {
             const originalNode = nodes.find((n) => n.id === change.id);
             if (originalNode) {
               return {
@@ -399,7 +492,7 @@ export default function FeatureModelEditor() {
 
         nodes
       ) as typeof nodes;
-     /* let shiftToggle = true;
+      /* let shiftToggle = true;
       const baseNodes = [...updatedNodes];
       const resultNodes: any[] = [];
       
@@ -420,48 +513,58 @@ export default function FeatureModelEditor() {
           position: newPos,
         });
       }*/
-      
-      
 
       setNodes(updatedNodes);
     },
-    [nodes]
+    [nodes, setNodes]
   );
 
   const handleExport = () => {
-
     const flowData = {
       nodes,
       edges,
     };
 
     const json = JSON.stringify(flowData, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
+    const blob = new Blob([json], { type: "application/json" });
 
     // Trigger Download
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = 'react-flow-export.json';
+    link.download = "react-flow-export.json";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-
-
-
-
-
-
   return (
-    <div className="flex flex-col h-screen">      <button
-      onClick={openAddFeatureModal}
-      className="absolute top-2 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
-    >
-      Add Feature
-    </button>
-   
+    <div className="flex flex-col h-screen">
+      {" "}
+      <button
+        onClick={openAddFeatureModal}
+        className="absolute top-2 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
+      >
+        Add Feature
+      </button>
+      {isNodeMenuOpen && nodeMenuPosition && (
+        <div
+          style={{
+            position: "absolute",
+            top: nodeMenuPosition.y + 100,
+            left: nodeMenuPosition.x + 300, // Abstand links neben dem Node
+            backgroundColor: "white",
+            border: "1px solid #ccc",
+            padding: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            zIndex: 1000,
+          }}
+        >
+          <button onClick={handleEditClick}>Edit</button>
+          <button onClick={handleCreateChildClick}>Create Child</button>
+          <button onClick={handleCreateSiblingClick}>Create Sibling</button>
+        </div>
+      )}
       <AddFeatureModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -495,27 +598,27 @@ export default function FeatureModelEditor() {
         setParentError={setParentError}
         onDeleteFeature={handleDeleteFeature}
       />
-      <div className="h-[80%] overflow-hidden">      <ReactFlowProvider>
-         <button onClick={handleExport}>
-      Export as JSON
-    </button>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          fitView
-          onNodeClick={handleNodeClick}
-        //onNodesChange={onNodesChange}
-        >
-          <MiniMap />
-          <Controls />
-          <Background />
-        </ReactFlow>
-      </ReactFlowProvider>
+      <div className="h-[80%] overflow-hidden">
+        {" "}
+        <ReactFlowProvider>
+          <button onClick={handleExport}>Export as JSON</button>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            fitView
+            onNodeClick={handleNodeClick}
+            //onNodesChange={onNodesChange}
+          >
+            <MiniMap />
+            <Controls />
+            <Background />
+          </ReactFlow>
+        </ReactFlowProvider>
       </div>
       <Constraint
         constraints={constraints}
@@ -524,7 +627,6 @@ export default function FeatureModelEditor() {
         onDelete={handleDeleteConstraint}
         onAddClick={() => setConstraintModalOpen(true)}
       />
-
       <AddConstraint
         isOpen={isConstraintModalOpen}
         onClose={() => {
@@ -545,13 +647,13 @@ export default function FeatureModelEditor() {
               card2Max,
             });
             setConstraintModalOpen(false);
-            setFeature1('');
-            setCard1Min('');
-            setCard1Max('');
-            setRelation('requires');
-            setFeature2('');
-            setCard2Min('');
-            setCard2Max('');
+            setFeature1("");
+            setCard1Min("");
+            setCard1Max("");
+            setRelation("requires");
+            setFeature2("");
+            setCard2Min("");
+            setCard2Max("");
           }
         }}
         feature1={feature1}
@@ -571,11 +673,6 @@ export default function FeatureModelEditor() {
         nodes={nodes}
         isEditMode={!!editConstraintId}
       />
-
-
-
     </div>
   );
 }
-import { v4 as uuidv4 } from 'uuid';
-

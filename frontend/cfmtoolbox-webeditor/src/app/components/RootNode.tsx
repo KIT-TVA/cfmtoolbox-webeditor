@@ -3,14 +3,14 @@ import { Handle, Position, NodeToolbar } from "@xyflow/react";
 
 type RootNodeData = {
   label: string;
- // featureInstanceCardinalityMin: string;
-//  featureInstanceCardinalityMax: string;
+  // featureInstanceCardinalityMin: string;
+  //  featureInstanceCardinalityMax: string;
   forceToolbarVisible: boolean;
   showGroupArc: boolean;
   groupTypeCardinalityMin?: string;
   groupTypeCardinalityMax?: string;
-  groupInstanceCardinalityMin?: string; 
-  groupInstanceCardinalityMax?: string; 
+  groupInstanceCardinalityMin?: string;
+  groupInstanceCardinalityMax?: string;
 };
 
 const RootNode = ({ data }: { data: RootNodeData }) => {
@@ -18,7 +18,7 @@ const RootNode = ({ data }: { data: RootNodeData }) => {
   const width = 160;
   const arcHeight = 30;
 
- /* const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /* const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLabel(e.target.value);
     data.label = e.target.value;
   };*/
@@ -33,7 +33,7 @@ const RootNode = ({ data }: { data: RootNodeData }) => {
             {data.featureInstanceCardinalityMax}⟩
           </div>
         )}*/}
-      
+
       <Handle type="source" position={Position.Bottom} />
       {data.showGroupArc && (
         <svg
@@ -66,7 +66,7 @@ const RootNode = ({ data }: { data: RootNodeData }) => {
           color: "#4B5563",
         }}
       >
-         {data.groupTypeCardinalityMin !== "" &&
+        {data.groupTypeCardinalityMin !== "" &&
           data.groupTypeCardinalityMax !== "" && (
             <div>
               [{data.groupTypeCardinalityMin},{data.groupTypeCardinalityMax}]
@@ -97,3 +97,4 @@ const RootNode = ({ data }: { data: RootNodeData }) => {
 };
 
 export default RootNode;
+export type { RootNodeData };

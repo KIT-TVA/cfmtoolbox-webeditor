@@ -104,3 +104,4 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
 };
 
 export default FeatureNode;
+export type { FeatureNodeData };
