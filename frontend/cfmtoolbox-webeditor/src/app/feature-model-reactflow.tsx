@@ -15,7 +15,7 @@ import {
   NodeMouseHandler,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { BsFillTrashFill, BsFillPencilFill  } from "react-icons/bs";
+import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
 
 
 import FeatureNode from "./components/FeatureNode";
@@ -266,7 +266,7 @@ export default function FeatureModelEditor() {
     console.log("X", event.clientX, "Y", event.clientY);
     setSelectedNode(node);
     setIsNodeMenuOpen(true);
-    if(isNodeMenuOpen && node.id ===nodeMenuPosition?.id ) {
+    if (isNodeMenuOpen && node.id === nodeMenuPosition?.id) {
       setIsNodeMenuOpen(false);
     }
     setNodeMenuPosition({ x: event.clientX, y: event.clientY, id: node.id });
@@ -541,6 +541,32 @@ export default function FeatureModelEditor() {
     [nodes, setNodes]
   );
 
+  const handleCreateConstraint = () => {
+    
+    if (editConstraintId) {
+            handleUpdateConstraint();
+          } else {
+            addConstraint({
+              source: feature1,
+              target: feature2,
+              relation,
+              card1Min,
+              card1Max,
+              card2Min,
+              card2Max,
+            });
+            setConstraintModalOpen(false);
+            setFeature1("");
+            setCard1Min("");
+            setCard1Max("");
+            setRelation("requires");
+            setFeature2("");
+            setCard2Min("");
+            setCard2Max("");
+          }
+  }
+
+
   const handleExport = () => {
     const flowData = {
       nodes,
@@ -574,7 +600,7 @@ export default function FeatureModelEditor() {
           style={{
             position: "absolute",
             top: nodeMenuPosition.y,
-            left: nodeMenuPosition.x, 
+            left: nodeMenuPosition.x,
             backgroundColor: "white",
             border: "1px solid #ccc",
             borderRadius: "10px",
@@ -604,7 +630,7 @@ export default function FeatureModelEditor() {
             ×
           </button>
 
-          
+
           <button onClick={handleCreateChildClick} className="text-left px-4 py-2 hover:bg-gray-100 rounded">Create Child
           </button>
           <button onClick={handleCreateSiblingClick} className="text-left px-4 py-2 hover:bg-gray-100 rounded">Create Sibling
@@ -613,7 +639,7 @@ export default function FeatureModelEditor() {
             <button onClick={handleEditClick} className="text-blue-600 px-4 py-2 "><BsFillPencilFill /></button>
             <button onClick={handleDeleteFeature} className="text-red-600 px-4 py-2 "><BsFillTrashFill /></button>
           </div>
-          
+
 
         </div>
       )}
@@ -685,29 +711,7 @@ export default function FeatureModelEditor() {
           setConstraintModalOpen(false);
           setEditConstraintId(null);
         }}
-        onAddConstraint={() => {
-          if (editConstraintId) {
-            handleUpdateConstraint();
-          } else {
-            addConstraint({
-              source: feature1,
-              target: feature2,
-              relation,
-              card1Min,
-              card1Max,
-              card2Min,
-              card2Max,
-            });
-            setConstraintModalOpen(false);
-            setFeature1("");
-            setCard1Min("");
-            setCard1Max("");
-            setRelation("requires");
-            setFeature2("");
-            setCard2Min("");
-            setCard2Max("");
-          }
-        }}
+        onAddConstraint={handleCreateConstraint}
         feature1={feature1}
         setFeature1={setFeature1}
         card1Min={card1Min}
