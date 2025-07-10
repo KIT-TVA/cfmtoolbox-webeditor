@@ -210,7 +210,7 @@ export default function AddFeatureModal({
                 <div className="flex justify-between items-center mt-4">
                     {editMode && (
                         <button
-                            className="flex items-center text-red-600 hover:text-red-800"
+                            className="flex items-center text-red-600"
                             onClick={onDeleteFeature}
                         >
                             <span className="mr-1"><BsFillTrashFill /></span>
