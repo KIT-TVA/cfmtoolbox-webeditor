@@ -13,6 +13,7 @@ import {
   NodeChange,
   applyNodeChanges,
   NodeMouseHandler,
+  getNodesBounds,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
@@ -71,7 +72,7 @@ const initialNodes = [
   {
     id: "3",
     type: "feature",
-    position: { x: 300, y: 250 },
+    position: { x: 338, y: 250 },
     data: {
       label: "Sub Feature B",
       featureInstanceCardinalityMin: "1",
@@ -217,12 +218,16 @@ export default function FeatureModelEditor() {
     const newId = `${nodes.length + 1}`;
     const parentnode = nodes.find((n) => n.id === parentId);
     const siblings = nodes.filter((n) => n.data.parentId === parentId);
-    console.log("Siblings:", siblings);
     const siblingCount = siblings.length;
-    const offsetX = siblingCount * (NODE_WIDTH + 10);
-    console.log("Sibling Count:", siblingCount, "Offset X:", offsetX);
-    const positionX = (parentnode?.position.x || 100) + offsetX;
+    const offsetX = 100;
+    const bounds = siblings[siblingCount-1] ? getNodesBounds([siblings[siblingCount-1]]) : null;
     const positionY = (parentnode?.position.y || 0) + 150;
+    let positionX = 100;
+    if(siblingCount === 0) {
+      positionX = parentnode?.position.x || 100;
+    } else{
+     positionX = (siblings[siblingCount-1]?.position.x || parentnode?.position.x || 100) + (bounds?.width || NODE_WIDTH) + offsetX;
+    }
 
     const newNode = {
       id: newId,
