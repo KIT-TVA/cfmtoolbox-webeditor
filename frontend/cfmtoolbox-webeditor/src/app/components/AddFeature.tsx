@@ -30,6 +30,10 @@ interface AddFeatureModalProps {
     setNameError?: React.Dispatch<React.SetStateAction<boolean>>;
     parentError?: boolean;
     setParentError?: React.Dispatch<React.SetStateAction<boolean>>;
+    featureInstanceMinError?: boolean;
+    setFeatureInstanceMinError?: React.Dispatch<React.SetStateAction<boolean>>;
+    featureInstanceMaxError?: boolean;
+    setFeatureInstanceMaxError?: React.Dispatch<React.SetStateAction<boolean>>;
     onDeleteFeature?: () => void;
 
 }
@@ -63,6 +67,10 @@ export default function AddFeatureModal({
     setNameError,
     parentError = false,
     setParentError,
+    featureInstanceMinError = false,
+    setFeatureInstanceMinError,
+    featureInstanceMaxError = false,
+    setFeatureInstanceMaxError,
     onDeleteFeature
 }: AddFeatureModalProps) {
     if (!isOpen) return null;
@@ -107,8 +115,10 @@ export default function AddFeatureModal({
                                     if (/^\d*$/.test(value)) {
                                         setFeatureInstanceCardinalityMin(value);
                                     }
+                                    if (featureInstanceMinError && setFeatureInstanceMinError) setFeatureInstanceMinError(false);
                                 }}
                             />
+
                             <input
                                 type="text"
                                 className="w-1/2 border rounded p-2"
@@ -119,10 +129,16 @@ export default function AddFeatureModal({
                                     if (/^\d*$/.test(value) || value === "*") {
                                         setFeatureInstanceCardinalityMax(value);
                                     }
+                                    if (featureInstanceMaxError && setFeatureInstanceMaxError) setFeatureInstanceMaxError(false);
                                 }}
                             />
+
                         </div>
+
                     </>
+                )}
+                {(featureInstanceMinError || featureInstanceMaxError) && (
+                    <p className="text-red-600 text-sm ">Feature-Instanzkardinalität ist ein Pflichtfeld.</p>
                 )}
                 <label className="block mb-2">Gruppentypkardinalität:</label>
                 <div className="flex gap-2 mb-4">

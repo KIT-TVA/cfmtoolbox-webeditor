@@ -123,6 +123,8 @@ export default function FeatureModelEditor() {
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [nameError, setNameError] = useState(false);
   const [parentError, setParentError] = useState(false);
+  const [featureInstanceMinError, setFeatureInstanceMinError] = useState(false);
+  const [featureInstanceMaxError, setFeatureInstanceMaxError] = useState(false);
   const [constraints, setConstraints] = useState(
     [] as {
       id: string;
@@ -190,22 +192,28 @@ export default function FeatureModelEditor() {
   );
 
   const handleAddFeature = () => {
+    let hasError = false;
+
     if (!newFeatureName.trim()) {
       setNameError(true);
-      if (!parentId.trim()) {
-        setParentError(true);
-        return;
-      }
-      return;
+      hasError = true;
     }
+
     if (!parentId.trim()) {
       setParentError(true);
-      if (!newFeatureName.trim()) {
-        setNameError(true);
-        return;
-      }
-      return;
+      hasError = true;
     }
+
+    if (!featureInstanceCardinalityMin.trim()) {
+      setFeatureInstanceMinError(true);
+      hasError = true;
+    }
+
+    if (!featureInstanceCardinalityMax.trim()) {
+      setFeatureInstanceMaxError(true);
+      hasError = true;
+    }
+    if (hasError) return;
     const newId = `${nodes.length + 1}`;
     const parentnode = nodes.find((n) => n.id === parentId);
     const siblings = nodes.filter((n) => n.data.parentId === parentId);
@@ -248,6 +256,8 @@ export default function FeatureModelEditor() {
     setIsModalOpen(false);
     setNameError(false);
     setParentError(false);
+    setFeatureInstanceMinError(false);
+    setFeatureInstanceMaxError(false);
 
     // Reset Form
     setNewFeatureName("");
@@ -275,22 +285,29 @@ export default function FeatureModelEditor() {
 
   const handleUpdateFeature = () => {
     if (!selectedNode) return;
+    let hasError = false;
+
     if (!newFeatureName.trim()) {
       setNameError(true);
-      if (!parentId.trim()) {
-        setParentError(true);
-        return;
-      }
-      return;
+      hasError = true;
     }
+
     if (!parentId.trim()) {
       setParentError(true);
-      if (!newFeatureName.trim()) {
-        setNameError(true);
-        return;
-      }
-      return;
+      hasError = true;
     }
+
+    if(!featureInstanceCardinalityMin.trim()) {
+      setFeatureInstanceMinError(true); 
+      hasError = true;
+    }
+
+    if(!featureInstanceCardinalityMax.trim()) {
+      setFeatureInstanceMaxError(true); 
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     const parentNode = nodes.find((n) => n.id === parentId);
     const siblings = nodes.filter(
@@ -389,6 +406,9 @@ export default function FeatureModelEditor() {
     setIsModalOpen(true);
     setNameError(false);
     setParentError(false);
+    setFeatureInstanceMinError(false);
+    setFeatureInstanceMaxError(false);
+
     setIsNodeMenuOpen(false);
   };
 
@@ -420,6 +440,8 @@ export default function FeatureModelEditor() {
     setIsModalOpen(true);
     setNameError(false);
     setParentError(false);
+    setFeatureInstanceMinError(false);
+    setFeatureInstanceMaxError(false);
   };
   const handleDeleteConstraint = (id: string) => {
     setConstraints((prev) => prev.filter((c) => c.id !== id));
@@ -542,28 +564,28 @@ export default function FeatureModelEditor() {
   );
 
   const handleCreateConstraint = () => {
-    
+
     if (editConstraintId) {
-            handleUpdateConstraint();
-          } else {
-            addConstraint({
-              source: feature1,
-              target: feature2,
-              relation,
-              card1Min,
-              card1Max,
-              card2Min,
-              card2Max,
-            });
-            setConstraintModalOpen(false);
-            setFeature1("");
-            setCard1Min("");
-            setCard1Max("");
-            setRelation("requires");
-            setFeature2("");
-            setCard2Min("");
-            setCard2Max("");
-          }
+      handleUpdateConstraint();
+    } else {
+      addConstraint({
+        source: feature1,
+        target: feature2,
+        relation,
+        card1Min,
+        card1Max,
+        card2Min,
+        card2Max,
+      });
+      setConstraintModalOpen(false);
+      setFeature1("");
+      setCard1Min("");
+      setCard1Max("");
+      setRelation("requires");
+      setFeature2("");
+      setCard2Min("");
+      setCard2Max("");
+    }
   }
 
 
@@ -674,6 +696,10 @@ export default function FeatureModelEditor() {
         setNameError={setNameError}
         parentError={parentError}
         setParentError={setParentError}
+        featureInstanceMinError={featureInstanceMinError}
+        setFeatureInstanceMinError={setFeatureInstanceMinError}
+        featureInstanceMaxError={featureInstanceMaxError}
+        setFeatureInstanceMaxError={setFeatureInstanceMaxError}
         onDeleteFeature={handleDeleteFeature}
       />
       <div className="h-[80%] overflow-hidden">
