@@ -146,6 +146,12 @@ export default function FeatureModelEditor() {
   const [feature2, setFeature2] = useState("");
   const [card2Min, setCard2Min] = useState("");
   const [card2Max, setCard2Max] = useState("");
+  const [feature1Error, setFeature1Error] = useState(false);
+  const [feature2Error, setFeature2Error] = useState(false);
+  const [card1MinError, setCard1MinError] = useState(false);
+  const [card1MaxError, setCard1MaxError] = useState(false);
+  const [card2MinError, setCard2MinError] = useState(false);
+  const [card2MaxError, setCard2MaxError] = useState(false);
   const [editConstraintId, setEditConstraintId] = useState<string | null>(null);
   const [isNodeMenuOpen, setIsNodeMenuOpen] = useState(false);
   const [nodeMenuPosition, setNodeMenuPosition] = useState<{
@@ -220,13 +226,13 @@ export default function FeatureModelEditor() {
     const siblings = nodes.filter((n) => n.data.parentId === parentId);
     const siblingCount = siblings.length;
     const offsetX = 100;
-    const bounds = siblings[siblingCount-1] ? getNodesBounds([siblings[siblingCount-1]]) : null;
+    const bounds = siblings[siblingCount - 1] ? getNodesBounds([siblings[siblingCount - 1]]) : null;
     const positionY = (parentnode?.position.y || 0) + 150;
     let positionX = 100;
-    if(siblingCount === 0) {
+    if (siblingCount === 0) {
       positionX = parentnode?.position.x || 100;
-    } else{
-     positionX = (siblings[siblingCount-1]?.position.x || parentnode?.position.x || 100) + (bounds?.width || NODE_WIDTH) + offsetX;
+    } else {
+      positionX = (siblings[siblingCount - 1]?.position.x || parentnode?.position.x || 100) + (bounds?.width || NODE_WIDTH) + offsetX;
     }
 
     const newNode = {
@@ -302,13 +308,13 @@ export default function FeatureModelEditor() {
       hasError = true;
     }
 
-    if(!featureInstanceCardinalityMin.trim()) {
-      setFeatureInstanceMinError(true); 
+    if (!featureInstanceCardinalityMin.trim()) {
+      setFeatureInstanceMinError(true);
       hasError = true;
     }
 
-    if(!featureInstanceCardinalityMax.trim()) {
-      setFeatureInstanceMaxError(true); 
+    if (!featureInstanceCardinalityMax.trim()) {
+      setFeatureInstanceMaxError(true);
       hasError = true;
     }
 
@@ -508,6 +514,12 @@ export default function FeatureModelEditor() {
     setFeature2("");
     setCard2Min("");
     setCard2Max("");
+    setFeature1Error(false);
+    setFeature2Error(false);
+    setCard1MinError(false);
+    setCard1MaxError(false);
+    setCard2MinError(false);
+    setCard2MaxError(false);
     setConstraintModalOpen(true);
   }
   const handleDeleteFeature = () => {
@@ -569,10 +581,36 @@ export default function FeatureModelEditor() {
   );
 
   const handleCreateConstraint = () => {
-
+    let hasError = false;
+    if (!feature1.trim()) {
+      setFeature1Error(true);
+      hasError = true;
+    }
+    if (!feature2.trim()) {
+      setFeature2Error(true);
+      hasError = true;
+    }
+    if (!card1Min.trim()) {
+      setCard1MinError(true);
+      hasError = true;
+    }
+    if (!card1Max.trim()) {
+      setCard1MaxError(true);
+      hasError = true;
+    }
+    if (!card2Min.trim()) {
+      setCard2MinError(true);
+      hasError = true;
+    }
+    if (!card2Max.trim()) {
+      setCard2MaxError(true);
+      hasError = true;
+    }
+    if (hasError) return;
     if (editConstraintId) {
       handleUpdateConstraint();
     } else {
+
       addConstraint({
         source: feature1,
         target: feature2,
@@ -757,6 +795,18 @@ export default function FeatureModelEditor() {
         setCard2Min={setCard2Min}
         card2Max={card2Max}
         setCard2Max={setCard2Max}
+        feature1Error={feature1Error}
+        setFeature1Error={setFeature1Error}
+        feature2Error={feature2Error}
+        setFeature2Error={setFeature2Error}
+        card1MinError={card1MinError}
+        setCard1MinError={setCard1MinError}
+        card1MaxError={card1MaxError}
+        setCard1MaxError={setCard1MaxError}
+        card2MinError={card2MinError}
+        setCard2MinError={setCard2MinError}
+        card2MaxError={card2MaxError}
+        setCard2MaxError={setCard2MaxError}
         nodes={nodes}
         isEditMode={!!editConstraintId}
       />
