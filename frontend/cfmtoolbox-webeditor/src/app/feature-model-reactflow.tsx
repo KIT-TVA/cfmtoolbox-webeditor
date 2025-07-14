@@ -18,7 +18,6 @@ import {
 import "@xyflow/react/dist/style.css";
 import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
 
-
 import FeatureNode from "./components/FeatureNode";
 import RootNode from "./components/RootNode";
 import FeatureEdge from "./components/FeatureEdge";
@@ -26,6 +25,7 @@ import AddFeatureModal from "./components/AddFeature";
 import AddConstraint from "./components/AddConstraint";
 import Constraint from "./components/Constraints";
 import { v4 as uuidv4 } from "uuid";
+import { exportFeatureModel } from "./components/ExportFeatureModel";
 
 const nodeTypes = {
   feature: FeatureNode,
@@ -226,13 +226,20 @@ export default function FeatureModelEditor() {
     const siblings = nodes.filter((n) => n.data.parentId === parentId);
     const siblingCount = siblings.length;
     const offsetX = 100;
-    const bounds = siblings[siblingCount - 1] ? getNodesBounds([siblings[siblingCount - 1]]) : null;
+    const bounds = siblings[siblingCount - 1]
+      ? getNodesBounds([siblings[siblingCount - 1]])
+      : null;
     const positionY = (parentnode?.position.y || 0) + 150;
     let positionX = 100;
     if (siblingCount === 0) {
       positionX = parentnode?.position.x || 100;
     } else {
-      positionX = (siblings[siblingCount - 1]?.position.x || parentnode?.position.x || 100) + (bounds?.width || NODE_WIDTH) + offsetX;
+      positionX =
+        (siblings[siblingCount - 1]?.position.x ||
+          parentnode?.position.x ||
+          100) +
+        (bounds?.width || NODE_WIDTH) +
+        offsetX;
     }
 
     const newNode = {
@@ -291,7 +298,6 @@ export default function FeatureModelEditor() {
       setIsNodeMenuOpen(false);
     }
     setNodeMenuPosition({ x: event.clientX, y: event.clientY, id: node.id });
-
   };
 
   const handleUpdateFeature = () => {
@@ -333,20 +339,20 @@ export default function FeatureModelEditor() {
       prevNodes.map((node) =>
         node.id === selectedNode.id
           ? {
-            ...node,
-            position: { x: positionX, y: positionY },
-            data: {
-              ...node.data,
-              label: newFeatureName,
-              featureInstanceCardinalityMin,
-              featureInstanceCardinalityMax,
-              groupTypeCardinalityMin,
-              groupTypeCardinalityMax,
-              groupInstanceCardinalityMin,
-              groupInstanceCardinalityMax,
-              parentId,
-            },
-          }
+              ...node,
+              position: { x: positionX, y: positionY },
+              data: {
+                ...node.data,
+                label: newFeatureName,
+                featureInstanceCardinalityMin,
+                featureInstanceCardinalityMax,
+                groupTypeCardinalityMin,
+                groupTypeCardinalityMax,
+                groupInstanceCardinalityMin,
+                groupInstanceCardinalityMax,
+                parentId,
+              },
+            }
           : node
       )
     );
@@ -481,15 +487,15 @@ export default function FeatureModelEditor() {
       prev.map((c) =>
         c.id === editConstraintId
           ? {
-            ...c,
-            source: feature1,
-            target: feature2,
-            relation,
-            card1Min,
-            card1Max,
-            card2Min,
-            card2Max,
-          }
+              ...c,
+              source: feature1,
+              target: feature2,
+              relation,
+              card1Min,
+              card1Max,
+              card2Min,
+              card2Max,
+            }
           : c
       )
     );
@@ -521,7 +527,7 @@ export default function FeatureModelEditor() {
     setCard2MinError(false);
     setCard2MaxError(false);
     setConstraintModalOpen(true);
-  }
+  };
   const handleDeleteFeature = () => {
     if (selectedNode) {
       setNodes((prev) => prev.filter((node) => node.id !== selectedNode.id));
@@ -610,7 +616,6 @@ export default function FeatureModelEditor() {
     if (editConstraintId) {
       handleUpdateConstraint();
     } else {
-
       addConstraint({
         source: feature1,
         target: feature2,
@@ -629,16 +634,10 @@ export default function FeatureModelEditor() {
       setCard2Min("");
       setCard2Max("");
     }
-  }
-
+  };
 
   const handleExport = () => {
-    const flowData = {
-      nodes,
-      edges,
-    };
-
-    const json = JSON.stringify(flowData, null, 2);
+    const json = exportFeatureModel(nodes, constraints);
     const blob = new Blob([json], { type: "application/json" });
 
     // Trigger Download
@@ -656,9 +655,15 @@ export default function FeatureModelEditor() {
       {" "}
       <button
         onClick={openAddFeatureModal}
-        className="absolute top-2 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
+        className="absolute top-12 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
       >
         Add Feature
+      </button>
+      <button
+        onClick={handleExport}
+        className="absolute top-2 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
+      >
+        Export as JSON
       </button>
       {isNodeMenuOpen && nodeMenuPosition && (
         <div
@@ -674,7 +679,6 @@ export default function FeatureModelEditor() {
             zIndex: 1000,
             flexDirection: "column",
             display: "flex",
-
           }}
         >
           <button
@@ -695,17 +699,32 @@ export default function FeatureModelEditor() {
             ×
           </button>
 
-
-          <button onClick={handleCreateChildClick} className="text-left px-4 py-2 hover:bg-gray-100 rounded">Create Child
+          <button
+            onClick={handleCreateChildClick}
+            className="text-left px-4 py-2 hover:bg-gray-100 rounded"
+          >
+            Create Child
           </button>
-          <button onClick={handleCreateSiblingClick} className="text-left px-4 py-2 hover:bg-gray-100 rounded">Create Sibling
+          <button
+            onClick={handleCreateSiblingClick}
+            className="text-left px-4 py-2 hover:bg-gray-100 rounded"
+          >
+            Create Sibling
           </button>
           <div>
-            <button onClick={handleEditClick} className="text-blue-600 px-4 py-2 "><BsFillPencilFill /></button>
-            <button onClick={handleDeleteFeature} className="text-red-600 px-4 py-2 "><BsFillTrashFill /></button>
+            <button
+              onClick={handleEditClick}
+              className="text-blue-600 px-4 py-2 "
+            >
+              <BsFillPencilFill />
+            </button>
+            <button
+              onClick={handleDeleteFeature}
+              className="text-red-600 px-4 py-2 "
+            >
+              <BsFillTrashFill />
+            </button>
           </div>
-
-
         </div>
       )}
       <AddFeatureModal
@@ -748,7 +767,6 @@ export default function FeatureModelEditor() {
       <div className="h-[80%] overflow-hidden">
         {" "}
         <ReactFlowProvider>
-          <button onClick={handleExport}>Export as JSON</button>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -759,7 +777,7 @@ export default function FeatureModelEditor() {
             edgeTypes={edgeTypes}
             fitView
             onNodeClick={handleNodeClick}
-          //onNodesChange={onNodesChange}
+            //onNodesChange={onNodesChange}
           >
             <MiniMap />
             <Controls />
