@@ -26,6 +26,10 @@ import AddConstraint from "./components/AddConstraint";
 import Constraint from "./components/Constraints";
 import { v4 as uuidv4 } from "uuid";
 import { exportFeatureModel } from "./components/ExportFeatureModel";
+import "./i18n";
+import { useTranslation } from "react-i18next";
+
+
 
 const nodeTypes = {
   feature: FeatureNode,
@@ -159,6 +163,8 @@ export default function FeatureModelEditor() {
     y: number;
     id?: string;
   } | null>(null);
+
+  const { t } = useTranslation();
 
   const addConstraint = ({
     source,
@@ -339,20 +345,20 @@ export default function FeatureModelEditor() {
       prevNodes.map((node) =>
         node.id === selectedNode.id
           ? {
-              ...node,
-              position: { x: positionX, y: positionY },
-              data: {
-                ...node.data,
-                label: newFeatureName,
-                featureInstanceCardinalityMin,
-                featureInstanceCardinalityMax,
-                groupTypeCardinalityMin,
-                groupTypeCardinalityMax,
-                groupInstanceCardinalityMin,
-                groupInstanceCardinalityMax,
-                parentId,
-              },
-            }
+            ...node,
+            position: { x: positionX, y: positionY },
+            data: {
+              ...node.data,
+              label: newFeatureName,
+              featureInstanceCardinalityMin,
+              featureInstanceCardinalityMax,
+              groupTypeCardinalityMin,
+              groupTypeCardinalityMax,
+              groupInstanceCardinalityMin,
+              groupInstanceCardinalityMax,
+              parentId,
+            },
+          }
           : node
       )
     );
@@ -487,15 +493,15 @@ export default function FeatureModelEditor() {
       prev.map((c) =>
         c.id === editConstraintId
           ? {
-              ...c,
-              source: feature1,
-              target: feature2,
-              relation,
-              card1Min,
-              card1Max,
-              card2Min,
-              card2Max,
-            }
+            ...c,
+            source: feature1,
+            target: feature2,
+            relation,
+            card1Min,
+            card1Max,
+            card2Min,
+            card2Max,
+          }
           : c
       )
     );
@@ -657,13 +663,13 @@ export default function FeatureModelEditor() {
         onClick={openAddFeatureModal}
         className="absolute top-12 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
       >
-        Add Feature
+        {t('main.addFeature')}
       </button>
       <button
         onClick={handleExport}
         className="absolute top-2 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
       >
-        Export as JSON
+        {t('main.exportJson')}
       </button>
       {isNodeMenuOpen && nodeMenuPosition && (
         <div
@@ -693,23 +699,20 @@ export default function FeatureModelEditor() {
               cursor: "pointer",
               padding: "0",
               lineHeight: "1",
-            }}
-            aria-label="Close menu"
-          >
+            }}          >
             ×
           </button>
-
           <button
             onClick={handleCreateChildClick}
             className="text-left px-4 py-2 hover:bg-gray-100 rounded"
           >
-            Create Child
+            {t('main.createChild')}
           </button>
           <button
             onClick={handleCreateSiblingClick}
             className="text-left px-4 py-2 hover:bg-gray-100 rounded"
           >
-            Create Sibling
+            {t('main.createSibling')}
           </button>
           <div>
             <button
@@ -777,7 +780,7 @@ export default function FeatureModelEditor() {
             edgeTypes={edgeTypes}
             fitView
             onNodeClick={handleNodeClick}
-            //onNodesChange={onNodesChange}
+          //onNodesChange={onNodesChange}
           >
             <MiniMap />
             <Controls />

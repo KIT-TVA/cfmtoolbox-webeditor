@@ -34,7 +34,7 @@ export const exportFeatureModel = (
     intervals: [
       {
         lower: parseInt(min, 10),
-        upper: max === "*" ? "*" : parseInt(max, 10),
+        upper: max === "*" ? null : parseInt(max, 10), //unsicher hatten davor "*"
       },
     ],
   });

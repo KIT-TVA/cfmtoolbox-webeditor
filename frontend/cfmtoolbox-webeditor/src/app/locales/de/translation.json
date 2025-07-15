@@ -1,0 +1,54 @@
+{
+  "feature_modal": {
+    "editTitle": "Feature bearbeiten",
+    "addTitle": "Neues Feature hinzufügen",
+    "name": "Name",
+    "nameRequired": "Name ist ein Pflichtfeld.",
+    "min": "Min",
+    "max": "Max",
+    "featureInstanceCardinality": "Feature-Instanzkardinalität",
+    "groupTypeCardinality": "Gruppentypkardinalität",
+    "groupInstanceCardinality": "Gruppeninstanzkardinalität",
+    "parentFeature": "Parent Feature",
+    "select": "--Bitte wählen--",
+    "parentRequired": "Parent Feature ist ein Pflichtfeld.",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "add": "Hinzufügen",
+    "cardinalityRequired": "Feature-Instanzkardinalität ist ein Pflichtfeld."
+  },
+  "constraint_modal": {
+    "editTitle": "Constraint bearbeiten",
+    "addTitle": "Constraint hinzufügen",
+    "feature1": "Feature 1",
+    "feature2": "Feature 2",
+    "select": "Wählen...",
+    "feature1Error": "Feature 1 ist ein Pflichtfeld.",
+    "feature2Error": "Feature 2 ist ein Pflichtfeld.",
+    "cardinality": "Kardinalität",
+    "min": "Min",
+    "max": "Max",
+    "cardinalityError": "Kardinalität ist ein Pflichtfeld.",
+    "relation": "Beziehung",
+    "requires": "requires",
+    "excludes": "excludes",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "add": "Hinzufügen"
+  },
+  "constraints": {
+    "title": "Constraints",
+    "add": "Constraint hinzufügen",
+    "noConstraints": "Keine Constraints vorhanden.",
+    "relation": {
+      "requires": "requires",
+      "excludes": "excludes"
+    }
+  },
+  "main": {
+    "addFeature": "Feature hinzufügen",
+    "exportJson": "Als JSON exportieren",
+    "createChild": "Kind erstellen",
+    "createSibling": "Geschwister erstellen"
+  }
+}

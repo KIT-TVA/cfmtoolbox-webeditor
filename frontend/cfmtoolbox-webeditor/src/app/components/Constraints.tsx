@@ -1,6 +1,6 @@
 import React from "react";
-import { BsFillTrashFill, BsFillPencilFill  } from "react-icons/bs";
-
+import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
+import { useTranslation } from "react-i18next";
 
 interface Constraint {
   id: string;
@@ -28,20 +28,22 @@ export default function ConstraintList({
   onDelete,
   onAddClick,
 }: ConstraintListProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="h-[20%] bg-gray-100 border-t border-gray-300 p-4 overflow-y-auto">
       <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-lg font-semibold">Constraints</h2>
+        <h2 className="text-lg font-semibold">{t('constraints.title')}</h2>
         <button
           onClick={onAddClick}
           className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-blue-700"
-          title="Constraint hinzufügen"
+          title={t('constraints.add')}
         >
           +
         </button>
       </div>
       {constraints.length === 0 ? (
-        <p className="text-gray-500">Keine Constraints vorhanden.</p>
+        <p className="text-gray-500">{t('constraints.noConstraints')}</p>
       ) : (
         <ul className="space-y-2">
           {constraints.map((c) => (
@@ -53,7 +55,7 @@ export default function ConstraintList({
                 {nodes.find((node) => node.id === c.source)?.data.label}{" "}
                 {"<"}
                 {c.card1Min}...{c.card1Max}
-                {">"} <strong>{c.relation}</strong>{" "}
+                {">"} <strong>{t(`constraints.relation.${c.relation}`)}</strong>{" "}
                 {nodes.find((node) => node.id === c.target)?.data.label}{" "}
                 {"<"}
                 {c.card2Min}...{c.card2Max}
@@ -62,13 +64,13 @@ export default function ConstraintList({
               <div className="space-x-2 text-sm">
                 <button
                   onClick={() => onEdit(c.id)}
-                  className="text-blue-600 "
+                  className="text-blue-600"
                 >
                   <BsFillPencilFill />
                 </button>
                 <button
                   onClick={() => onDelete(c.id)}
-                  className="text-red-600 "
+                  className="text-red-600"
                 >
                   <BsFillTrashFill />
                 </button>

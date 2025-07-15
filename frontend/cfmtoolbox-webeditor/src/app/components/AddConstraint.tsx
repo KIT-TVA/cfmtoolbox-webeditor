@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface ConstraintModalProps {
   isOpen: boolean;
@@ -67,18 +68,20 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
   nodes,
   isEditMode = false,
 }) => {
+  const { t } = useTranslation();
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
         <h3 className="text-xl font-semibold mb-4">
-          {isEditMode ? 'Constraint bearbeiten' : 'Constraint hinzufügen'}
+          {isEditMode ? t('constraint_modal.editTitle') : t('constraint_modal.addTitle')}
         </h3>
         <div className="grid grid-cols-2 gap-4 mb-4">
           {/* Feature 1 */}
           <div>
-            <label className="text-sm font-medium">Feature 1</label>
+            <label className="text-sm font-medium">{t('constraint_modal.feature1')}</label>
             <select
               value={feature1}
               onChange={(e) => {
@@ -87,23 +90,23 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
               }}
               className="w-full border p-2 rounded"
             >
-              <option value="">Wählen...</option>
+              <option value="">{t('constraint_modal.select')}</option>
               {nodes.map(node => (
                 <option key={node.id} value={node.id}>{node.data.label}</option>
               ))}
             </select>
             {feature1Error && (
-              <p className="text-red-600 text-sm">Feature 1 ist ein Pflichtfeld.</p>
+              <p className="text-red-600 text-sm">{t('constraint_modal.feature1Error')}</p>
             )}
           </div>
 
           {/* Kardinalität 1 */}
           <div>
-            <label className="text-sm font-medium">Kardinalität</label>
+            <label className="text-sm font-medium">{t('constraint_modal.cardinality')}</label>
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Min"
+                placeholder={t('constraint_modal.min')}
                 value={card1Min}
                 onChange={e => {
                   if (/^\d*$/.test(e.target.value)) {
@@ -115,7 +118,7 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
               />
               <input
                 type="text"
-                placeholder="Max"
+                placeholder={t('constraint_modal.max')}
                 value={card1Max}
                 onChange={e => {
                   if (/^\d*$/.test(e.target.value) || e.target.value === "*") {
@@ -127,26 +130,26 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
               />
             </div>
             {(card1MinError || card1MaxError) && (
-              <p className="text-red-600 text-sm">Kardinalität für Feature 1 ist ein Pflichtfeld</p>
+              <p className="text-red-600 text-sm">{t('constraint_modal.cardinalityError')}</p>
             )}
           </div>
 
           {/* Beziehung */}
           <div className="col-span-2">
-            <label className="text-sm font-medium">Beziehung</label>
+            <label className="text-sm font-medium">{t('constraint_modal.relation')}</label>
             <select
               value={relation}
               onChange={e => setRelation(e.target.value)}
               className="w-full border p-2 rounded"
             >
-              <option value="requires">requires</option>
-              <option value="excludes">excludes</option>
+              <option value="requires">{t('constraint_modal.requires')}</option>
+              <option value="excludes">{t('constraint_modal.excludes')}</option>
             </select>
           </div>
 
           {/* Feature 2 */}
           <div>
-            <label className="text-sm font-medium">Feature 2</label>
+            <label className="text-sm font-medium">{t('constraint_modal.feature2')}</label>
             <select
               value={feature2}
               onChange={e => {
@@ -155,23 +158,23 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
               }}
               className="w-full border p-2 rounded"
             >
-              <option value="">Wählen...</option>
+              <option value="">{t('constraint_modal.select')}</option>
               {nodes.map(node => (
                 <option key={node.id} value={node.id}>{node.data.label}</option>
               ))}
             </select>
             {feature2Error && (
-              <p className="text-red-600 text-sm">Feature 2 ist ein Pflichtfeld.</p>
+              <p className="text-red-600 text-sm">{t('constraint_modal.feature2Error')}</p>
             )}
           </div>
 
           {/* Kardinalität 2 */}
           <div>
-            <label className="text-sm font-medium">Kardinalität</label>
+            <label className="text-sm font-medium">{t('constraint_modal.cardinality')}</label>
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Min"
+                placeholder={t('constraint_modal.min')}
                 value={card2Min}
                 onChange={e => {
                   if (/^\d*$/.test(e.target.value)) {
@@ -183,7 +186,7 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
               />
               <input
                 type="text"
-                placeholder="Max"
+                placeholder={t('constraint_modal.max')}
                 value={card2Max}
                 onChange={e => {
                   if (/^\d*$/.test(e.target.value) || e.target.value === "*") {
@@ -195,14 +198,16 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
               />
             </div>
             {(card2MinError || card2MaxError) && (
-              <p className="text-red-600 text-sm">Kardinalität für Feature 2 ist ein Pflichtfeld</p>
+              <p className="text-red-600 text-sm">{t('constraint_modal.cardinalityError')}</p>
             )}
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Abbrechen</button>
+          <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+            {t('constraint_modal.cancel')}
+          </button>
           <button onClick={onAddConstraint} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            {isEditMode ? 'Speichern' : 'Hinzufügen'}
+            {isEditMode ? t('constraint_modal.save') : t('constraint_modal.add')}
           </button>
         </div>
       </div>
