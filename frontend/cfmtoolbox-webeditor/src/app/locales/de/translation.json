@@ -48,6 +48,7 @@
   "main": {
     "addFeature": "Feature hinzufügen",
     "exportJson": "Als JSON exportieren",
+    "exportUVL": "Als UVL exportieren",
     "createChild": "Kind erstellen",
     "createSibling": "Geschwister erstellen"
   }
