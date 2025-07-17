@@ -7,11 +7,21 @@ import subprocess
 import aiofiles
 from fastapi import BackgroundTasks, FastAPI, Response, UploadFile, status
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from .types import CFMJson
 from .utils import EnhancedJSONEncoder
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://193.196.37.174",
+    ],
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 
 @app.post("/convert/tojson/{file_type}/", status_code=214)  # 214 - Transformation applied
