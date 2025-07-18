@@ -29,9 +29,9 @@ import { exportFeatureModel } from "./components/ExportFeatureModel";
 import { importFeatureModel } from "./components/ImportFeatureModel";
 import "./i18n";
 import { useTranslation } from "react-i18next";
-import { request } from "http";
 
-const CFM_TOOLBOX_BACKEND = process.env.NEXT_PUBLIC_CFM_TOOLBOX_BACKEND || "http://localhost:3001";
+const CFM_TOOLBOX_BACKEND = "http://193.196.37.174:3001";
+// TODO: Make this configurable
 
 
 const nodeTypes = {

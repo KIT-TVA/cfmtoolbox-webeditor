@@ -9,6 +9,3 @@ services:
       - "80:3000"
     depends_on:
       - backend
-    environment:
-      NEXT_PUBLIC_CFM_TOOLBOX_BACKEND: http://193.196.37.174:3001
-    
