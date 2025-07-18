@@ -29,6 +29,10 @@ import { exportFeatureModel } from "./components/ExportFeatureModel";
 import { importFeatureModel } from "./components/ImportFeatureModel";
 import "./i18n";
 import { useTranslation } from "react-i18next";
+import { request } from "http";
+
+const CFM_TOOLBOX_BACKEND = process.env.NEXT_PUBLIC_CFM_TOOLBOX_BACKEND || "http://localhost:3001";
+
 
 const nodeTypes = {
   feature: FeatureNode,
@@ -651,6 +655,28 @@ export default function FeatureModelEditor() {
     document.body.removeChild(link);
   };
 
+  const handleUvlExport = () => {
+    const json = exportFeatureModel(nodes, constraints);
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json,
+    };
+    fetch(CFM_TOOLBOX_BACKEND+"/convert/fromjson/uvl/",requestOptions)
+    .then(response => response.blob()
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "model.uvl";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }));
+
+  }
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -676,9 +702,15 @@ export default function FeatureModelEditor() {
       </button>
       <button
         onClick={handleExport}
-        className="absolute top-2 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
+        className="absolute top-12 left-20 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
       >
         {t("main.exportJson")}
+      </button>
+      <button
+        onClick={handleUvlExport}
+        className="absolute top-2 left-24 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
+      >
+        {t('main.exportUvl')}
       </button>
       <input type="file" accept=".json" onChange={handleImport} />
       {isNodeMenuOpen && nodeMenuPosition && (
