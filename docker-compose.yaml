@@ -3,6 +3,8 @@ services:
     image: ghcr.io/kit-tva/cfmtoolbox-webeditor-backend:main
     ports:
       - "3001:8000"
+    environment:
+      NEXT_PUBLIC_CFM_TOOLBOX_BACKEND: http://193.196.37.174:3001
   frontend:
     image: ghcr.io/kit-tva/cfmtoolbox-webeditor-frontend:main
     ports:
