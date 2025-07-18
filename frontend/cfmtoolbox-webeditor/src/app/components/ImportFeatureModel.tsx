@@ -1,5 +1,31 @@
-import { Node, Edge } from "reactflow";
-import { Constraint } from "./types";
+
+import { Constraint } from "./Constraints";
+
+type Node = {
+  id: string,
+  type: string,
+  position: { x: number, y: number },
+  data: {
+    label: string,
+    featureInstanceCardinalityMin: string,
+    featureInstanceCardinalityMax: string,
+    groupTypeCardinalityMin: string,
+    groupTypeCardinalityMax: string,
+    groupInstanceCardinalityMin: string,
+    groupInstanceCardinalityMax: string,
+    parentId: string,
+  },
+};
+
+type Edge = {
+  id: string,
+  source: string,
+  target: string,
+  type: string,
+  data: {
+    cardinality: string,
+  },
+};
 
 export function importFeatureModel(json: any): {
   nodes: Node[];
@@ -46,7 +72,6 @@ export function importFeatureModel(json: any): {
         label: feature.name,
         featureInstanceCardinalityMin: fMin,
         featureInstanceCardinalityMax: fMax,
-        showGroupArc: false,
         groupTypeCardinalityMin: gtMin,
         groupTypeCardinalityMax: gtMax,
         groupInstanceCardinalityMin: giMin,

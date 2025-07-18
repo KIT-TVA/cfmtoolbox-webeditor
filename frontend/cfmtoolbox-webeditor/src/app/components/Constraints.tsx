@@ -2,7 +2,7 @@ import React from "react";
 import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
 import { useTranslation } from "react-i18next";
 
-interface Constraint {
+export interface Constraint {
   id: string;
   source: string;
   target: string;
