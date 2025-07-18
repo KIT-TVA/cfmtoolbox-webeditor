@@ -1,12 +1,9 @@
-import React, { useState } from "react";
-import { Handle, Position, NodeToolbar } from "@xyflow/react";
+import { Handle, Position } from "@xyflow/react";
 
 type FeatureNodeData = {
   label: string;
   featureInstanceCardinalityMin: string;
   featureInstanceCardinalityMax: string;
-  forceToolbarVisible: boolean;
-  showGroupArc: boolean;
   groupTypeCardinalityMin?: string;
   groupTypeCardinalityMax?: string;
   groupInstanceCardinalityMin?: string;
@@ -15,15 +12,6 @@ type FeatureNodeData = {
 };
 
 const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
-  const [label, setLabel] = useState(data.label);
-  const width = 160;
-  const arcHeight = 30;
-
-  /*const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLabel(e.target.value);
-    data.label = e.target.value;
-  };*/
-
   return (
     <div className="p-2 border-2 rounded-lg shadow bg-white relative">
       <div className="font-bold text-blue-700">{data.label}</div>
@@ -38,26 +26,6 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
 
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
-
-      {data.showGroupArc && (
-        <svg
-          style={{
-            position: "absolute",
-            left: 0,
-            top: "100%",
-            width: "100%",
-            height: arcHeight,
-            pointerEvents: "none",
-          }}
-        >
-          <path
-            d={`M10,${arcHeight} Q${width / 2},0 ${width - 10},${arcHeight}`}
-            stroke="black"
-            fill="transparent"
-            strokeWidth={2}
-          />
-        </svg>
-      )}
 
       <div
         style={{
