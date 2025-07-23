@@ -1,57 +1,65 @@
 {
-  "feature_modal": {
-    "editTitle": "Edit Feature",
-    "addTitle": "Add New Feature",
-    "name": "Name",
-    "nameRequired": "Name is required.",
-    "min": "Min",
-    "max": "Max",
-    "featureInstanceCardinality": "Feature Instance Cardinality",
-    "groupTypeCardinality": "Group Type Cardinality",
-    "groupInstanceCardinality": "Group Instance Cardinality",
-    "parentFeature": "Parent Feature",
-    "parentRequired": "Parent Feature is required.",
-    "select": "--Please select--",
-    "cancel": "Cancel",
-    "save": "Save",
-    "add": "Add",
-    "cardinalityRequired": "Feature instance cardinality is required."
-  },
-  "constraint_modal": {
-    "editTitle": "Edit Constraint",
-    "addTitle": "Add Constraint",
-    "feature1": "Feature 1",
-    "feature2": "Feature 2",
-    "select": "Select...",
-    "feature1Error": "Feature 1 is required.",
-    "feature2Error": "Feature 2 is required.",
-    "cardinality": "Cardinality",
-    "min": "Min",
-    "max": "Max",
-    "cardinalityError": "Cardinality is required.",
-    "relation": "Relation",
-    "requires": "requires",
-    "excludes": "excludes",
-    "cancel": "Cancel",
-    "save": "Save",
-    "add": "Add"
-  },
-  "constraints": {
-    "title": "Constraints",
-    "add": "Add Constraint",
-    "noConstraints": "No constraints available.",
-    "relation": {
-      "requires": "requires",
-      "excludes": "excludes"
+    "feature_modal": {
+        "editTitle": "Edit Feature",
+        "addTitle": "Add New Feature",
+        "name": "Name",
+        "nameRequired": "Name is required.",
+        "min": "Min",
+        "max": "Max",
+        "featureInstanceCardinality": "Feature Instance Cardinality",
+        "groupTypeCardinality": "Group Type Cardinality",
+        "groupInstanceCardinality": "Group Instance Cardinality",
+        "parentFeature": "Parent Feature",
+        "parentRequired": "Parent Feature is required.",
+        "select": "--Please select--",
+        "cancel": "Cancel",
+        "save": "Save",
+        "add": "Add",
+        "cardinalityRequired": "Feature instance cardinality is required."
+    },
+    "constraint_modal": {
+        "editTitle": "Edit Constraint",
+        "addTitle": "Add Constraint",
+        "feature1": "Feature 1",
+        "feature2": "Feature 2",
+        "select": "Select...",
+        "feature1Error": "Feature 1 is required.",
+        "feature2Error": "Feature 2 is required.",
+        "cardinality": "Cardinality",
+        "min": "Min",
+        "max": "Max",
+        "cardinalityError": "Cardinality is required.",
+        "relation": "Relation",
+        "requires": "requires",
+        "excludes": "excludes",
+        "cancel": "Cancel",
+        "save": "Save",
+        "add": "Add"
+    },
+    "constraints": {
+        "title": "Constraints",
+        "add": "Add Constraint",
+        "noConstraints": "No constraints available.",
+        "relation": {
+            "requires": "requires",
+            "excludes": "excludes"
+        }
+    },
+    "main": {
+        "addFeature": "Add Feature",
+        "importError": "Error importing UVL file",
+        "exportError": "Error exporting UVL file",
+        "import": "Import",
+        "export": "Export",
+        "importJson": "Import as JSON",
+        "importUvl": "Import as UVL",
+        "exportJson": "Export as JSON",
+        "exportUvl": "Export as UVL",
+        "createChild": "Create Child",
+        "createSibling": "Create Sibling"
+    },
+    "error_modal": {
+        "title": "Error",
+        "close": "Close"
     }
-  },
-  "main": {
-    "addFeature": "Add Feature",
-    "exportJson": "Export as JSON",
-    "exportUvl": "Export as UVL",
-    "createChild": "Create Child",
-    "createSibling": "Create Sibling"
-  }
 }
-
-
