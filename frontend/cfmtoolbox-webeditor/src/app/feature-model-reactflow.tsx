@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -16,7 +16,7 @@ import {
   getNodesBounds,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
+import { BsFillTrashFill, BsFillPencilFill, BsThreeDotsVertical } from "react-icons/bs";
 
 import FeatureNode from "./components/FeatureNode";
 import RootNode from "./components/RootNode";
@@ -29,6 +29,7 @@ import { exportFeatureModel } from "./components/ExportFeatureModel";
 import { importFeatureModel } from "./components/ImportFeatureModel";
 import "./i18n";
 import { useTranslation } from "react-i18next";
+import ErrorModal from "./components/Error";
 
 const CFM_TOOLBOX_BACKEND = "http://193.196.37.174:3001";
 // TODO: Make this configurable
@@ -163,8 +164,16 @@ export default function FeatureModelEditor() {
     y: number;
     id?: string;
   } | null>(null);
-
   const { t } = useTranslation();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [submenuOpenImport, setSubmenuImportOpen] = useState(false);
+  const [submenuOpenExport, setSubmenuExportOpen] = useState(false);
+  const fileInputRefUvl = useRef<HTMLInputElement>(null);
+  const fileInputRefJson = useRef<HTMLInputElement>(null);
+  const [errorModalOpen, setErrorModalOpen] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState("");
+
+
 
   const addConstraint = ({
     source,
@@ -344,20 +353,20 @@ export default function FeatureModelEditor() {
       prevNodes.map((node) =>
         node.id === selectedNode.id
           ? {
-              ...node,
-              position: { x: positionX, y: positionY },
-              data: {
-                ...node.data,
-                label: newFeatureName,
-                featureInstanceCardinalityMin,
-                featureInstanceCardinalityMax,
-                groupTypeCardinalityMin,
-                groupTypeCardinalityMax,
-                groupInstanceCardinalityMin,
-                groupInstanceCardinalityMax,
-                parentId,
-              },
-            }
+            ...node,
+            position: { x: positionX, y: positionY },
+            data: {
+              ...node.data,
+              label: newFeatureName,
+              featureInstanceCardinalityMin,
+              featureInstanceCardinalityMax,
+              groupTypeCardinalityMin,
+              groupTypeCardinalityMax,
+              groupInstanceCardinalityMin,
+              groupInstanceCardinalityMax,
+              parentId,
+            },
+          }
           : node
       )
     );
@@ -492,15 +501,15 @@ export default function FeatureModelEditor() {
       prev.map((c) =>
         c.id === editConstraintId
           ? {
-              ...c,
-              source: feature1,
-              target: feature2,
-              relation,
-              card1Min,
-              card1Max,
-              card2Min,
-              card2Max,
-            }
+            ...c,
+            source: feature1,
+            target: feature2,
+            relation,
+            card1Min,
+            card1Max,
+            card2Min,
+            card2Max,
+          }
           : c
       )
     );
@@ -665,14 +674,14 @@ export default function FeatureModelEditor() {
       body: json,
     };
     let blob;
-    const resp = await fetch(CFM_TOOLBOX_BACKEND+"/convert/fromjson/uvl/",requestOptions)
+    const resp = await fetch(CFM_TOOLBOX_BACKEND + "/convert/fromjson/uvl/", requestOptions)
     if (resp.ok) {
-        blob = await resp.blob()
-      } else {
-        alert("Error exporting UVL file: " + resp.statusText);
-        //TODO: Display CFM Toolbox error message in UI (e.g. in a modal)
-        return;
-      }
+      blob = await resp.blob()
+    } else {
+      setErrorMessage(t("main.exportError") + ": " + resp.statusText);
+      setErrorModalOpen(true);
+      return;
+    }
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -680,11 +689,12 @@ export default function FeatureModelEditor() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    };
+  };
 
-  
+
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log("Importing file:", file);
     if (!file) return;
 
     const text = await file.text();
@@ -697,66 +707,152 @@ export default function FeatureModelEditor() {
     setConstraints(constraints);
   };
   const handleUvlImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("featuremodel", file);
-    const requestOptions = {
-      method: 'POST',
-      body: formData
-    };
-    try {
-      const resp = await fetch(CFM_TOOLBOX_BACKEND+"/convert/tojson/uvl/",requestOptions)
-      if (resp.ok) {
-        const json = await resp.json()
-        const { nodes, edges, constraints } = importFeatureModel(json);
-        setNodes(nodes);
-        setEdges(edges);
-        setConstraints(constraints);
-      }
-    else {
-        alert("Error importing UVL file: " + resp.statusText);
-        //TODO: Display CFM Toolbox error message in UI (e.g. in a modal)
-        const errorText = await resp.text();
-        console.error("Error importing UVL file:", errorText);
-      }
-    }catch (error) {
-      console.error("Error importing UVL file:", error);
-      alert("Error importing UVL file: " + error);
-      return;
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("featuremodel", file);
+
+  const requestOptions = {
+    method: 'POST',
+    body: formData,
+  };
+
+  try {
+    const resp = await fetch(CFM_TOOLBOX_BACKEND + "/convert/tojson/uvl/", requestOptions);
+    if (resp.ok) {
+      const json = await resp.json();
+      const { nodes, edges, constraints } = importFeatureModel(json);
+      setNodes(nodes);
+      setEdges(edges);
+      setConstraints(constraints);
+    } else {
+      const errorText = await resp.text();
+      setErrorMessage(t("main.importError") + ": " + resp.statusText);
+      setErrorModalOpen(true);
+      console.error("Error importing UVL file:", errorText);
     }
+  } catch (error) {
+    setErrorMessage(t("main.importError") + ": "+ error);
+    setErrorModalOpen(true);
+    console.error("Error importing UVL file:", error);
   }
-    
+};
+
+
 
   return (
     <div className="flex flex-col h-screen">
-      {" "}
-      <button
-        onClick={openAddFeatureModal}
-        className="bg-blue-600 text-white rounded shadow"
-      >
-        {t("main.addFeature")}
-      </button>
-      <button
-        onClick={handleExport}
-        className="bg-blue-600 text-white rounded shadow"
-      >
-        {t("main.exportJson")}
-      </button>
-      <button
-        onClick={handleUvlExport}
-        className="bg-blue-600 text-white rounded shadow"
-      >
-        {t('main.exportUvl')}
-      </button>
-      <div>
-      Import JSON:
-      <input type="file" accept=".json" onChange={handleImport} />
+      <input
+        type="file"
+        accept=".json"
+        ref={fileInputRefJson}
+        onChange={handleImport}
+        className="hidden"
+      />
+      <input
+        type="file"
+        accept=".uvl"
+        ref={fileInputRefUvl}
+        onChange={handleUvlImport}
+        className="hidden"
+      />
+      <div className="flex justify-between items-center p-4">
+        <button
+          onClick={openAddFeatureModal}
+          className="bg-blue-600 text-white rounded shadow p-2"
+        >
+          {t("main.addFeature")}
+        </button>
+        <button
+          onClick={() => {
+            setIsDropdownOpen(!isDropdownOpen);
+            setSubmenuImportOpen(false);
+            setSubmenuExportOpen(false);
+          }}
+          className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"
+        >
+          <BsThreeDotsVertical size={24} />
+        </button>
+
+        {isDropdownOpen && (
+          <div className="absolute right-4 top-12 w-40 bg-white border border-gray-200 rounded shadow-md z-[9999] pointer-events-auto ">
+            <ul className="py-1 relative">
+              <li
+                className="px-4 py-2 hover:bg-gray-100"
+                onMouseEnter={() => setSubmenuImportOpen(true)}
+                onMouseLeave={() => setSubmenuImportOpen(false)}
+              >
+                {t("main.import")}
+
+                {/* Submenu Import */}
+                {submenuOpenImport && (
+                  <ul className="absolute right-full top-0 mr-1 w-48 bg-white border border-gray-200 rounded shadow-md z-auto">
+                    <li>
+                      <button
+                        onClick={() => fileInputRefJson.current?.click()}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      >
+                        {t("main.importJson")}
+                      </button>
+
+                    </li>
+
+                    <li>
+                      <button
+                        onClick={() => fileInputRefUvl.current?.click()}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      >
+                        {t("main.importUvl")}
+                      </button>
+
+                    </li>
+
+                  </ul>
+                )}
+
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 "
+                onMouseEnter={() => setSubmenuExportOpen(true)}
+                onMouseLeave={() => setSubmenuExportOpen(false)}
+              >
+                {t("main.export")}
+
+                {/* Submenu Export */}
+                {submenuOpenExport && (
+                  <ul className="absolute right-full top-0 mr-1 w-48 bg-white border border-gray-200 rounded shadow-md z-auto">
+                    <li>
+                      <button
+                        onClick={handleExport}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      >
+                        {t("main.exportJson")}
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={handleUvlExport}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      >
+                        {t("main.exportUvl")}
+                      </button>
+                    </li>
+
+
+                  </ul>
+                )}
+
+              </li>
+
+            </ul>
+          </div>
+        )}
       </div>
-      <div>
-      Import UVL:
-      <input type="file" accept=".uvl" onChange={handleUvlImport} />
-      </div>
+
+
+
+
       {isNodeMenuOpen && nodeMenuPosition && (
         <div
           style={{
@@ -867,7 +963,7 @@ export default function FeatureModelEditor() {
             edgeTypes={edgeTypes}
             fitView
             onNodeClick={handleNodeClick}
-            //onNodesChange={onNodesChange}
+          //onNodesChange={onNodesChange}
           >
             <MiniMap />
             <Controls />
@@ -918,6 +1014,11 @@ export default function FeatureModelEditor() {
         nodes={nodes}
         isEditMode={!!editConstraintId}
       />
+      <ErrorModal
+      isOpen={errorModalOpen}
+      message={errorMessage}
+      onClose={() => setErrorModalOpen(false)}
+    />
     </div>
   );
 }
