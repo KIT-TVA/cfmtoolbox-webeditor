@@ -42,7 +42,13 @@ async def receive_uvl_file(featuremodel: UploadFile) -> dict:
     async with aiofiles.open(filename, "wb") as out_file:
         while content := await featuremodel.read(1024):  # Read in 1024b chunks
             await out_file.write(content)
-    call_cfm_toolbox_conversion(filename, result_filename)
+    try:
+        call_cfm_toolbox_conversion(filename, result_filename)
+    except RuntimeError as e:
+        return Response(
+            content=f"Error during conversion: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
     async with aiofiles.open(result_filename, "rb") as result_file:
         content = await result_file.read()
     featuremodel_json = json.loads(content)
@@ -76,7 +82,13 @@ async def create_uvl_file(featuremodel: CFMJson, background_tasks: BackgroundTas
     result_filename = filename.replace(".json", ".uvl")
     async with aiofiles.open(filename, "w") as out_file:
         await out_file.write(json.dumps(featuremodel, cls=EnhancedJSONEncoder))
-    call_cfm_toolbox_conversion(filename, result_filename)
+    try:
+        call_cfm_toolbox_conversion(filename, result_filename)
+    except RuntimeError as e:
+        return Response(
+            content=f"Error during conversion: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     # Cleanup temp files
     background_tasks.add_task(
@@ -100,7 +112,11 @@ def call_cfm_toolbox_conversion(input_file: str, output_file: str) -> None:
     """
     Call the cfmtoolbox command line tool to convert files.
     """
-    subprocess.run(
-        ["cfmtoolbox", "--import", input_file, "--export", output_file, "convert"],
-        check=True,
-    )
+    try:
+        subprocess.run(
+            ["cfmtoolbox", "--import", input_file, "--export", output_file, "convert"],
+            check=True,
+            capture_output=True,
+        )
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Error during conversion: {e.stderr.decode()}") from e
