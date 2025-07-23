@@ -48,7 +48,7 @@
   "main": {
     "addFeature": "Add Feature",
     "exportJson": "Export as JSON",
-    "exportUVL": "Export as UVL",
+    "exportUvl": "Export as UVL",
     "createChild": "Create Child",
     "createSibling": "Create Sibling"
   }
