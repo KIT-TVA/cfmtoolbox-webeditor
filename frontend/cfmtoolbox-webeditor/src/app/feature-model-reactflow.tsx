@@ -30,7 +30,7 @@ import { importFeatureModel } from "./components/ImportFeatureModel";
 import "./i18n";
 import { useTranslation } from "react-i18next";
 
-const CFM_TOOLBOX_BACKEND = "http://193.196.37.174:3001";
+const CFM_TOOLBOX_BACKEND = "http://localhost:3001";
 // TODO: Make this configurable
 
 
@@ -655,7 +655,7 @@ export default function FeatureModelEditor() {
     document.body.removeChild(link);
   };
 
-  const handleUvlExport = () => {
+  const handleUvlExport = async () => {
     const json = exportFeatureModel(nodes, constraints);
     const requestOptions = {
       method: 'POST',
@@ -664,19 +664,25 @@ export default function FeatureModelEditor() {
       },
       body: json,
     };
-    fetch(CFM_TOOLBOX_BACKEND+"/convert/fromjson/uvl/",requestOptions)
-    .then(response => response.blob()
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "model.uvl";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }));
+    let blob;
+    const resp = await fetch(CFM_TOOLBOX_BACKEND+"/convert/fromjson/uvl/",requestOptions)
+    if (resp.ok) {
+        blob = await resp.blob()
+      } else {
+        alert("Error exporting UVL file: " + resp.statusText);
+        //TODO: Display CFM Toolbox error message in UI (e.g. in a modal)
+        return;
+      }
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "model.uvl";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    };
 
-  }
+  
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -690,29 +696,67 @@ export default function FeatureModelEditor() {
     setEdges(edges);
     setConstraints(constraints);
   };
+  const handleUvlImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("featuremodel", file);
+    const requestOptions = {
+      method: 'POST',
+      body: formData
+    };
+    try {
+      const resp = await fetch(CFM_TOOLBOX_BACKEND+"/convert/tojson/uvl/",requestOptions)
+      if (resp.ok) {
+        const json = await resp.json()
+        const { nodes, edges, constraints } = importFeatureModel(json);
+        setNodes(nodes);
+        setEdges(edges);
+        setConstraints(constraints);
+      }
+    else {
+        alert("Error importing UVL file: " + resp.statusText);
+        //TODO: Display CFM Toolbox error message in UI (e.g. in a modal)
+        const errorText = await resp.text();
+        console.error("Error importing UVL file:", errorText);
+      }
+    }catch (error) {
+      console.error("Error importing UVL file:", error);
+      alert("Error importing UVL file: " + error);
+      return;
+    }
+  }
+    
 
   return (
     <div className="flex flex-col h-screen">
       {" "}
       <button
         onClick={openAddFeatureModal}
-        className="absolute top-12 left-2 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
+        className="bg-blue-600 text-white rounded shadow"
       >
         {t("main.addFeature")}
       </button>
       <button
         onClick={handleExport}
-        className="absolute top-12 left-20 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
+        className="bg-blue-600 text-white rounded shadow"
       >
         {t("main.exportJson")}
       </button>
       <button
         onClick={handleUvlExport}
-        className="absolute top-2 left-24 z-10 px-4 py-1 bg-blue-600 text-white rounded shadow"
+        className="bg-blue-600 text-white rounded shadow"
       >
         {t('main.exportUvl')}
       </button>
+      <div>
+      Import JSON:
       <input type="file" accept=".json" onChange={handleImport} />
+      </div>
+      <div>
+      Import UVL:
+      <input type="file" accept=".uvl" onChange={handleUvlImport} />
+      </div>
       {isNodeMenuOpen && nodeMenuPosition && (
         <div
           style={{
