@@ -30,7 +30,7 @@ import { importFeatureModel } from "./components/ImportFeatureModel";
 import "./i18n";
 import { useTranslation } from "react-i18next";
 
-const CFM_TOOLBOX_BACKEND = "http://localhost:3001";
+const CFM_TOOLBOX_BACKEND = "http://193.196.37.174:3001";
 // TODO: Make this configurable
 
 
