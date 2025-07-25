@@ -35,6 +35,7 @@ import "./i18n";
 import { useTranslation } from "react-i18next";
 import ErrorModal from "./components/Error";
 import { exportFeatureModelImage } from "./components/exportImage";
+import { layoutFeatureModel } from "./components/LayoutFeatureModel";
 
 const CFM_TOOLBOX_BACKEND = "http://193.196.37.174:3001";
 // TODO: Make this configurable
@@ -749,6 +750,23 @@ export default function FeatureModelEditor() {
     }
   };
 
+  const handleLayoutFeatureModel = () => {
+    const flatNodes = nodes.map((node) => ({
+      id: node.id,
+      name: node.data.label,
+      parentId: node.data.parentId || null,
+    }));
+
+    const positions = layoutFeatureModel(flatNodes, NODE_WIDTH);
+
+    setNodes((nds) =>
+      nds.map((node) => ({
+        ...node,
+        position: positions[node.id],
+      }))
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <input
@@ -771,6 +789,12 @@ export default function FeatureModelEditor() {
           className="bg-blue-600 text-white rounded shadow p-2"
         >
           {t("main.addFeature")}
+        </button>
+        <button
+          onClick={handleLayoutFeatureModel}
+          className="bg-blue-600 text-white rounded shadow p-2"
+        >
+          {t("main.layoutModel")}
         </button>
         <button
           onClick={() => {
