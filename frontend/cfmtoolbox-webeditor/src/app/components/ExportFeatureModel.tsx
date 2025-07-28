@@ -39,6 +39,9 @@ export const exportFeatureModel = (
     ],
   });
 
+  // Helper: set of parentIds to check for leaf nodes
+  const parentIdSet = new Set<string>(nodes.map((node) => node.data.parentId));
+
   // Map node.id -> JSON node
   const nodeMap = new Map<string, any>();
   nodes.forEach((node) => {
@@ -48,14 +51,18 @@ export const exportFeatureModel = (
         node.data.featureInstanceCardinalityMin,
         node.data.featureInstanceCardinalityMax
       ),
-      group_type_cardinality: parseCardinality(
-        node.data.groupTypeCardinalityMin,
-        node.data.groupTypeCardinalityMax
-      ),
-      group_instance_cardinality: parseCardinality(
-        node.data.groupInstanceCardinalityMin,
-        node.data.groupInstanceCardinalityMax
-      ),
+      group_type_cardinality: parentIdSet.has(node.id)
+        ? parseCardinality(
+            node.data.groupTypeCardinalityMin,
+            node.data.groupTypeCardinalityMax
+          )
+        : { intervals: [] }, // If leaf, no group type cardinality
+      group_instance_cardinality: parentIdSet.has(node.id)
+        ? parseCardinality(
+            node.data.groupInstanceCardinalityMin,
+            node.data.groupInstanceCardinalityMax
+          )
+        : { intervals: [] }, // If leaf, no group instance cardinality
       children: [],
     });
   });

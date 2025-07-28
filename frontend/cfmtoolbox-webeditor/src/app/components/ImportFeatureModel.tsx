@@ -1,30 +1,29 @@
-
 import { Constraint } from "./Constraints";
 
 type Node = {
-  id: string,
-  type: string,
-  position: { x: number, y: number },
+  id: string;
+  type: string;
+  position: { x: number; y: number };
   data: {
-    label: string,
-    featureInstanceCardinalityMin: string,
-    featureInstanceCardinalityMax: string,
-    groupTypeCardinalityMin: string,
-    groupTypeCardinalityMax: string,
-    groupInstanceCardinalityMin: string,
-    groupInstanceCardinalityMax: string,
-    parentId: string,
-  },
+    label: string;
+    featureInstanceCardinalityMin: string;
+    featureInstanceCardinalityMax: string;
+    groupTypeCardinalityMin: string;
+    groupTypeCardinalityMax: string;
+    groupInstanceCardinalityMin: string;
+    groupInstanceCardinalityMax: string;
+    parentId: string;
+  };
 };
 
 type Edge = {
-  id: string,
-  source: string,
-  target: string,
-  type: string,
+  id: string;
+  source: string;
+  target: string;
+  type: string;
   data: {
-    cardinality: string,
-  },
+    cardinality: string;
+  };
 };
 
 export function importFeatureModel(json: any): {
@@ -42,25 +41,30 @@ export function importFeatureModel(json: any): {
     positionY: number,
     level: number
   ) {
+    const hasChildren = feature.children && feature.children.length > 0;
     const id = feature.name;
     const fMin =
       feature.instance_cardinality?.intervals?.[0]?.lower?.toString() ?? "0";
     const fMax =
       feature.instance_cardinality?.intervals?.[0]?.upper?.toString() ?? "*";
-    const gtMin =
-      feature.group_type_cardinality?.intervals?.[0]?.lower?.toString() ?? "0";
-    const gtMax =
-      feature.group_type_cardinality?.intervals?.[0]?.upper?.toString() ?? "*";
-    const giMin =
-      feature.group_instance_cardinality?.intervals?.[0]?.lower?.toString() ??
-      "0";
-    const giMax =
-      feature.group_instance_cardinality?.intervals?.[0]?.upper?.toString() ??
-      "*";
+    const gtMin = hasChildren
+      ? feature.group_type_cardinality?.intervals?.[0]?.lower?.toString() ?? "0"
+      : "";
+    const gtMax = hasChildren
+      ? feature.group_type_cardinality?.intervals?.[0]?.upper?.toString() ?? "*"
+      : "";
+    const giMin = hasChildren
+      ? feature.group_instance_cardinality?.intervals?.[0]?.lower?.toString() ??
+        "0"
+      : "";
+    const giMax = hasChildren
+      ? feature.group_instance_cardinality?.intervals?.[0]?.upper?.toString() ??
+        "*"
+      : "";
 
     const nodeType = parentId === "0" ? "root" : "feature";
 
-    // 📝 Create Node
+    // Create Node
     const node: Node = {
       id,
       type: nodeType,
@@ -82,7 +86,7 @@ export function importFeatureModel(json: any): {
 
     nodes.push(node);
 
-    // 🔗 Create Edge (if not root)
+    // Create Edge (if not root)
     if (parentId !== "0") {
       const edge: Edge = {
         id: `e-${parentId}-${id}`,
@@ -96,7 +100,7 @@ export function importFeatureModel(json: any): {
       edges.push(edge);
     }
 
-    // 📦 Process children recursively
+    // Process children recursively
     feature.children?.forEach((child: any, index: number) => {
       const childX = positionX + index * 250; // simple horizontal spacing
       const childY = positionY + 150; // simple vertical spacing
@@ -104,10 +108,10 @@ export function importFeatureModel(json: any): {
     });
   }
 
-  // 🌳 Start with root
+  // Start with root
   processFeature(json.root, "0", 0, 0, 0);
 
-  // 📜 Process constraints
+  // Process constraints
   const constraints: Constraint[] = (json.constraints ?? []).map((c: any) => ({
     id: `${c.first_feature_name}-${c.second_feature_name}`,
     source: c.first_feature_name,
