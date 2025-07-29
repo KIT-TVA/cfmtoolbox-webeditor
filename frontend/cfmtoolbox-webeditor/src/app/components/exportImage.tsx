@@ -21,7 +21,7 @@ export async function exportFeatureModelImage({
   format?: "png" | "svg";
   fileName?: string;
 }) {
-  const container = containerRef.current;
+const container = containerRef.current?.querySelector('.react-flow__viewport') as HTMLElement;
   if (!container) {
     console.error("Container reference not found");
     return;
@@ -32,40 +32,30 @@ export async function exportFeatureModelImage({
   constraintDiv.style.fontFamily = "monospace";
   constraintDiv.style.fontSize = "0.8rem";
 
-  const listHtml = constraints
-    .map((c) => {
-      const sourceLabel = nodes.find((node) => node.id === c.source)?.data.label || c.source;
-      const targetLabel = nodes.find((node) => node.id === c.target)?.data.label || c.target;
-      const relationText = c.relation
+ const constraintText = constraints
+  .map((c) => {
+    const sourceLabel = nodes.find((node) => node.id === c.source)?.data.label || c.source;
+    const targetLabel = nodes.find((node) => node.id === c.target)?.data.label || c.target;
+    const relationText = c.relation;
 
-      return `
-      <li style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: white;
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-family: sans-serif;
-        font-size: 0.875rem;
-      ">
-        <span>
-          ${sourceLabel} &lt;${c.card1Min}..${c.card1Max}&gt;
-          <strong style="margin: 0 0.25rem;">${relationText}</strong>
-          ${targetLabel} &lt;${c.card2Min}..${c.card2Max}&gt;
-        </span>
-      </li>
-    `;
-    })
-    .join("");
+    return `${sourceLabel} <${c.card1Min}..${c.card1Max}> ${relationText} ${targetLabel} <${c.card2Min}..${c.card2Max}>`;
+  })
+  .join("<br>");
 
-  constraintDiv.innerHTML = `
-  <h3 style="font-family: sans-serif; font-size: 1rem; margin-bottom: 0.5rem;">Constraints:</h3>
-  <ul style="display: flex; flex-direction: column; gap: 0.5rem;">
-    ${listHtml}
-  </ul>
+constraintDiv.innerHTML = `
+  <div style="
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1rem;
+    background: transparent;
+    margin-top: 2rem;
+  ">
+    <h3 style="margin-bottom: 1rem;">Constraints:</h3>
+    ${constraintText}
+  </div>
 `;
+
 
 
   const originalTransform = container.style.transform;
