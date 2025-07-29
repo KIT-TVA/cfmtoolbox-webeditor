@@ -1,11 +1,13 @@
 import { toPng, toSvg } from "html-to-image";
 
 export async function exportFeatureModelImage({
+  nodes,
   containerRef,
   constraints,
   format = "png",
   fileName = "feature-model",
 }: {
+  nodes: any[],
   containerRef: React.RefObject<HTMLElement>;
   constraints: {
     source: string;
@@ -30,17 +32,41 @@ export async function exportFeatureModelImage({
   constraintDiv.style.fontFamily = "monospace";
   constraintDiv.style.fontSize = "0.8rem";
 
+  const listHtml = constraints
+    .map((c) => {
+      const sourceLabel = nodes.find((node) => node.id === c.source)?.data.label || c.source;
+      const targetLabel = nodes.find((node) => node.id === c.target)?.data.label || c.target;
+      const relationText = c.relation
+
+      return `
+      <li style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        font-family: sans-serif;
+        font-size: 0.875rem;
+      ">
+        <span>
+          ${sourceLabel} &lt;${c.card1Min}..${c.card1Max}&gt;
+          <strong style="margin: 0 0.25rem;">${relationText}</strong>
+          ${targetLabel} &lt;${c.card2Min}..${c.card2Max}&gt;
+        </span>
+      </li>
+    `;
+    })
+    .join("");
+
   constraintDiv.innerHTML = `
-    <h3>Constraints:</h3>
-    <ul>
-      ${constraints
-        .map(
-          (c) =>
-            `<li>${c.source} ${c.relation} ${c.target} (${c.card1Min}..${c.card1Max}) → (${c.card2Min}..${c.card2Max})</li>`
-        )
-        .join("")}
-    </ul>
-  `;
+  <h3 style="font-family: sans-serif; font-size: 1rem; margin-bottom: 0.5rem;">Constraints:</h3>
+  <ul style="display: flex; flex-direction: column; gap: 0.5rem;">
+    ${listHtml}
+  </ul>
+`;
+
 
   const originalTransform = container.style.transform;
   const originalTransformOrigin = container.style.transformOrigin; // Neu hinzugefügt
@@ -79,11 +105,10 @@ export async function exportFeatureModelImage({
       cacheBust: true,
       skipFonts: true,
       backgroundColor: "#ffffff",
-      // Es kann hilfreich sein, `width` und `height` basierend auf dem `scrollWidth`/`scrollHeight`
-      // des Containers nach dem Hinzufügen der Constraints zu setzen, um den gesamten Inhalt zu erfassen.
-      // width: container.scrollWidth,
-      // height: container.scrollHeight,
+      width: container.scrollWidth,
+      height: container.scrollHeight,
     };
+
 
     if (format === "png") {
       const dataUrl = await toPng(container, commonOptions);

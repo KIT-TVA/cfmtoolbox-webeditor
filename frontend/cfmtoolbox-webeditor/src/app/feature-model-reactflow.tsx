@@ -178,6 +178,9 @@ export default function FeatureModelEditor() {
   const [errorModalOpen, setErrorModalOpen] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const exportWrapperRef = useRef<HTMLDivElement>(null);
+
+
 
   const addConstraint = ({
     source,
@@ -287,6 +290,7 @@ export default function FeatureModelEditor() {
       },
     };
 
+
     setNodes((nds) => [...nds, newNode]);
     setEdges((eds) => [...eds, newEdge]);
     setIsModalOpen(false);
@@ -357,20 +361,20 @@ export default function FeatureModelEditor() {
       prevNodes.map((node) =>
         node.id === selectedNode.id
           ? {
-              ...node,
-              position: { x: positionX, y: positionY },
-              data: {
-                ...node.data,
-                label: newFeatureName,
-                featureInstanceCardinalityMin,
-                featureInstanceCardinalityMax,
-                groupTypeCardinalityMin,
-                groupTypeCardinalityMax,
-                groupInstanceCardinalityMin,
-                groupInstanceCardinalityMax,
-                parentId,
-              },
-            }
+            ...node,
+            position: { x: positionX, y: positionY },
+            data: {
+              ...node.data,
+              label: newFeatureName,
+              featureInstanceCardinalityMin,
+              featureInstanceCardinalityMax,
+              groupTypeCardinalityMin,
+              groupTypeCardinalityMax,
+              groupInstanceCardinalityMin,
+              groupInstanceCardinalityMax,
+              parentId,
+            },
+          }
           : node
       )
     );
@@ -505,15 +509,15 @@ export default function FeatureModelEditor() {
       prev.map((c) =>
         c.id === editConstraintId
           ? {
-              ...c,
-              source: feature1,
-              target: feature2,
-              relation,
-              card1Min,
-              card1Max,
-              card2Min,
-              card2Max,
-            }
+            ...c,
+            source: feature1,
+            target: feature2,
+            relation,
+            card1Min,
+            card1Max,
+            card2Min,
+            card2Max,
+          }
           : c
       )
     );
@@ -870,8 +874,9 @@ export default function FeatureModelEditor() {
                       <button
                         onClick={() =>
                           exportFeatureModelImage({
+                            nodes,
                             containerRef:
-                              reactFlowWrapper as React.RefObject<HTMLElement>,
+                              exportWrapperRef as React.RefObject<HTMLElement>,
                             constraints,
                             format: "png",
                             fileName: "feature-model",
@@ -886,8 +891,9 @@ export default function FeatureModelEditor() {
                       <button
                         onClick={() =>
                           exportFeatureModelImage({
+                            nodes,
                             containerRef:
-                              reactFlowWrapper as React.RefObject<HTMLElement>,
+                              exportWrapperRef as React.RefObject<HTMLElement>,
                             constraints,
                             format: "svg",
                             fileName: "feature-model",
@@ -1003,34 +1009,38 @@ export default function FeatureModelEditor() {
         setFeatureInstanceMaxError={setFeatureInstanceMaxError}
         onDeleteFeature={handleDeleteFeature}
       />
-      <div ref={reactFlowWrapper} className="h-[80%] overflow-hidden">
-        {" "}
-        <ReactFlowProvider>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            fitView
-            onNodeClick={handleNodeClick}
+      <div ref={exportWrapperRef} className="h-[100%] overflow-hidden">
+        <div ref={reactFlowWrapper} className="h-[80%] overflow-hidden">
+          {" "}
+          <ReactFlowProvider>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
+              fitView
+              onNodeClick={handleNodeClick}
             //onNodesChange={onNodesChange}
-          >
-            <MiniMap />
-            <Controls />
-            <Background />
-          </ReactFlow>
-        </ReactFlowProvider>
-      </div>
-      <Constraint
-        constraints={constraints}
-        nodes={nodes}
-        onEdit={handleEditConstraint}
-        onDelete={handleDeleteConstraint}
-        onAddClick={handleAddConstraint}
-      />
+            >
+              <MiniMap />
+              <Controls />
+              <Background />
+            </ReactFlow>
+          </ReactFlowProvider>
+        </div>
+        </div>
+
+        <Constraint
+          constraints={constraints}
+          nodes={nodes}
+          onEdit={handleEditConstraint}
+          onDelete={handleDeleteConstraint}
+          onAddClick={handleAddConstraint}
+        />
+
       <AddConstraint
         isOpen={isConstraintModalOpen}
         onClose={() => {
