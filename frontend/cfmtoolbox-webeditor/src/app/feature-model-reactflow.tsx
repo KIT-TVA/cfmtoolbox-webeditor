@@ -1009,8 +1009,8 @@ export default function FeatureModelEditor() {
         setFeatureInstanceMaxError={setFeatureInstanceMaxError}
         onDeleteFeature={handleDeleteFeature}
       />
-      <div ref={exportWrapperRef} className="h-[100%] overflow-hidden">
-        <div ref={reactFlowWrapper} className="h-[80%] overflow-hidden">
+      <div ref={exportWrapperRef} className="h-[80%] overflow-hidden">
+        <div ref={reactFlowWrapper} className="h-[100%] overflow-hidden">
           {" "}
           <ReactFlowProvider>
             <ReactFlow
