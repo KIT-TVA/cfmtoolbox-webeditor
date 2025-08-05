@@ -7,7 +7,7 @@ export async function exportFeatureModelImage({
   format = "png",
   fileName = "feature-model",
 }: {
-  nodes: any[],
+  nodes: any[];
   containerRef: React.RefObject<HTMLElement>;
   constraints: {
     source: string;
@@ -21,7 +21,9 @@ export async function exportFeatureModelImage({
   format?: "png" | "svg";
   fileName?: string;
 }) {
-const container = containerRef.current?.querySelector('.react-flow__viewport') as HTMLElement;
+  const container = containerRef.current?.querySelector(
+    ".react-flow__viewport"
+  ) as HTMLElement;
   if (!container) {
     console.error("Container reference not found");
     return;
@@ -32,17 +34,19 @@ const container = containerRef.current?.querySelector('.react-flow__viewport') a
   constraintDiv.style.fontFamily = "monospace";
   constraintDiv.style.fontSize = "0.8rem";
 
- const constraintText = constraints
-  .map((c) => {
-    const sourceLabel = nodes.find((node) => node.id === c.source)?.data.label || c.source;
-    const targetLabel = nodes.find((node) => node.id === c.target)?.data.label || c.target;
-    const relationText = c.relation;
+  const constraintText = constraints
+    .map((c) => {
+      const sourceLabel =
+        nodes.find((node) => node.id === c.source)?.data.label || c.source;
+      const targetLabel =
+        nodes.find((node) => node.id === c.target)?.data.label || c.target;
+      const relationText = c.relation;
 
-    return `${sourceLabel} <${c.card1Min}..${c.card1Max}> ${relationText} ${targetLabel} <${c.card2Min}..${c.card2Max}>`;
-  })
-  .join("<br>");
+      return `${sourceLabel} <${c.card1Min}..${c.card1Max}> ${relationText} ${targetLabel} <${c.card2Min}..${c.card2Max}>`;
+    })
+    .join("<br>");
 
-constraintDiv.innerHTML = `
+  constraintDiv.innerHTML = `
   <div style="
     font-family: sans-serif;
     font-size: 0.9rem;
@@ -55,8 +59,6 @@ constraintDiv.innerHTML = `
     ${constraintText}
   </div>
 `;
-
-
 
   const originalTransform = container.style.transform;
   const originalTransformOrigin = container.style.transformOrigin; // Neu hinzugefügt
@@ -81,7 +83,7 @@ constraintDiv.innerHTML = `
     });
 
     // Setze die Export-Stile
-    htmlPathElement.style.stroke = "black"; // Oder eine andere gewünschte Farbe
+    htmlPathElement.style.stroke = "grey"; // Oder eine andere gewünschte Farbe
     htmlPathElement.style.strokeWidth = "2px"; // Oder eine andere gewünschte Dicke
     htmlPathElement.style.opacity = "1"; // Sicherstellen, dass es sichtbar ist
   });
@@ -94,11 +96,10 @@ constraintDiv.innerHTML = `
     const commonOptions = {
       cacheBust: true,
       skipFonts: true,
-      backgroundColor: "#ffffff",
+      backgroundColor: "transparent",
       width: container.scrollWidth,
       height: container.scrollHeight,
     };
-
 
     if (format === "png") {
       const dataUrl = await toPng(container, commonOptions);
