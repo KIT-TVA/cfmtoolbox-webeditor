@@ -28,13 +28,13 @@ export default function Home() {
         <div className="flex flex-wrap gap-4 justify-center">
           <button
             className="text-lg px-6 py-3 bg-blue-600 text-white rounded shadow p-2"
-            onClick={() => router.push("editor")}
+            onClick={() => router.push("editor?mode=new")}
           >
             Start New Model
           </button>
           <button
             className="text-lg px-6 py-3 bg-blue-600 text-white rounded shadow p-2"
-            onClick={() => router.push("editor")}
+            onClick={() => router.push("editor?mode=demo")}
           >
             Try a Demo
           </button>

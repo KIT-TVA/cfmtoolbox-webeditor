@@ -20,7 +20,7 @@ export function layoutFeatureModel(
   flatNodes: FeatureNode[],
   maxNodeWidth: number
 ): Record<string, Point> {
-  const scaleText = 4;
+  const scaleText = 6;
   const pos: Record<string, Point> = {};
   const shift: Record<string, number> = {};
 
@@ -65,7 +65,7 @@ export function layoutFeatureModel(
   });
 
   function computeY(node: TreeFeature, depth: number) {
-    pos[node.id].y = depth * 100 + 50;
+    pos[node.id].y = 100 + depth * 150;
     node.children.forEach((child) => computeY(child, depth + 1));
   }
 
@@ -148,7 +148,7 @@ export function layoutFeatureModel(
 
   function computeX(node: TreeFeature) {
     if (!node.parent) {
-      pos[node.id].x = 400;
+      pos[node.id].x = 100;
     } else {
       const parent = node.parent;
       if (!pos[parent.id]) {

@@ -1,5 +1,6 @@
 "use client";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -36,6 +37,8 @@ import { useTranslation } from "react-i18next";
 import ErrorModal from "./components/Error";
 import { exportFeatureModelImage } from "./components/exportImage";
 import { layoutFeatureModel } from "./components/LayoutFeatureModel";
+import demoModel from "./demo/multiplayer (1).json";
+import { flushSync } from "react-dom";
 
 const CFM_TOOLBOX_BACKEND = "http://193.196.37.174:3001";
 // TODO: Make this configurable
@@ -51,13 +54,13 @@ const edgeTypes = {
 
 const initialNodes = [
   {
-    id: "1",
+    id: "root",
     type: "root",
     position: { x: 100, y: 100 },
     data: {
       label: "Root Feature",
       featureInstanceCardinalityMin: "1",
-      featureInstanceCardinalityMax: "0",
+      featureInstanceCardinalityMax: "1",
       groupTypeCardinalityMin: "1",
       groupTypeCardinalityMax: "*",
       groupInstanceCardinalityMin: "1",
@@ -66,33 +69,18 @@ const initialNodes = [
     },
   },
   {
-    id: "2",
+    id: "feature",
     type: "feature",
     position: { x: 100, y: 250 },
     data: {
-      label: "Sub Feature A",
-      featureInstanceCardinalityMin: "1",
-      featureInstanceCardinalityMax: "0",
+      label: "Feature",
+      featureInstanceCardinalityMin: "0",
+      featureInstanceCardinalityMax: "1",
       groupTypeCardinalityMin: "1",
       groupTypeCardinalityMax: "*",
       groupInstanceCardinalityMin: "1",
       groupInstanceCardinalityMax: "*",
-      parentId: "1",
-    },
-  },
-  {
-    id: "3",
-    type: "feature",
-    position: { x: 338, y: 250 },
-    data: {
-      label: "Sub Feature B",
-      featureInstanceCardinalityMin: "1",
-      featureInstanceCardinalityMax: "0",
-      groupTypeCardinalityMin: "1",
-      groupTypeCardinalityMax: "*",
-      groupInstanceCardinalityMin: "1",
-      groupInstanceCardinalityMax: "*",
-      parentId: "1",
+      parentId: "root",
     },
   },
 ];
@@ -100,21 +88,16 @@ const initialNodes = [
 const initialEdges = [
   {
     id: "e1-2",
-    source: "1",
-    target: "2",
-    type: "edge",
-    data: { cardinality: "1..*" },
-  },
-  {
-    id: "e1-3",
-    source: "1",
-    target: "3",
+    source: "root",
+    target: "feature",
     type: "edge",
     data: { cardinality: "1..*" },
   },
 ];
 
 export default function FeatureModelEditor() {
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode");
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -179,8 +162,27 @@ export default function FeatureModelEditor() {
   const [errorMessage, setErrorMessage] = React.useState("");
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const exportWrapperRef = useRef<HTMLDivElement>(null);
+  const [pendingLayout, setPendingLayout] = useState(false);
 
+  useEffect(() => {
+    if (mode === "demo") {
+      const { nodes, edges, constraints } = importFeatureModel(demoModel);
 
+      setNodes(nodes);
+      setEdges(edges);
+      setConstraints(constraints);
+      setPendingLayout(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  useEffect(() => {
+    if (pendingLayout) {
+      handleLayoutFeatureModel();
+      setPendingLayout(false);
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes, pendingLayout]);
 
   const addConstraint = ({
     source,
@@ -290,7 +292,6 @@ export default function FeatureModelEditor() {
       },
     };
 
-
     setNodes((nds) => [...nds, newNode]);
     setEdges((eds) => [...eds, newEdge]);
     setIsModalOpen(false);
@@ -361,20 +362,20 @@ export default function FeatureModelEditor() {
       prevNodes.map((node) =>
         node.id === selectedNode.id
           ? {
-            ...node,
-            position: { x: positionX, y: positionY },
-            data: {
-              ...node.data,
-              label: newFeatureName,
-              featureInstanceCardinalityMin,
-              featureInstanceCardinalityMax,
-              groupTypeCardinalityMin,
-              groupTypeCardinalityMax,
-              groupInstanceCardinalityMin,
-              groupInstanceCardinalityMax,
-              parentId,
-            },
-          }
+              ...node,
+              position: { x: positionX, y: positionY },
+              data: {
+                ...node.data,
+                label: newFeatureName,
+                featureInstanceCardinalityMin,
+                featureInstanceCardinalityMax,
+                groupTypeCardinalityMin,
+                groupTypeCardinalityMax,
+                groupInstanceCardinalityMin,
+                groupInstanceCardinalityMax,
+                parentId,
+              },
+            }
           : node
       )
     );
@@ -509,15 +510,15 @@ export default function FeatureModelEditor() {
       prev.map((c) =>
         c.id === editConstraintId
           ? {
-            ...c,
-            source: feature1,
-            target: feature2,
-            relation,
-            card1Min,
-            card1Max,
-            card2Min,
-            card2Max,
-          }
+              ...c,
+              source: feature1,
+              target: feature2,
+              relation,
+              card1Min,
+              card1Max,
+              card2Min,
+              card2Max,
+            }
           : c
       )
     );
@@ -715,6 +716,7 @@ export default function FeatureModelEditor() {
     setNodes(nodes);
     setEdges(edges);
     setConstraints(constraints);
+    setPendingLayout(true);
   };
   const handleUvlImport = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -741,6 +743,7 @@ export default function FeatureModelEditor() {
         setNodes(nodes);
         setEdges(edges);
         setConstraints(constraints);
+        setPendingLayout(true);
       } else {
         const errorText = await resp.text();
         setErrorMessage(t("main.importError") + ": " + resp.statusText);
@@ -1023,7 +1026,7 @@ export default function FeatureModelEditor() {
               edgeTypes={edgeTypes}
               fitView
               onNodeClick={handleNodeClick}
-            //onNodesChange={onNodesChange}
+              //onNodesChange={onNodesChange}
             >
               <MiniMap />
               <Controls />
@@ -1031,15 +1034,15 @@ export default function FeatureModelEditor() {
             </ReactFlow>
           </ReactFlowProvider>
         </div>
-        </div>
+      </div>
 
-        <Constraint
-          constraints={constraints}
-          nodes={nodes}
-          onEdit={handleEditConstraint}
-          onDelete={handleDeleteConstraint}
-          onAddClick={handleAddConstraint}
-        />
+      <Constraint
+        constraints={constraints}
+        nodes={nodes}
+        onEdit={handleEditConstraint}
+        onDelete={handleDeleteConstraint}
+        onAddClick={handleAddConstraint}
+      />
 
       <AddConstraint
         isOpen={isConstraintModalOpen}

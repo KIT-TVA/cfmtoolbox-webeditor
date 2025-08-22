@@ -109,7 +109,7 @@ export function importFeatureModel(json: any): {
   }
 
   // Start with root
-  processFeature(json.root, "0", 0, 0, 0);
+  processFeature(json.root, "0", 100, 100, 0);
 
   // Process constraints
   const constraints: Constraint[] = (json.constraints ?? []).map((c: any) => ({
