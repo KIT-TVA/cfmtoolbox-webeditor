@@ -7,7 +7,7 @@ export async function exportFeatureModelImage({
   format = "png",
   fileName = "feature-model",
 }: {
-  nodes: any[];
+  nodes: any[],
   containerRef: React.RefObject<HTMLElement>;
   constraints: {
     source: string;
@@ -21,9 +21,7 @@ export async function exportFeatureModelImage({
   format?: "png" | "svg";
   fileName?: string;
 }) {
-  const container = containerRef.current?.querySelector(
-    ".react-flow__viewport"
-  ) as HTMLElement;
+  const container = containerRef.current?.querySelector('.react-flow__viewport') as HTMLElement;
   if (!container) {
     console.error("Container reference not found");
     return;
@@ -36,10 +34,8 @@ export async function exportFeatureModelImage({
 
   const constraintText = constraints
     .map((c) => {
-      const sourceLabel =
-        nodes.find((node) => node.id === c.source)?.data.label || c.source;
-      const targetLabel =
-        nodes.find((node) => node.id === c.target)?.data.label || c.target;
+      const sourceLabel = nodes.find((node) => node.id === c.source)?.data.label || c.source;
+      const targetLabel = nodes.find((node) => node.id === c.target)?.data.label || c.target;
       const relationText = c.relation;
 
       return `${sourceLabel} <${c.card1Min}..${c.card1Max}> ${relationText} ${targetLabel} <${c.card2Min}..${c.card2Max}>`;
@@ -59,6 +55,8 @@ export async function exportFeatureModelImage({
     ${constraintText}
   </div>
 `;
+
+
 
   const originalTransform = container.style.transform;
   const originalTransformOrigin = container.style.transformOrigin; // Neu hinzugefügt
@@ -83,7 +81,7 @@ export async function exportFeatureModelImage({
     });
 
     // Setze die Export-Stile
-    htmlPathElement.style.stroke = "grey"; // Oder eine andere gewünschte Farbe
+    htmlPathElement.style.stroke = "black"; // Oder eine andere gewünschte Farbe
     htmlPathElement.style.strokeWidth = "2px"; // Oder eine andere gewünschte Dicke
     htmlPathElement.style.opacity = "1"; // Sicherstellen, dass es sichtbar ist
   });
@@ -93,13 +91,20 @@ export async function exportFeatureModelImage({
   container.appendChild(constraintDiv);
 
   try {
+    const bbox = getBoundingBox(nodes);
+
     const commonOptions = {
       cacheBust: true,
       skipFonts: true,
       backgroundColor: "transparent",
-      width: container.scrollWidth,
-      height: container.scrollHeight,
+      width: bbox.width + 1000,   // kleiner Padding
+      height: bbox.height + 1000,
+      style: {
+        transform: `translate(${-bbox.x + 25}px, ${-bbox.y + 25}px)`, // verschiebt nach links oben
+      },
     };
+
+
 
     if (format === "png") {
       const dataUrl = await toPng(container, commonOptions);
@@ -132,3 +137,23 @@ function downloadImage(dataUrl: string, name: string) {
   link.href = dataUrl;
   link.click();
 }
+
+function getBoundingBox(nodes: any[]) {
+  const xs = nodes.map((n) => n.position.x);
+  const ys = nodes.map((n) => n.position.y);
+  const widths = nodes.map((n) => n.position.x + (n.width ?? 0));
+  const heights = nodes.map((n) => n.position.y + (n.height ?? 0));
+
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const maxX = Math.max(...widths);
+  const maxY = Math.max(...heights);
+
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY,
+  };
+}
+
