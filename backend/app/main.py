@@ -26,6 +26,9 @@ app.add_middleware(
 
 @app.post("/convert/tojson/{file_type}/", status_code=214)  # 214 - Transformation applied
 async def convert_to_json(file_type: str, featuremodel: UploadFile):
+    """
+    Endpoint for converting the specified format to the CFM toolbox JSON format.
+    """
     match file_type:
         case "UVL" | "uvl":
             return await receive_uvl_file(featuremodel)
@@ -60,9 +63,9 @@ async def receive_uvl_file(featuremodel: UploadFile) -> dict:
 
 
 @app.post("/convert/fromjson/{file_type}/", status_code=214)  # 214 - Transformation applied
-async def convert_to_uvl(file_type: str, featuremodel: CFMJson, background_tasks: BackgroundTasks):
+async def convert_from_json(file_type: str, featuremodel: CFMJson, background_tasks: BackgroundTasks):
     """
-    Endpoint for converting from JSON to UVL format.
+    Endpoint for converting from the CFM toolbox JSON to the specified format.
     """
     match file_type:
         case "UVL" | "uvl":
