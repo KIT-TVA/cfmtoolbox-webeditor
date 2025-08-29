@@ -39,7 +39,7 @@ async def uvl_file_to_json(featuremodel: UploadFile) -> Response:
     os.remove(filename)
     os.remove(result_filename)
 
-    return Response(content=featuremodel_json, status_code=214, media_type="application/json")
+    return Response(content=json.dumps(featuremodel_json), status_code=214, media_type="application/json")
 
 
 async def json_to_uvl_file(featuremodel: CFMJson, background_tasks: BackgroundTasks) -> Response:
