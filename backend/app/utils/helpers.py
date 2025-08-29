@@ -1,5 +1,7 @@
 import string
 from random import choice
+
+
 def generate_random_filename(length: int, extension: str = None) -> str:
     """
     Generate a random filename from a set of known safe characters.
@@ -11,9 +13,7 @@ def generate_random_filename(length: int, extension: str = None) -> str:
     Returns:
         str: Generated random filename.
     """
-    random_string = "".join(
-        choice(string.ascii_letters + string.digits) for _ in range(length)
-    )
+    random_string = "".join(choice(string.ascii_letters + string.digits) for _ in range(length))
     if extension:
         return f"{random_string}.{extension}"
     else:

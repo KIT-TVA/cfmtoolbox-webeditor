@@ -2,7 +2,7 @@ from fastapi import BackgroundTasks, FastAPI, Response, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from .types import CFMJson
-from .converters import receive_uvl_file, create_uvl_file
+from .converters import uvl_file_to_json, json_to_uvl_file
 
 app = FastAPI()
 app.add_middleware(
@@ -23,12 +23,13 @@ async def convert_to_json(file_type: str, featuremodel: UploadFile):
     """
     match file_type:
         case "UVL" | "uvl":
-            return await receive_uvl_file(featuremodel)
+            return await uvl_file_to_json(featuremodel)
         case _:
             return Response(
                 content="Unsupported file type",
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
+
 
 @app.post("/convert/fromjson/{file_type}/", status_code=214)  # 214 - Transformation applied
 async def convert_from_json(
@@ -39,7 +40,7 @@ async def convert_from_json(
     """
     match file_type:
         case "UVL" | "uvl":
-            return await create_uvl_file(featuremodel, background_tasks)
+            return await json_to_uvl_file(featuremodel, background_tasks)
         case _:
             return Response(
                 content="Unsupported file type",

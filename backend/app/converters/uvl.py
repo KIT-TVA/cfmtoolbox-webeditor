@@ -10,7 +10,15 @@ from ..utils import EnhancedJSONEncoder, generate_random_filename
 from .convert import call_cfm_toolbox_conversion
 
 
-async def receive_uvl_file(featuremodel: UploadFile) -> dict:
+async def uvl_file_to_json(featuremodel: UploadFile) -> Response:
+    """
+    Convert a UVL file to a CFMJson object.
+
+    Args:
+        featuremodel (UploadFile): The uploaded UVL file.
+    Returns:
+        Response: A Response containing the CFMJson object.
+    """
     filename = generate_random_filename(8, "uvl")
     result_filename = filename.replace(".uvl", ".json")
     async with aiofiles.open(filename, "wb") as out_file:
@@ -30,11 +38,18 @@ async def receive_uvl_file(featuremodel: UploadFile) -> dict:
     # Cleanup temp files
     os.remove(filename)
     os.remove(result_filename)
-    return featuremodel_json
 
-async def create_uvl_file(featuremodel: CFMJson, background_tasks: BackgroundTasks) -> Response:
+    return Response(content=featuremodel_json, status_code=214, media_type="application/json")
+
+
+async def json_to_uvl_file(featuremodel: CFMJson, background_tasks: BackgroundTasks) -> Response:
     """
     Create a UVL file from the provided CFMJson object.
+    Args:
+        featuremodel (CFMJson): The CFMJson object to convert.
+        background_tasks (BackgroundTasks): FastAPI BackgroundTasks instance for cleanup.
+    Returns:
+        Response: A FileResponse containing the UVL file.
     """
     filename = generate_random_filename(8, "json")
     result_filename = filename.replace(".json", ".uvl")

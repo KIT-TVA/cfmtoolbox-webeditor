@@ -1,9 +1,10 @@
 import subprocess
 
+
 def call_cfm_toolbox_conversion(input_file: str, output_file: str) -> None:
     """
     Call the cfmtoolbox command line tool to convert files.
-    
+
     Args:
         input_file (str): Path to the input file.
         output_file (str): Path to the output file.
