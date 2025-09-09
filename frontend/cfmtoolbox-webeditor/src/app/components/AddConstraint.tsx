@@ -73,22 +73,23 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-        <h3 className="text-xl font-semibold mb-4">
+    <div className="constraint-modal__overlay">
+      <div className="constraint-modal__container">
+        <h3 className="constraint-modal__title">
           {isEditMode ? t('constraint_modal.editTitle') : t('constraint_modal.addTitle')}
         </h3>
-        <div className="grid grid-cols-2 gap-4 mb-4">
+
+        <div className="constraint-modal__grid">
           {/* Feature 1 */}
           <div>
-            <label className="text-sm font-medium">{t('constraint_modal.feature1')}</label>
+            <label className="constraint-modal__label">{t('constraint_modal.feature1')}</label>
             <select
               value={feature1}
               onChange={(e) => {
                 setFeature1(e.target.value);
                 if (feature1Error && setFeature1Error) setFeature1Error(false);
               }}
-              className="w-full border p-2 rounded"
+              className="constraint-modal__select"
             >
               <option value="">{t('constraint_modal.select')}</option>
               {nodes.map(node => (
@@ -96,14 +97,14 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
               ))}
             </select>
             {feature1Error && (
-              <p className="text-red-600 text-sm">{t('constraint_modal.feature1Error')}</p>
+              <p className="constraint-modal__error">{t('constraint_modal.feature1Error')}</p>
             )}
           </div>
 
           {/* Kardinalität 1 */}
           <div>
-            <label className="text-sm font-medium">{t('constraint_modal.cardinality')}</label>
-            <div className="flex gap-2">
+            <label className="constraint-modal__label">{t('constraint_modal.cardinality')}</label>
+            <div className="constraint-modal__flex">
               <input
                 type="text"
                 placeholder={t('constraint_modal.min')}
@@ -114,7 +115,7 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
                     if (card1MinError && setCard1MinError) setCard1MinError(false);
                   }
                 }}
-                className="w-1/2 border p-2 rounded"
+                className="constraint-modal__input"
               />
               <input
                 type="text"
@@ -126,21 +127,21 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
                     if (card1MaxError && setCard1MaxError) setCard1MaxError(false);
                   }
                 }}
-                className="w-1/2 border p-2 rounded "
+                className="constraint-modal__input"
               />
             </div>
             {(card1MinError || card1MaxError) && (
-              <p className="text-red-600 text-sm">{t('constraint_modal.cardinalityError')}</p>
+              <p className="constraint-modal__error">{t('constraint_modal.cardinalityError')}</p>
             )}
           </div>
 
           {/* Beziehung */}
           <div className="col-span-2">
-            <label className="text-sm font-medium">{t('constraint_modal.relation')}</label>
+            <label className="constraint-modal__label">{t('constraint_modal.relation')}</label>
             <select
               value={relation}
               onChange={e => setRelation(e.target.value)}
-              className="w-full border p-2 rounded"
+              className="constraint-modal__select"
             >
               <option value="requires">{t('constraint_modal.requires')}</option>
               <option value="excludes">{t('constraint_modal.excludes')}</option>
@@ -149,14 +150,14 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
 
           {/* Feature 2 */}
           <div>
-            <label className="text-sm font-medium">{t('constraint_modal.feature2')}</label>
+            <label className="constraint-modal__label">{t('constraint_modal.feature2')}</label>
             <select
               value={feature2}
               onChange={e => {
                 setFeature2(e.target.value);
                 if (feature2Error && setFeature2Error) setFeature2Error(false);
               }}
-              className="w-full border p-2 rounded"
+              className="constraint-modal__select"
             >
               <option value="">{t('constraint_modal.select')}</option>
               {nodes.map(node => (
@@ -164,14 +165,14 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
               ))}
             </select>
             {feature2Error && (
-              <p className="text-red-600 text-sm">{t('constraint_modal.feature2Error')}</p>
+              <p className="constraint-modal__error">{t('constraint_modal.feature2Error')}</p>
             )}
           </div>
 
           {/* Kardinalität 2 */}
           <div>
-            <label className="text-sm font-medium">{t('constraint_modal.cardinality')}</label>
-            <div className="flex gap-2">
+            <label className="constraint-modal__label">{t('constraint_modal.cardinality')}</label>
+            <div className="constraint-modal__flex">
               <input
                 type="text"
                 placeholder={t('constraint_modal.min')}
@@ -182,7 +183,7 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
                     if (card2MinError && setCard2MinError) setCard2MinError(false);
                   }
                 }}
-                className="w-1/2 border p-2 rounded "
+                className="constraint-modal__input"
               />
               <input
                 type="text"
@@ -194,19 +195,20 @@ const ConstraintModal: React.FC<ConstraintModalProps> = ({
                     if (card2MaxError && setCard2MaxError) setCard2MaxError(false);
                   }
                 }}
-                className="w-1/2 border p-2 rounded "
+                className="constraint-modal__input"
               />
             </div>
             {(card2MinError || card2MaxError) && (
-              <p className="text-red-600 text-sm">{t('constraint_modal.cardinalityError')}</p>
+              <p className="constraint-modal__error">{t('constraint_modal.cardinalityError')}</p>
             )}
           </div>
         </div>
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+
+        <div className="constraint-modal__actions">
+          <button onClick={onClose} className="constraint-modal__btn constraint-modal__btn--cancel">
             {t('constraint_modal.cancel')}
           </button>
-          <button onClick={onAddConstraint} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <button onClick={onAddConstraint} className="constraint-modal__btn constraint-modal__btn--primary">
             {isEditMode ? t('constraint_modal.save') : t('constraint_modal.add')}
           </button>
         </div>

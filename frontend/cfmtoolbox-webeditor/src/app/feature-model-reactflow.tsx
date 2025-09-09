@@ -775,316 +775,272 @@ export default function FeatureModelEditor() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <input
-        type="file"
-        accept=".json"
-        ref={fileInputRefJson}
-        onChange={handleImport}
-        className="hidden"
-      />
-      <input
-        type="file"
-        accept=".uvl"
-        ref={fileInputRefUvl}
-        onChange={handleUvlImport}
-        className="hidden"
-      />
-      <div className="flex justify-between items-center p-4">
-        <button
-          onClick={openAddFeatureModal}
-          className="bg-blue-600 text-white rounded shadow p-2"
-        >
-          {t("main.addFeature")}
-        </button>
-        <button
-          onClick={handleLayoutFeatureModel}
-          className="bg-blue-600 text-white rounded shadow p-2"
-        >
-          {t("main.layoutModel")}
-        </button>
-        <button
-          onClick={() => {
-            setIsDropdownOpen(!isDropdownOpen);
-            setSubmenuImportOpen(false);
-            setSubmenuExportOpen(false);
-          }}
-          className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"
-        >
-          <BsThreeDotsVertical size={24} />
-        </button>
+    <div className="editor-container">
+  <input
+    type="file"
+    accept=".json"
+    ref={fileInputRefJson}
+    onChange={handleImport}
+    className="hidden-input"
+  />
+  <input
+    type="file"
+    accept=".uvl"
+    ref={fileInputRefUvl}
+    onChange={handleUvlImport}
+    className="hidden-input"
+  />
 
-        {isDropdownOpen && (
-          <div className="absolute right-4 top-12 w-40 bg-white border border-gray-200 rounded shadow-md z-[9999] pointer-events-auto ">
-            <ul className="py-1 relative">
-              <li
-                className="px-4 py-2 hover:bg-gray-100"
-                onMouseEnter={() => setSubmenuImportOpen(true)}
-                onMouseLeave={() => setSubmenuImportOpen(false)}
-              >
-                {t("main.import")}
+  <div className="toolbar">
+    <button onClick={openAddFeatureModal} className="button-primary">
+      {t("main.addFeature")}
+    </button>
+    <button onClick={handleLayoutFeatureModel} className="button-primary">
+      {t("main.layoutModel")}
+    </button>
+    <button
+      onClick={() => {
+        setIsDropdownOpen(!isDropdownOpen);
+        setSubmenuImportOpen(false);
+        setSubmenuExportOpen(false);
+      }}
+      className="dropdown-button"
+    >
+      <BsThreeDotsVertical size={24} />
+    </button>
 
-                {/* Submenu Import */}
-                {submenuOpenImport && (
-                  <ul className="absolute right-full top-0 mr-1 w-48 bg-white border border-gray-200 rounded shadow-md z-auto">
-                    <li>
-                      <button
-                        onClick={() => fileInputRefJson.current?.click()}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
-                        {t("main.importJson")}
-                      </button>
-                    </li>
+    {isDropdownOpen && (
+      <div className="dropdown-menu">
+        <ul className="dropdown-list">
+          <li
+            onMouseEnter={() => setSubmenuImportOpen(true)}
+            onMouseLeave={() => setSubmenuImportOpen(false)}
+            className="dropdown-item"
+          >
+            {t("main.import")}
 
-                    <li>
-                      <button
-                        onClick={() => fileInputRefUvl.current?.click()}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
-                        {t("main.importUvl")}
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 "
-                onMouseEnter={() => setSubmenuExportOpen(true)}
-                onMouseLeave={() => setSubmenuExportOpen(false)}
-              >
-                {t("main.export")}
+            {submenuOpenImport && (
+              <ul className="submenu">
+                <li>
+                  <button
+                    onClick={() => fileInputRefJson.current?.click()}
+                    className="submenu-button"
+                  >
+                    {t("main.importJson")}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => fileInputRefUvl.current?.click()}
+                    className="submenu-button"
+                  >
+                    {t("main.importUvl")}
+                  </button>
+                </li>
+              </ul>
+            )}
+          </li>
 
-                {/* Submenu Export */}
-                {submenuOpenExport && (
-                  <ul className="absolute right-full top-0 mr-1 w-48 bg-white border border-gray-200 rounded shadow-md z-auto">
-                    <li>
-                      <button
-                        onClick={handleExport}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
-                        {t("main.exportJson")}
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={handleUvlExport}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
-                        {t("main.exportUvl")}
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() =>
-                          exportFeatureModelImage({
-                            nodes,
-                            containerRef:
-                              exportWrapperRef as React.RefObject<HTMLElement>,
-                            constraints,
-                            format: "png",
-                            fileName: "feature-model",
-                          })
-                        }
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
-                        {t("main.exportPng")}
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() =>
-                          exportFeatureModelImage({
-                            nodes,
-                            containerRef:
-                              exportWrapperRef as React.RefObject<HTMLElement>,
-                            constraints,
-                            format: "svg",
-                            fileName: "feature-model",
-                          })
-                        }
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
-                        {t("main.exportSvg")}
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </li>
-            </ul>
-          </div>
-        )}
+          <li
+            onMouseEnter={() => setSubmenuExportOpen(true)}
+            onMouseLeave={() => setSubmenuExportOpen(false)}
+            className="dropdown-item"
+          >
+            {t("main.export")}
+
+            {submenuOpenExport && (
+              <ul className="submenu">
+                <li>
+                  <button onClick={handleExport} className="submenu-button">
+                    {t("main.exportJson")}
+                  </button>
+                </li>
+                <li>
+                  <button onClick={handleUvlExport} className="submenu-button">
+                    {t("main.exportUvl")}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() =>
+                      exportFeatureModelImage({
+                        nodes,
+                        containerRef:
+                          exportWrapperRef as React.RefObject<HTMLElement>,
+                        constraints,
+                        format: "png",
+                        fileName: "feature-model",
+                      })
+                    }
+                    className="submenu-button"
+                  >
+                    {t("main.exportPng")}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() =>
+                      exportFeatureModelImage({
+                        nodes,
+                        containerRef:
+                          exportWrapperRef as React.RefObject<HTMLElement>,
+                        constraints,
+                        format: "svg",
+                        fileName: "feature-model",
+                      })
+                    }
+                    className="submenu-button"
+                  >
+                    {t("main.exportSvg")}
+                  </button>
+                </li>
+              </ul>
+            )}
+          </li>
+        </ul>
       </div>
+    )}
+  </div>
 
-      {isNodeMenuOpen && nodeMenuPosition && (
-        <div
-          style={{
-            position: "absolute",
-            top: nodeMenuPosition.y,
-            left: nodeMenuPosition.x,
-            backgroundColor: "white",
-            border: "1px solid #ccc",
-            borderRadius: "10px",
-            padding: "8px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-            zIndex: 1000,
-            flexDirection: "column",
-            display: "flex",
-          }}
-        >
-          <button
-            onClick={() => setIsNodeMenuOpen(false)}
-            style={{
-              position: "absolute",
-              top: "4px",
-              right: "4px",
-              background: "transparent",
-              border: "none",
-              fontSize: "16px",
-              cursor: "pointer",
-              padding: "0",
-              lineHeight: "1",
-            }}
-          >
-            ×
-          </button>
-          <button
-            onClick={handleCreateChildClick}
-            className="text-left px-4 py-2 hover:bg-gray-100 rounded"
-          >
-            {t("main.createChild")}
-          </button>
-          <button
-            onClick={handleCreateSiblingClick}
-            className="text-left px-4 py-2 hover:bg-gray-100 rounded"
-          >
-            {t("main.createSibling")}
-          </button>
-          <div>
-            <button
-              onClick={handleEditClick}
-              className="text-blue-600 px-4 py-2 "
-            >
-              <BsFillPencilFill />
-            </button>
-            <button
-              onClick={handleDeleteFeature}
-              className="text-red-600 px-4 py-2 "
-            >
-              <BsFillTrashFill />
-            </button>
-          </div>
-        </div>
-      )}
-      <AddFeatureModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditMode(false);
-        }}
-        onAddFeature={handleAddFeature}
-        newFeatureName={newFeatureName}
-        setNewFeatureName={setNewFeatureName}
-        featureInstanceCardinalityMin={featureInstanceCardinalityMin}
-        setFeatureInstanceCardinalityMin={setFeatureInstanceCardinalityMin}
-        featureInstanceCardinalityMax={featureInstanceCardinalityMax}
-        setFeatureInstanceCardinalityMax={setFeatureInstanceCardinalityMax}
-        groupTypeCardinalityMin={groupTypeCardinalityMin}
-        setGroupTypeCardinalityMin={setGroupTypeCardinalityMin}
-        groupTypeCardinalityMax={groupTypeCardinalityMax}
-        setGroupTypeCardinalityMax={setGroupTypeCardinalityMax}
-        groupInstanceCardinalityMin={groupInstanceCardinalityMin}
-        setGroupInstanceCardinalityMin={setGroupInstanceCardinalityMin}
-        groupInstanceCardinalityMax={groupInstanceCardinalityMax}
-        setGroupInstanceCardinalityMax={setGroupInstanceCardinalityMax}
-        parentId={parentId}
-        setParentId={setParentId}
-        editMode={editMode}
-        onUpdateFeature={handleUpdateFeature}
-        nodes={nodes}
-        selectedNode={selectedNode}
-        nameError={nameError}
-        setNameError={setNameError}
-        parentError={parentError}
-        setParentError={setParentError}
-        featureInstanceMinError={featureInstanceMinError}
-        setFeatureInstanceMinError={setFeatureInstanceMinError}
-        featureInstanceMaxError={featureInstanceMaxError}
-        setFeatureInstanceMaxError={setFeatureInstanceMaxError}
-        onDeleteFeature={handleDeleteFeature}
-      />
-      <div ref={exportWrapperRef} className="h-[80%] overflow-hidden">
-        <div ref={reactFlowWrapper} className="h-[100%] overflow-hidden">
-          {" "}
-          <ReactFlowProvider>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              nodeTypes={nodeTypes}
-              edgeTypes={edgeTypes}
-              fitView
-              onNodeClick={handleNodeClick}
-              //onNodesChange={onNodesChange}
-            >
-              <MiniMap />
-              <Controls />
-              <Background />
-            </ReactFlow>
-          </ReactFlowProvider>
-        </div>
+  {isNodeMenuOpen && nodeMenuPosition && (
+    <div
+      className="node-menu"
+      style={{
+        top: nodeMenuPosition.y,
+        left: nodeMenuPosition.x,
+      }}
+    >
+      <button className="node-menu-close" onClick={() => setIsNodeMenuOpen(false)}>
+        ×
+      </button>
+      <button onClick={handleCreateChildClick} className="node-menu-item">
+        {t("main.createChild")}
+      </button>
+      <button onClick={handleCreateSiblingClick} className="node-menu-item">
+        {t("main.createSibling")}
+      </button>
+      <div className="node-menu-actions">
+        <button onClick={handleEditClick} className="node-menu-edit">
+          <BsFillPencilFill />
+        </button>
+        <button onClick={handleDeleteFeature} className="node-menu-delete">
+          <BsFillTrashFill />
+        </button>
       </div>
-
-      <Constraint
-        constraints={constraints}
-        nodes={nodes}
-        onEdit={handleEditConstraint}
-        onDelete={handleDeleteConstraint}
-        onAddClick={handleAddConstraint}
-      />
-
-      <AddConstraint
-        isOpen={isConstraintModalOpen}
-        onClose={() => {
-          setConstraintModalOpen(false);
-          setEditConstraintId(null);
-        }}
-        onAddConstraint={handleCreateConstraint}
-        feature1={feature1}
-        setFeature1={setFeature1}
-        card1Min={card1Min}
-        setCard1Min={setCard1Min}
-        card1Max={card1Max}
-        setCard1Max={setCard1Max}
-        relation={relation}
-        setRelation={setRelation}
-        feature2={feature2}
-        setFeature2={setFeature2}
-        card2Min={card2Min}
-        setCard2Min={setCard2Min}
-        card2Max={card2Max}
-        setCard2Max={setCard2Max}
-        feature1Error={feature1Error}
-        setFeature1Error={setFeature1Error}
-        feature2Error={feature2Error}
-        setFeature2Error={setFeature2Error}
-        card1MinError={card1MinError}
-        setCard1MinError={setCard1MinError}
-        card1MaxError={card1MaxError}
-        setCard1MaxError={setCard1MaxError}
-        card2MinError={card2MinError}
-        setCard2MinError={setCard2MinError}
-        card2MaxError={card2MaxError}
-        setCard2MaxError={setCard2MaxError}
-        nodes={nodes}
-        isEditMode={!!editConstraintId}
-      />
-      <ErrorModal
-        isOpen={errorModalOpen}
-        message={errorMessage}
-        onClose={() => setErrorModalOpen(false)}
-      />
     </div>
+  )}
+
+  <AddFeatureModal
+    isOpen={isModalOpen}
+    onClose={() => {
+      setIsModalOpen(false);
+      setEditMode(false);
+    }}
+    onAddFeature={handleAddFeature}
+    newFeatureName={newFeatureName}
+    setNewFeatureName={setNewFeatureName}
+    featureInstanceCardinalityMin={featureInstanceCardinalityMin}
+    setFeatureInstanceCardinalityMin={setFeatureInstanceCardinalityMin}
+    featureInstanceCardinalityMax={featureInstanceCardinalityMax}
+    setFeatureInstanceCardinalityMax={setFeatureInstanceCardinalityMax}
+    groupTypeCardinalityMin={groupTypeCardinalityMin}
+    setGroupTypeCardinalityMin={setGroupTypeCardinalityMin}
+    groupTypeCardinalityMax={groupTypeCardinalityMax}
+    setGroupTypeCardinalityMax={setGroupTypeCardinalityMax}
+    groupInstanceCardinalityMin={groupInstanceCardinalityMin}
+    setGroupInstanceCardinalityMin={setGroupInstanceCardinalityMin}
+    groupInstanceCardinalityMax={groupInstanceCardinalityMax}
+    setGroupInstanceCardinalityMax={setGroupInstanceCardinalityMax}
+    parentId={parentId}
+    setParentId={setParentId}
+    editMode={editMode}
+    onUpdateFeature={handleUpdateFeature}
+    nodes={nodes}
+    selectedNode={selectedNode}
+    nameError={nameError}
+    setNameError={setNameError}
+    parentError={parentError}
+    setParentError={setParentError}
+    featureInstanceMinError={featureInstanceMinError}
+    setFeatureInstanceMinError={setFeatureInstanceMinError}
+    featureInstanceMaxError={featureInstanceMaxError}
+    setFeatureInstanceMaxError={setFeatureInstanceMaxError}
+    onDeleteFeature={handleDeleteFeature}
+  />
+
+  <div ref={exportWrapperRef} className="editor-flow-wrapper">
+    <div ref={reactFlowWrapper} className="editor-flow-inner">
+      <ReactFlowProvider>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          fitView
+          onNodeClick={handleNodeClick}
+        >
+          <MiniMap />
+          <Controls />
+          <Background />
+        </ReactFlow>
+      </ReactFlowProvider>
+    </div>
+  </div>
+
+  <Constraint
+    constraints={constraints}
+    nodes={nodes}
+    onEdit={handleEditConstraint}
+    onDelete={handleDeleteConstraint}
+    onAddClick={handleAddConstraint}
+  />
+
+  <AddConstraint
+    isOpen={isConstraintModalOpen}
+    onClose={() => {
+      setConstraintModalOpen(false);
+      setEditConstraintId(null);
+    }}
+    onAddConstraint={handleCreateConstraint}
+    feature1={feature1}
+    setFeature1={setFeature1}
+    card1Min={card1Min}
+    setCard1Min={setCard1Min}
+    card1Max={card1Max}
+    setCard1Max={setCard1Max}
+    relation={relation}
+    setRelation={setRelation}
+    feature2={feature2}
+    setFeature2={setFeature2}
+    card2Min={card2Min}
+    setCard2Min={setCard2Min}
+    card2Max={card2Max}
+    setCard2Max={setCard2Max}
+    feature1Error={feature1Error}
+    setFeature1Error={setFeature1Error}
+    feature2Error={feature2Error}
+    setFeature2Error={setFeature2Error}
+    card1MinError={card1MinError}
+    setCard1MinError={setCard1MinError}
+    card1MaxError={card1MaxError}
+    setCard1MaxError={setCard1MaxError}
+    card2MinError={card2MinError}
+    setCard2MinError={setCard2MinError}
+    card2MaxError={card2MaxError}
+    setCard2MaxError={setCard2MaxError}
+    nodes={nodes}
+    isEditMode={!!editConstraintId}
+  />
+
+  <ErrorModal
+    isOpen={errorModalOpen}
+    message={errorMessage}
+    onClose={() => setErrorModalOpen(false)}
+  />
+</div>
+
   );
 }

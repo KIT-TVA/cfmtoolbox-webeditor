@@ -41,8 +41,8 @@
     "add": "Constraint hinzufügen",
     "noConstraints": "Keine Constraints vorhanden.",
     "relation": {
-      "requires": "requires",
-      "excludes": "excludes"
+      "require": "requires",
+      "exclude": "excludes"
     }
   },
   "main": {
