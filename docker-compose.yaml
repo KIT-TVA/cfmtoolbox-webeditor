@@ -3,6 +3,8 @@ services:
     image: ghcr.io/kit-tva/cfmtoolbox-webeditor-backend:main
     ports:
       - "3001:8000"
+    environment:
+      - ALLOWED_ORIGINS=["http://193.196.37.174/"]
   frontend:
     image: ghcr.io/kit-tva/cfmtoolbox-webeditor-frontend:main
     ports:

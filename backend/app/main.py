@@ -1,16 +1,26 @@
+from typing import List
+
 from fastapi import BackgroundTasks, FastAPI, Response, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic_settings import BaseSettings
 
+from .converters import json_to_uvl_file, uvl_file_to_json
 from .types import CFMJson
-from .converters import uvl_file_to_json, json_to_uvl_file
 
+
+class Settings(BaseSettings):
+    """
+    Application settings.
+    """
+    app_name: str = "CFM-Toolbox Webeditor Backend"
+    allowed_origins: List[str] = ["http://localhost:3000"]
+
+__version__: str = "1.0.0"
+settings = Settings()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://193.196.37.174",  # BWC instance.
-    ],
+    allow_origins=settings.allowed_origins,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
