@@ -25,16 +25,22 @@ type Constraint = {
   card2Max: string;
 };
 
+/**
+ * Function to export the current feature model to a JSON string in the cardinality-based format.
+ * @param nodes Nodes of the feature model
+ * @param constraints Constraints of the feature model
+ * @returns
+ */
 export const exportFeatureModel = (
   nodes: Node[],
   constraints: Constraint[]
 ): string => {
-  // Helper: convert min/max to numbers, handle "*" as Infinity
+  // Helper: convert min/max to numbers, handle "*" as null
   const parseCardinality = (min: string, max: string) => ({
     intervals: [
       {
         lower: parseInt(min, 10),
-        upper: max === "*" ? null : parseInt(max, 10), //unsicher hatten davor "*"
+        upper: max === "*" ? null : parseInt(max, 10),
       },
     ],
   });

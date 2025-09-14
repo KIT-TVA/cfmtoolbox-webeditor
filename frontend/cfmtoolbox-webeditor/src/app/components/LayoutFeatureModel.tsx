@@ -16,6 +16,12 @@ interface Point {
   y: number;
 }
 
+/**
+ * Function to layout a feature model given as a flat array of nodes using the Reingold-Tilford algorithm.
+ * @param flatNodes flat array of feature nodes with id, name and parentId
+ * @param maxNodeWidth maximum width of a node in pixels
+ * @returns
+ */
 export function layoutFeatureModel(
   flatNodes: FeatureNode[],
   maxNodeWidth: number

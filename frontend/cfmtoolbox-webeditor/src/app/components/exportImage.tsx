@@ -1,5 +1,14 @@
 import { toPng, toSvg } from "html-to-image";
 
+/**
+ * Function to export the current feature model as an image (png or svg).
+ * @param nodes Nodes of the feature model
+ * @param containerRef Reference to the container element of the reactflow editor
+ * @param constraints Constraints of the feature model
+ * @param format "png" | "svg"
+ * @param fileName Name of the exported file without extension
+ * @returns exported image of the feature model with constraints as png or svg
+ */
 export async function exportFeatureModelImage({
   nodes,
   containerRef,
@@ -7,7 +16,7 @@ export async function exportFeatureModelImage({
   format = "png",
   fileName = "feature-model",
 }: {
-  nodes: any[],
+  nodes: any[];
   containerRef: React.RefObject<HTMLElement>;
   constraints: {
     source: string;
@@ -21,7 +30,9 @@ export async function exportFeatureModelImage({
   format?: "png" | "svg";
   fileName?: string;
 }) {
-  const container = containerRef.current?.querySelector('.react-flow__viewport') as HTMLElement;
+  const container = containerRef.current?.querySelector(
+    ".react-flow__viewport"
+  ) as HTMLElement;
   if (!container) {
     console.error("Container reference not found");
     return;
@@ -34,8 +45,10 @@ export async function exportFeatureModelImage({
 
   const constraintText = constraints
     .map((c) => {
-      const sourceLabel = nodes.find((node) => node.id === c.source)?.data.label || c.source;
-      const targetLabel = nodes.find((node) => node.id === c.target)?.data.label || c.target;
+      const sourceLabel =
+        nodes.find((node) => node.id === c.source)?.data.label || c.source;
+      const targetLabel =
+        nodes.find((node) => node.id === c.target)?.data.label || c.target;
       const relationText = c.relation;
 
       return `${sourceLabel} <${c.card1Min}..${c.card1Max}> ${relationText} ${targetLabel} <${c.card2Min}..${c.card2Max}>`;
@@ -56,38 +69,37 @@ export async function exportFeatureModelImage({
   </div>
 `;
 
-
-
   const originalTransform = container.style.transform;
-  const originalTransformOrigin = container.style.transformOrigin; // Neu hinzugefügt
+  const originalTransformOrigin = container.style.transformOrigin;
   const originalBackground = container.style.background;
 
-  // Setze den Skalierungsfaktor temporär auf 1 und den Ursprung
+  // Set the scaling factor temporarily to 1 and the origin
   container.style.transform = "scale(1)";
   container.style.transformOrigin = "top left";
   container.style.background = "white";
 
-  // ********** NEUER TEIL: Kanten-Stile temporär setzen **********
-  // Finde alle sichtbaren Kantenpfade und setze deren Stile
+  // ***************************************************************
+  // Temporary set new edge styles
+  // Find all visible edge paths and set their styles
   const edgePaths = container.querySelectorAll(".react-flow__edge-path");
   const originalEdgeStyles: { element: HTMLElement; style: string }[] = [];
 
   edgePaths.forEach((pathElement) => {
     const htmlPathElement = pathElement as HTMLElement; // Type assertion
-    // Speichere den Original-Stil
+    // Save original styles
     originalEdgeStyles.push({
       element: htmlPathElement,
       style: htmlPathElement.style.cssText,
     });
 
-    // Setze die Export-Stile
-    htmlPathElement.style.stroke = "black"; // Oder eine andere gewünschte Farbe
-    htmlPathElement.style.strokeWidth = "2px"; // Oder eine andere gewünschte Dicke
-    htmlPathElement.style.opacity = "1"; // Sicherstellen, dass es sichtbar ist
+    // Set new styles
+    htmlPathElement.style.stroke = "black";
+    htmlPathElement.style.strokeWidth = "2px";
+    htmlPathElement.style.opacity = "1";
   });
   // ***************************************************************
 
-  // Füge das Constraint-Div zum DOM hinzu
+  // Appends the constraints to the DOM for export
   container.appendChild(constraintDiv);
 
   try {
@@ -97,14 +109,12 @@ export async function exportFeatureModelImage({
       cacheBust: true,
       skipFonts: true,
       backgroundColor: "transparent",
-      width: bbox.width + 1000,   // kleiner Padding
+      width: bbox.width + 1000, // small Padding
       height: bbox.height + 1000,
       style: {
-        transform: `translate(${-bbox.x + 25}px, ${-bbox.y + 25}px)`, // verschiebt nach links oben
+        transform: `translate(${-bbox.x + 25}px, ${-bbox.y + 25}px)`, // translate to top-left with padding
       },
     };
-
-
 
     if (format === "png") {
       const dataUrl = await toPng(container, commonOptions);
@@ -119,12 +129,12 @@ export async function exportFeatureModelImage({
     // Entferne das Constraint-Div wieder
     container.removeChild(constraintDiv);
 
-    // Setze die Kanten-Stile auf ihre ursprünglichen Werte zurück
+    // Set the temporary styles for the edges back to original
     originalEdgeStyles.forEach(({ element, style }) => {
-      element.style.cssText = style; // Setzt den gesamten Stilstring zurück
+      element.style.cssText = style; // Set the original style
     });
 
-    // Setze den Transform- und Hintergrund-Stil zurück
+    // Set the scaling factor and background style back to original
     container.style.transform = originalTransform;
     container.style.transformOrigin = originalTransformOrigin;
     container.style.background = originalBackground;
@@ -156,4 +166,3 @@ function getBoundingBox(nodes: any[]) {
     height: maxY - minY,
   };
 }
-

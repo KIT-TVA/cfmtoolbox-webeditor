@@ -1,5 +1,10 @@
 import { Handle, Position } from "@xyflow/react";
 
+/**
+ * Type definition for the data passed to the root node component.
+ * Includes label, groupTypeCardinalityMin, groupTypeCardinalityMax,
+ * groupInstanceCardinalityMin, groupInstanceCardinalityMax.
+ */
 export type RootNodeData = {
   label: string;
   groupTypeCardinalityMin?: string;
@@ -8,6 +13,11 @@ export type RootNodeData = {
   groupInstanceCardinalityMax?: string;
 };
 
+/**
+ * Definition of the root node component for the reactflow editor.
+ * @param data The data for the root node. Includes label and cardinality information, see RootNodeData type.
+ * @returns html element representing the root node.
+ */
 const RootNode = ({ data }: { data: RootNodeData }) => {
   return (
     <div className="root-node">
