@@ -114,6 +114,8 @@ body {
   padding: 0.5rem;
   font-size: 0.875rem;
   box-sizing: border-box;
+  background: var(--modal-bg);
+  color: var(--modal-text);
 }
 .feature-modal__input--mb {
   margin-bottom: 1rem;
@@ -227,6 +229,8 @@ body {
   border-radius: 0.375rem;
   font-size: 0.875rem;
   box-sizing: border-box;
+  background: var(--modal-bg);
+  color: var(--modal-text);
 }
 .constraint-modal__error {
   color: var(--error-color);
@@ -735,4 +739,23 @@ body {
 .editor-flow-inner {
   height: 100%;
   overflow: hidden;
+}
+
+.react-flow__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: transparent;
+  color:  var(--foreground);
+}
+
+.react-flow__controls-button {
+  --xy-controls-button-background-color-default: var(--background);
+  --xy-controls-button-border-color-default: var(--background);
+  border-radius: 0.375rem;
+}
+
+.react-flow__minimap {
+  --xy-minimap-background-color-default: var(--background);
 }

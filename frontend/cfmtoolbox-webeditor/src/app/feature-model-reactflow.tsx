@@ -988,6 +988,7 @@ export default function FeatureModelEditor() {
               fitView
               onNodeClick={handleNodeClick}
             >
+
               <MiniMap />
               <Controls />
               <Background />
