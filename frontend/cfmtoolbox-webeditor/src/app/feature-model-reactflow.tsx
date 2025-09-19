@@ -96,6 +96,9 @@ const initialEdges = [
 ];
 
 export default function FeatureModelEditor() {
+  const [theme, setTheme] = useState<"light" | "dark">(() =>
+    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  );
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
   const [nodes, setNodes] = useNodesState(initialNodes);
@@ -177,12 +180,20 @@ export default function FeatureModelEditor() {
   }, [mode]);
 
   useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+  }, [theme]);
+
+  useEffect(() => {
     if (pendingLayout) {
       handleLayoutFeatureModel();
       setPendingLayout(false);
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes, pendingLayout]);
+
+  const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
 
   const addConstraint = ({
     source,
@@ -798,6 +809,9 @@ export default function FeatureModelEditor() {
         <button onClick={handleLayoutFeatureModel} className="button-primary">
           {t("main.layoutModel")}
         </button>
+        <button onClick={() => toggleTheme()} className="button-primary">
+          Switch to {theme === "light" ? "Dark" : "Light"} Theme
+        </button>
         <button
           onClick={() => {
             setIsDropdownOpen(!isDropdownOpen);
@@ -988,7 +1002,6 @@ export default function FeatureModelEditor() {
               fitView
               onNodeClick={handleNodeClick}
             >
-
               <MiniMap />
               <Controls />
               <Background />
