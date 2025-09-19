@@ -59,7 +59,8 @@
     "createSibling": "Create Sibling",
     "layoutModel": "Layout Model",
     "exportPng": "Export as PNG",
-    "exportSvg": "Export as SVG"
+    "exportSvg": "Export as SVG",
+    "switchTheme": "Switch to"
   },
   "error_modal": {
     "title": "Error",

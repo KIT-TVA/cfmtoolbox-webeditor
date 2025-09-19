@@ -96,9 +96,7 @@ const initialEdges = [
 ];
 
 export default function FeatureModelEditor() {
-  const [theme, setTheme] = useState<"light" | "dark">(() =>
-    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-  );
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
   const [nodes, setNodes] = useNodesState(initialNodes);
@@ -166,6 +164,15 @@ export default function FeatureModelEditor() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const exportWrapperRef = useRef<HTMLDivElement>(null);
   const [pendingLayout, setPendingLayout] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      setTheme(prefersDark ? "dark" : "light");
+    }
+  }, []);
 
   useEffect(() => {
     if (mode === "demo") {
@@ -810,7 +817,7 @@ export default function FeatureModelEditor() {
           {t("main.layoutModel")}
         </button>
         <button onClick={() => toggleTheme()} className="button-primary">
-          Switch to {theme === "light" ? "Dark" : "Light"} Theme
+          {t("main.switchTheme")} {theme === "light" ? "Dark" : "Light"} Theme
         </button>
         <button
           onClick={() => {

@@ -59,7 +59,8 @@
     "createSibling": "Geschwister erstellen",
     "layoutModel": "Modell anordnen",
     "exportPng": "Als PNG exportieren",
-    "exportSvg": "Als SVG exportieren"
+    "exportSvg": "Als SVG exportieren",
+    "switchTheme": "Wechsel zu"
   },
   "error_modal": {
     "title": "Fehler",
