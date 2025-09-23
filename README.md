@@ -83,3 +83,28 @@ Our existing Bruno collection can be found in [./bruno](bruno).
 API documentation is generated automatically and is available at `http://localhost:8000/docs` (Swagger UI) and `http://localhost:8000/redoc` (ReDoc).
 
 ### Frontend
+This is a web-based frontend for creating and editing **Feature Models**, built with [Next.js](https://nextjs.org/) and [React Flow](https://reactflow.dev/).
+
+## Getting Started
+1. **Requirements**: 
+- Node.js (>= 18)  
+- npm (or yarn/pnpm)
+1. **Clone the Repository**: Clone the CFM-Toolbox Webeditor repository to your local machine.
+   ```bash
+   git clone
+   ```
+2. **Navigate to the Frontend Directory**
+3. **Install dependencies**
+```bash
+   npm install
+   ```
+
+4. **Run the development server**
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/feature-model-reactflow.tsx`, updating existing components in `app/components`, or adding new components. The page will automatically refresh as you make changes.
