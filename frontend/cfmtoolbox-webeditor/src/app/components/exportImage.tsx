@@ -94,7 +94,7 @@ export async function exportFeatureModelImage({
 
     // Set new styles
     htmlPathElement.style.stroke = "black";
-    htmlPathElement.style.strokeWidth = "2px";
+    htmlPathElement.style.strokeWidth = "0.5px";
     htmlPathElement.style.opacity = "1";
   });
   // ***************************************************************
