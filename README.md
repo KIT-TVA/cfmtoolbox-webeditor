@@ -95,16 +95,16 @@ This is a web-based frontend for creating and editing **Feature Models**, built 
    ```
 2. **Navigate to the Frontend Directory**
 3. **Install dependencies**
-```bash
+  ```bash
    npm install
    ```
 
 4. **Run the development server**
 
-```bash
-npm run dev
-```
+  ```bash
+   npm run dev
+  ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/feature-model-reactflow.tsx`, updating existing components in `app/components`, or adding new components. The page will automatically refresh as you make changes.
+You can start editing the page by modifying `app/feature-model-reactflow.tsx`, `app/page.tsx`, updating existing components in `app/components`, or adding new components. The page will automatically refresh as you make changes. All translations and locale configurations are located in the `app/locales` folder. The main styles are defined in `globals.css`, applied throughout the application using TailwindCSS.
