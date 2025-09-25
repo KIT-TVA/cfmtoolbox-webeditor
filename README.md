@@ -72,8 +72,8 @@ To set up the development environment for the backend, follow these steps:
 You should now be able to access the backend at `http://localhost:8000`.
 
 #### Adding a new API Route
-The API routes are definded in `backend/app/main.py`. To add a new route, define a new function and use the appropriate FastAPI decorator (e.g., `@app.post`, `@app.get`) to specify the HTTP method and endpoint.
-We try to keep the endpoints organized toolbox feature. For example, all conversion-related endpoints are grouped together at ``[host]/convert/...``.
+The API routes are defined in `backend/app/main.py`. To add a new route, define a new function and use the appropriate FastAPI decorator (e.g., `@app.post`, `@app.get`) to specify the HTTP method and endpoint.
+We try to keep the endpoints organized by toolbox feature. For example, all conversion-related endpoints are grouped together at ``[host]/convert/...``.
 
 You can find all functions used for a group of endpoints in their own module. Functions for the `convert` endpoint are located in `backend/app/converters`.
 
