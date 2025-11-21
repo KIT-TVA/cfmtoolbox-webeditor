@@ -26,6 +26,9 @@ app.add_middleware(
 
 @app.post("/convert/tojson/{file_type}/", status_code=214)  # 214 - Transformation applied
 async def convert_to_json(file_type: str, featuremodel: UploadFile):
+    """
+    Endpoint for converting from UVL to JSON format.
+    """
     match file_type:
         case "UVL" | "uvl":
             return await receive_uvl_file(featuremodel)
@@ -37,6 +40,9 @@ async def convert_to_json(file_type: str, featuremodel: UploadFile):
 
 
 async def receive_uvl_file(featuremodel: UploadFile) -> dict:
+    """
+    Create a CFMJson from the provided UVL object.
+    """
     filename = generate_random_filename(8, "uvl")
     result_filename = filename.replace(".uvl", ".json")
     async with aiofiles.open(filename, "wb") as out_file:
