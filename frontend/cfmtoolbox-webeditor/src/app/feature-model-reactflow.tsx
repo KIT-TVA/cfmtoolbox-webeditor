@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -180,6 +180,12 @@ export default function FeatureModelEditor() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const exportWrapperRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    // Store Model in local storage
+    localStorage.setItem("nodes", JSON.stringify(nodes));
+    localStorage.setItem("edges", JSON.stringify(edges));
+    localStorage.setItem("constraints", JSON.stringify(constraints));
+  }, [nodes, edges, constraints]);
 
 
   const addConstraint = ({
