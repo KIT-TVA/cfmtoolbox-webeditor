@@ -26,6 +26,11 @@ type Edge = {
   };
 };
 
+/**
+ * Function to import a cardinality-based feature model from a JSON object.
+ * @param json The JSON object representing the cardinality-based feature model.
+ * @returns nodes, edges and constraints representing the feature model in a format suitable for the reactflow editor.
+ */
 export function importFeatureModel(json: any): {
   nodes: Node[];
   edges: Edge[];
@@ -34,6 +39,7 @@ export function importFeatureModel(json: any): {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
+  // Recursive function to process features and their children
   function processFeature(
     feature: any,
     parentId: string,
@@ -108,8 +114,8 @@ export function importFeatureModel(json: any): {
     });
   }
 
-  // Start with root
-  processFeature(json.root, "0", 0, 0, 0);
+  // Start processing from the root feature
+  processFeature(json.root, "0", 100, 100, 0);
 
   // Process constraints
   const constraints: Constraint[] = (json.constraints ?? []).map((c: any) => ({

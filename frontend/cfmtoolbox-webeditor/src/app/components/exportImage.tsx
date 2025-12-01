@@ -1,5 +1,14 @@
 import { toPng, toSvg } from "html-to-image";
 
+/**
+ * Function to export the current feature model as an image (png or svg).
+ * @param nodes Nodes of the feature model
+ * @param containerRef Reference to the container element of the reactflow editor
+ * @param constraints Constraints of the feature model
+ * @param format "png" | "svg"
+ * @param fileName Name of the exported file without extension
+ * @returns exported image of the feature model with constraints as png or svg
+ */
 export async function exportFeatureModelImage({
   nodes,
   containerRef,
@@ -61,44 +70,50 @@ export async function exportFeatureModelImage({
 `;
 
   const originalTransform = container.style.transform;
-  const originalTransformOrigin = container.style.transformOrigin; // Neu hinzugefügt
+  const originalTransformOrigin = container.style.transformOrigin;
   const originalBackground = container.style.background;
 
-  // Setze den Skalierungsfaktor temporär auf 1 und den Ursprung
+  // Set the scaling factor temporarily to 1 and the origin
   container.style.transform = "scale(1)";
   container.style.transformOrigin = "top left";
   container.style.background = "white";
 
-  // ********** NEUER TEIL: Kanten-Stile temporär setzen **********
-  // Finde alle sichtbaren Kantenpfade und setze deren Stile
+  // ***************************************************************
+  // Temporary set new edge styles
+  // Find all visible edge paths and set their styles
   const edgePaths = container.querySelectorAll(".react-flow__edge-path");
   const originalEdgeStyles: { element: HTMLElement; style: string }[] = [];
 
   edgePaths.forEach((pathElement) => {
     const htmlPathElement = pathElement as HTMLElement; // Type assertion
-    // Speichere den Original-Stil
+    // Save original styles
     originalEdgeStyles.push({
       element: htmlPathElement,
       style: htmlPathElement.style.cssText,
     });
 
-    // Setze die Export-Stile
-    htmlPathElement.style.stroke = "grey"; // Oder eine andere gewünschte Farbe
-    htmlPathElement.style.strokeWidth = "2px"; // Oder eine andere gewünschte Dicke
-    htmlPathElement.style.opacity = "1"; // Sicherstellen, dass es sichtbar ist
+    // Set new styles
+    htmlPathElement.style.stroke = "black";
+    htmlPathElement.style.strokeWidth = "0.5px";
+    htmlPathElement.style.opacity = "1";
   });
   // ***************************************************************
 
-  // Füge das Constraint-Div zum DOM hinzu
+  // Appends the constraints to the DOM for export
   container.appendChild(constraintDiv);
 
   try {
+    const bbox = getBoundingBox(nodes);
+
     const commonOptions = {
       cacheBust: true,
       skipFonts: true,
       backgroundColor: "transparent",
-      width: container.scrollWidth,
-      height: container.scrollHeight,
+      width: bbox.width + 1000, // small Padding
+      height: bbox.height + 1000,
+      style: {
+        transform: `translate(${-bbox.x + 25}px, ${-bbox.y + 25}px)`, // translate to top-left with padding
+      },
     };
 
     if (format === "png") {
@@ -114,12 +129,12 @@ export async function exportFeatureModelImage({
     // Entferne das Constraint-Div wieder
     container.removeChild(constraintDiv);
 
-    // Setze die Kanten-Stile auf ihre ursprünglichen Werte zurück
+    // Set the temporary styles for the edges back to original
     originalEdgeStyles.forEach(({ element, style }) => {
-      element.style.cssText = style; // Setzt den gesamten Stilstring zurück
+      element.style.cssText = style; // Set the original style
     });
 
-    // Setze den Transform- und Hintergrund-Stil zurück
+    // Set the scaling factor and background style back to original
     container.style.transform = originalTransform;
     container.style.transformOrigin = originalTransformOrigin;
     container.style.background = originalBackground;
@@ -131,4 +146,23 @@ function downloadImage(dataUrl: string, name: string) {
   link.download = name;
   link.href = dataUrl;
   link.click();
+}
+
+function getBoundingBox(nodes: any[]) {
+  const xs = nodes.map((n) => n.position.x);
+  const ys = nodes.map((n) => n.position.y);
+  const widths = nodes.map((n) => n.position.x + (n.width ?? 0));
+  const heights = nodes.map((n) => n.position.y + (n.height ?? 0));
+
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const maxX = Math.max(...widths);
+  const maxY = Math.max(...heights);
+
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY,
+  };
 }

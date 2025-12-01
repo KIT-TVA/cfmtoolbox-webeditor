@@ -79,16 +79,16 @@ export default function AddFeatureModal({
   if (selectedNode?.type === "root" && editMode) isRootNode = true;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[9999]">
-      <div className="bg-white p-6 rounded-xl w-96 shadow-lg z-[10000]">
-        <h2 className="text-xl font-semibold mb-4">
+    <div className="feature-modal__overlay">
+      <div className="feature-modal__container">
+        <h2 className="feature-modal__title">
           {editMode ? t("feature_modal.editTitle") : t("feature_modal.addTitle")}
         </h2>
 
-        <label className="block mb-2">{t("feature_modal.name")}:</label>
+        <label className="feature-modal__label">{t("feature_modal.name")}:</label>
         <input
           type="text"
-          className={`w-full border rounded p-2 mb-4 ${nameError ? "border-red-500 mb-2" : "border-gray-300"}`}
+          className={`feature-modal__input feature-modal__input--mb ${nameError ? "feature-modal__input--error" : ""}`}
           value={newFeatureName}
           onChange={(e) => {
             setNewFeatureName(e.target.value);
@@ -96,16 +96,16 @@ export default function AddFeatureModal({
           }}
         />
         {nameError && (
-          <p className="text-red-600 text-sm">{t("feature_modal.nameRequired")}</p>
+          <p className="feature-modal__error">{t("feature_modal.nameRequired")}</p>
         )}
 
         {!isRootNode && (
           <>
-            <label className="block mb-2">{t("feature_modal.featureInstanceCardinality")}:</label>
-            <div className="flex gap-2 mb-4">
+            <label className="feature-modal__label">{t("feature_modal.featureInstanceCardinality")}:</label>
+            <div className="feature-modal__flex">
               <input
                 type="text"
-                className="w-1/2 border rounded p-2"
+                className="feature-modal__input feature-modal__input--half"
                 placeholder={t("feature_modal.min")}
                 value={featureInstanceCardinalityMin}
                 onChange={(e) => {
@@ -118,7 +118,7 @@ export default function AddFeatureModal({
               />
               <input
                 type="text"
-                className="w-1/2 border rounded p-2"
+                className="feature-modal__input feature-modal__input--half"
                 placeholder={t("feature_modal.max")}
                 value={featureInstanceCardinalityMax}
                 onChange={(e) => {
@@ -133,14 +133,14 @@ export default function AddFeatureModal({
           </>
         )}
         {(featureInstanceMinError || featureInstanceMaxError) && (
-          <p className="text-red-600 text-sm">{t("feature_modal.cardinalityRequired")}</p>
+          <p className="feature-modal__error">{t("feature_modal.cardinalityRequired")}</p>
         )}
 
-        <label className="block mb-2">{t("feature_modal.groupTypeCardinality")}:</label>
-        <div className="flex gap-2 mb-4">
+        <label className="feature-modal__label">{t("feature_modal.groupTypeCardinality")}:</label>
+        <div className="feature-modal__flex">
           <input
             type="text"
-            className="w-1/2 border rounded p-2"
+            className="feature-modal__input feature-modal__input--half"
             placeholder={t("feature_modal.min")}
             value={groupTypeCardinalityMin}
             onChange={(e) => {
@@ -152,7 +152,7 @@ export default function AddFeatureModal({
           />
           <input
             type="text"
-            className="w-1/2 border rounded p-2"
+            className="feature-modal__input feature-modal__input--half"
             placeholder={t("feature_modal.max")}
             value={groupTypeCardinalityMax}
             onChange={(e) => {
@@ -164,11 +164,11 @@ export default function AddFeatureModal({
           />
         </div>
 
-        <label className="block mb-2">{t("feature_modal.groupInstanceCardinality")}:</label>
-        <div className="flex gap-2 mb-4">
+        <label className="feature-modal__label">{t("feature_modal.groupInstanceCardinality")}:</label>
+        <div className="feature-modal__flex">
           <input
             type="text"
-            className="w-1/2 border rounded p-2"
+            className="feature-modal__input feature-modal__input--half"
             placeholder={t("feature_modal.min")}
             value={groupInstanceCardinalityMin}
             onChange={(e) => {
@@ -180,7 +180,7 @@ export default function AddFeatureModal({
           />
           <input
             type="text"
-            className="w-1/2 border rounded p-2"
+            className="feature-modal__input feature-modal__input--half"
             placeholder={t("feature_modal.max")}
             value={groupInstanceCardinalityMax}
             onChange={(e) => {
@@ -194,9 +194,9 @@ export default function AddFeatureModal({
 
         {!isRootNode && (
           <>
-            <label className="block mb-2">{t("feature_modal.parentFeature")}:</label>
+            <label className="feature-modal__label">{t("feature_modal.parentFeature")}:</label>
             <select
-              className={`w-full border rounded p-2 mb-4 ${parentError ? "border-red-500 mb-2" : "border-gray-300"}`}
+              className={`feature-modal__select feature-modal__input--mb ${parentError ? "feature-modal__input--error" : ""}`}
               value={parentId}
               onChange={(e) => {
                 setParentId(e.target.value);
@@ -213,23 +213,23 @@ export default function AddFeatureModal({
                 ))}
             </select>
             {parentError && (
-              <p className="text-red-600 text-sm">{t("feature_modal.parentRequired")}</p>
+              <p className="feature-modal__error">{t("feature_modal.parentRequired")}</p>
             )}
           </>
         )}
 
-        <div className="flex justify-between items-center mt-4">
+        <div className="feature-modal__footer">
           {editMode && (
-            <button className="flex items-center text-red-600" onClick={onDeleteFeature}>
-              <span className="mr-1"><BsFillTrashFill /></span>
+            <button className="feature-modal__btn feature-modal__btn--icon" onClick={onDeleteFeature}>
+              <BsFillTrashFill />
             </button>
           )}
-          <div className="flex gap-2 ml-auto">
-            <button className="bg-gray-300 px-4 py-2 rounded" onClick={onClose}>
+          <div className="feature-modal__actions">
+            <button className="feature-modal__btn feature-modal__btn--cancel" onClick={onClose}>
               {t("feature_modal.cancel")}
             </button>
             <button
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className="feature-modal__btn feature-modal__btn--primary"
               onClick={editMode ? onUpdateFeature : onAddFeature}
             >
               {editMode ? t("feature_modal.save") : t("feature_modal.add")}

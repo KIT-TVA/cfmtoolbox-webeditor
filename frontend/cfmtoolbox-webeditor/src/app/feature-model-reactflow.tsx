@@ -1,5 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -36,6 +37,8 @@ import { useTranslation } from "react-i18next";
 import ErrorModal from "./components/Error";
 import { exportFeatureModelImage } from "./components/exportImage";
 import { layoutFeatureModel } from "./components/LayoutFeatureModel";
+import demoModel from "./demo/multiplayer (1).json";
+import { flushSync } from "react-dom";
 
 const CFM_TOOLBOX_BACKEND = "http://193.196.37.174:3001";
 // TODO: Make this configurable
@@ -51,13 +54,13 @@ const edgeTypes = {
 
 const initialNodes = [
   {
-    id: "1",
+    id: "root",
     type: "root",
     position: { x: 100, y: 100 },
     data: {
       label: "Root Feature",
       featureInstanceCardinalityMin: "1",
-      featureInstanceCardinalityMax: "0",
+      featureInstanceCardinalityMax: "1",
       groupTypeCardinalityMin: "1",
       groupTypeCardinalityMax: "*",
       groupInstanceCardinalityMin: "1",
@@ -66,33 +69,18 @@ const initialNodes = [
     },
   },
   {
-    id: "2",
+    id: "feature",
     type: "feature",
     position: { x: 100, y: 250 },
     data: {
-      label: "Sub Feature A",
-      featureInstanceCardinalityMin: "1",
-      featureInstanceCardinalityMax: "0",
+      label: "Feature",
+      featureInstanceCardinalityMin: "0",
+      featureInstanceCardinalityMax: "1",
       groupTypeCardinalityMin: "1",
       groupTypeCardinalityMax: "*",
       groupInstanceCardinalityMin: "1",
       groupInstanceCardinalityMax: "*",
-      parentId: "1",
-    },
-  },
-  {
-    id: "3",
-    type: "feature",
-    position: { x: 338, y: 250 },
-    data: {
-      label: "Sub Feature B",
-      featureInstanceCardinalityMin: "1",
-      featureInstanceCardinalityMax: "0",
-      groupTypeCardinalityMin: "1",
-      groupTypeCardinalityMax: "*",
-      groupInstanceCardinalityMin: "1",
-      groupInstanceCardinalityMax: "*",
-      parentId: "1",
+      parentId: "root",
     },
   },
 ];
@@ -100,21 +88,17 @@ const initialNodes = [
 const initialEdges = [
   {
     id: "e1-2",
-    source: "1",
-    target: "2",
-    type: "edge",
-    data: { cardinality: "1..*" },
-  },
-  {
-    id: "e1-3",
-    source: "1",
-    target: "3",
+    source: "root",
+    target: "feature",
     type: "edge",
     data: { cardinality: "1..*" },
   },
 ];
 
 export default function FeatureModelEditor() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode");
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -179,6 +163,16 @@ export default function FeatureModelEditor() {
   const [errorMessage, setErrorMessage] = React.useState("");
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const exportWrapperRef = useRef<HTMLDivElement>(null);
+  const [pendingLayout, setPendingLayout] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      setTheme(prefersDark ? "dark" : "light");
+    }
+  }, []);
 
   useEffect(() => {
     // Load Model from local storage
@@ -200,6 +194,29 @@ export default function FeatureModelEditor() {
     localStorage.setItem("constraints", JSON.stringify(constraints));
   }, [nodes, edges, constraints]);
 
+      setNodes(nodes);
+      setEdges(edges);
+      setConstraints(constraints);
+      setPendingLayout(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (pendingLayout) {
+      handleLayoutFeatureModel();
+      setPendingLayout(false);
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes, pendingLayout]);
+
+  const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
 
   const addConstraint = ({
     source,
@@ -309,7 +326,6 @@ export default function FeatureModelEditor() {
       },
     };
 
-
     setNodes((nds) => [...nds, newNode]);
     setEdges((eds) => [...eds, newEdge]);
     setIsModalOpen(false);
@@ -331,7 +347,7 @@ export default function FeatureModelEditor() {
 
   const handleNodeClick: NodeMouseHandler<any> = (event, node) => {
     event.preventDefault();
-    event.stopPropagation(); // verhindert doppelte Events
+    event.stopPropagation(); // prevent event bubbling
     console.log("X", event.clientX, "Y", event.clientY);
     setSelectedNode(node);
     setIsNodeMenuOpen(true);
@@ -380,31 +396,31 @@ export default function FeatureModelEditor() {
       prevNodes.map((node) =>
         node.id === selectedNode.id
           ? {
-            ...node,
-            position: { x: positionX, y: positionY },
-            data: {
-              ...node.data,
-              label: newFeatureName,
-              featureInstanceCardinalityMin,
-              featureInstanceCardinalityMax,
-              groupTypeCardinalityMin,
-              groupTypeCardinalityMax,
-              groupInstanceCardinalityMin,
-              groupInstanceCardinalityMax,
-              parentId,
-            },
-          }
+              ...node,
+              position: { x: positionX, y: positionY },
+              data: {
+                ...node.data,
+                label: newFeatureName,
+                featureInstanceCardinalityMin,
+                featureInstanceCardinalityMax,
+                groupTypeCardinalityMin,
+                groupTypeCardinalityMax,
+                groupInstanceCardinalityMin,
+                groupInstanceCardinalityMax,
+                parentId,
+              },
+            }
           : node
       )
     );
 
     setEdges((prevEdges) => {
-      // Entferne alte Kante(n) zu dieser Node
+      // Remove old edges connected to this node
       const edgesWithoutOld = prevEdges.filter(
         (e) => e.target !== selectedNode.id
       );
 
-      // Falls ein neuer Parent gesetzt wurde, füge neue Kante hinzu
+      // If new parentId is set, add new edge
       if (parentId) {
         return [
           ...edgesWithoutOld,
@@ -483,7 +499,7 @@ export default function FeatureModelEditor() {
   };
 
   const openAddFeatureModal = () => {
-    // Formulardaten zurücksetzen
+    // Reset Form
     setNewFeatureName("");
     setFeatureInstanceCardinalityMin("");
     setFeatureInstanceCardinalityMax("");
@@ -528,20 +544,20 @@ export default function FeatureModelEditor() {
       prev.map((c) =>
         c.id === editConstraintId
           ? {
-            ...c,
-            source: feature1,
-            target: feature2,
-            relation,
-            card1Min,
-            card1Max,
-            card2Min,
-            card2Max,
-          }
+              ...c,
+              source: feature1,
+              target: feature2,
+              relation,
+              card1Min,
+              card1Max,
+              card2Min,
+              card2Max,
+            }
           : c
       )
     );
 
-    // Zurücksetzen
+    // Reset Form
     setEditConstraintId(null);
     setFeature1("");
     setCard1Min("");
@@ -572,7 +588,7 @@ export default function FeatureModelEditor() {
   const handleDeleteFeature = () => {
     if (selectedNode) {
       setNodes((prev) => prev.filter((node) => node.id !== selectedNode.id));
-      setSelectedNode(null); // falls du einen aktiven Node hast
+      setSelectedNode(null); // if active node is deleted, set to null
       setIsModalOpen(false);
       setIsNodeMenuOpen(false);
     }
@@ -734,6 +750,7 @@ export default function FeatureModelEditor() {
     setNodes(nodes);
     setEdges(edges);
     setConstraints(constraints);
+    setPendingLayout(true);
   };
   const handleUvlImport = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -760,6 +777,7 @@ export default function FeatureModelEditor() {
         setNodes(nodes);
         setEdges(edges);
         setConstraints(constraints);
+        setPendingLayout(true);
       } else {
         const errorText = await resp.text();
         setErrorMessage(t("main.importError") + ": " + resp.statusText);
@@ -791,33 +809,31 @@ export default function FeatureModelEditor() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="editor-container">
       <input
         type="file"
         accept=".json"
         ref={fileInputRefJson}
         onChange={handleImport}
-        className="hidden"
+        className="hidden-input"
       />
       <input
         type="file"
         accept=".uvl"
         ref={fileInputRefUvl}
         onChange={handleUvlImport}
-        className="hidden"
+        className="hidden-input"
       />
-      <div className="flex justify-between items-center p-4">
-        <button
-          onClick={openAddFeatureModal}
-          className="bg-blue-600 text-white rounded shadow p-2"
-        >
+
+      <div className="toolbar">
+        <button onClick={openAddFeatureModal} className="button-primary">
           {t("main.addFeature")}
         </button>
-        <button
-          onClick={handleLayoutFeatureModel}
-          className="bg-blue-600 text-white rounded shadow p-2"
-        >
+        <button onClick={handleLayoutFeatureModel} className="button-primary">
           {t("main.layoutModel")}
+        </button>
+        <button onClick={() => toggleTheme()} className="button-primary">
+          {t("main.switchTheme")} {theme === "light" ? "Dark" : "Light"} Theme
         </button>
         <button
           onClick={() => {
@@ -825,37 +841,35 @@ export default function FeatureModelEditor() {
             setSubmenuImportOpen(false);
             setSubmenuExportOpen(false);
           }}
-          className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"
+          className="dropdown-button"
         >
           <BsThreeDotsVertical size={24} />
         </button>
 
         {isDropdownOpen && (
-          <div className="absolute right-4 top-12 w-40 bg-white border border-gray-200 rounded shadow-md z-[9999] pointer-events-auto ">
-            <ul className="py-1 relative">
+          <div className="dropdown-menu">
+            <ul className="dropdown-list">
               <li
-                className="px-4 py-2 hover:bg-gray-100"
                 onMouseEnter={() => setSubmenuImportOpen(true)}
                 onMouseLeave={() => setSubmenuImportOpen(false)}
+                className="dropdown-item"
               >
                 {t("main.import")}
 
-                {/* Submenu Import */}
                 {submenuOpenImport && (
-                  <ul className="absolute right-full top-0 mr-1 w-48 bg-white border border-gray-200 rounded shadow-md z-auto">
+                  <ul className="submenu">
                     <li>
                       <button
                         onClick={() => fileInputRefJson.current?.click()}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        className="submenu-button"
                       >
                         {t("main.importJson")}
                       </button>
                     </li>
-
                     <li>
                       <button
                         onClick={() => fileInputRefUvl.current?.click()}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        className="submenu-button"
                       >
                         {t("main.importUvl")}
                       </button>
@@ -863,28 +877,25 @@ export default function FeatureModelEditor() {
                   </ul>
                 )}
               </li>
+
               <li
-                className="px-4 py-2 hover:bg-gray-100 "
                 onMouseEnter={() => setSubmenuExportOpen(true)}
                 onMouseLeave={() => setSubmenuExportOpen(false)}
+                className="dropdown-item"
               >
                 {t("main.export")}
 
-                {/* Submenu Export */}
                 {submenuOpenExport && (
-                  <ul className="absolute right-full top-0 mr-1 w-48 bg-white border border-gray-200 rounded shadow-md z-auto">
+                  <ul className="submenu">
                     <li>
-                      <button
-                        onClick={handleExport}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      >
+                      <button onClick={handleExport} className="submenu-button">
                         {t("main.exportJson")}
                       </button>
                     </li>
                     <li>
                       <button
                         onClick={handleUvlExport}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        className="submenu-button"
                       >
                         {t("main.exportUvl")}
                       </button>
@@ -901,7 +912,7 @@ export default function FeatureModelEditor() {
                             fileName: "feature-model",
                           })
                         }
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        className="submenu-button"
                       >
                         {t("main.exportPng")}
                       </button>
@@ -918,7 +929,7 @@ export default function FeatureModelEditor() {
                             fileName: "feature-model",
                           })
                         }
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        className="submenu-button"
                       >
                         {t("main.exportSvg")}
                       </button>
@@ -933,64 +944,35 @@ export default function FeatureModelEditor() {
 
       {isNodeMenuOpen && nodeMenuPosition && (
         <div
+          className="node-menu"
           style={{
-            position: "absolute",
             top: nodeMenuPosition.y,
             left: nodeMenuPosition.x,
-            backgroundColor: "white",
-            border: "1px solid #ccc",
-            borderRadius: "10px",
-            padding: "8px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-            zIndex: 1000,
-            flexDirection: "column",
-            display: "flex",
           }}
         >
           <button
+            className="node-menu-close"
             onClick={() => setIsNodeMenuOpen(false)}
-            style={{
-              position: "absolute",
-              top: "4px",
-              right: "4px",
-              background: "transparent",
-              border: "none",
-              fontSize: "16px",
-              cursor: "pointer",
-              padding: "0",
-              lineHeight: "1",
-            }}
           >
             ×
           </button>
-          <button
-            onClick={handleCreateChildClick}
-            className="text-left px-4 py-2 hover:bg-gray-100 rounded"
-          >
+          <button onClick={handleCreateChildClick} className="node-menu-item">
             {t("main.createChild")}
           </button>
-          <button
-            onClick={handleCreateSiblingClick}
-            className="text-left px-4 py-2 hover:bg-gray-100 rounded"
-          >
+          <button onClick={handleCreateSiblingClick} className="node-menu-item">
             {t("main.createSibling")}
           </button>
-          <div>
-            <button
-              onClick={handleEditClick}
-              className="text-blue-600 px-4 py-2 "
-            >
+          <div className="node-menu-actions">
+            <button onClick={handleEditClick} className="node-menu-edit">
               <BsFillPencilFill />
             </button>
-            <button
-              onClick={handleDeleteFeature}
-              className="text-red-600 px-4 py-2 "
-            >
+            <button onClick={handleDeleteFeature} className="node-menu-delete">
               <BsFillTrashFill />
             </button>
           </div>
         </div>
       )}
+
       <AddFeatureModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -1028,9 +1010,9 @@ export default function FeatureModelEditor() {
         setFeatureInstanceMaxError={setFeatureInstanceMaxError}
         onDeleteFeature={handleDeleteFeature}
       />
-      <div ref={exportWrapperRef} className="h-[80%] overflow-hidden">
-        <div ref={reactFlowWrapper} className="h-[100%] overflow-hidden">
-          {" "}
+
+      <div ref={exportWrapperRef} className="editor-flow-wrapper">
+        <div ref={reactFlowWrapper} className="editor-flow-inner">
           <ReactFlowProvider>
             <ReactFlow
               nodes={nodes}
@@ -1042,7 +1024,6 @@ export default function FeatureModelEditor() {
               edgeTypes={edgeTypes}
               fitView
               onNodeClick={handleNodeClick}
-            //onNodesChange={onNodesChange}
             >
               <MiniMap />
               <Controls />
@@ -1050,15 +1031,15 @@ export default function FeatureModelEditor() {
             </ReactFlow>
           </ReactFlowProvider>
         </div>
-        </div>
+      </div>
 
-        <Constraint
-          constraints={constraints}
-          nodes={nodes}
-          onEdit={handleEditConstraint}
-          onDelete={handleDeleteConstraint}
-          onAddClick={handleAddConstraint}
-        />
+      <Constraint
+        constraints={constraints}
+        nodes={nodes}
+        onEdit={handleEditConstraint}
+        onDelete={handleDeleteConstraint}
+        onAddClick={handleAddConstraint}
+      />
 
       <AddConstraint
         isOpen={isConstraintModalOpen}
@@ -1096,6 +1077,7 @@ export default function FeatureModelEditor() {
         nodes={nodes}
         isEditMode={!!editConstraintId}
       />
+
       <ErrorModal
         isOpen={errorModalOpen}
         message={errorMessage}

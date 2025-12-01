@@ -1,6 +1,11 @@
 import { Handle, Position } from "@xyflow/react";
 
-type FeatureNodeData = {
+/**
+ * Type definition for the data passed to the feature node component.
+ * Includes label, featureInstanceCardinalityMin, featureInstanceCardinalityMax, groupTypeCardinalityMin, groupTypeCardinalityMax,
+ * groupInstanceCardinalityMin, groupInstanceCardinalityMax and parentId.
+ */
+export type FeatureNodeData = {
   label: string;
   featureInstanceCardinalityMin: string;
   featureInstanceCardinalityMax: string;
@@ -11,14 +16,19 @@ type FeatureNodeData = {
   parentId?: string;
 };
 
+/**
+ * Definition of the feature node component for the reactflow editor.
+ * @param data The data for the root node. Includes label and cardinality information, see FeatureNodeData type.
+ * @returns html element representing a feature node.
+ */
 const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
   return (
-    <div className="p-2 border-2 rounded-lg shadow bg-white relative">
-      <div className="font-bold text-blue-700">{data.label}</div>
+    <div className="feature-node">
+      <div className="feature-node-label">{data.label}</div>
 
       {data.featureInstanceCardinalityMin !== "" &&
         data.featureInstanceCardinalityMax !== "" && (
-          <div className="text-xs text-gray-600">
+          <div className="feature-node-feature-cardinality">
             ⟨{data.featureInstanceCardinalityMin},
             {data.featureInstanceCardinalityMax}⟩
           </div>
@@ -27,18 +37,7 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
 
-      <div
-        style={{
-          position: "absolute",
-          top: "100%",
-          left: 0,
-          width: "100%",
-          marginTop: "5px",
-          textAlign: "center",
-          fontSize: "0.75rem",
-          color: "#4B5563",
-        }}
-      >
+      <div className="feature-node-group-cardinality">
         {data.groupTypeCardinalityMin !== "" &&
           data.groupTypeCardinalityMax !== "" && (
             <div>
@@ -54,22 +53,8 @@ const FeatureNode = ({ data }: { data: FeatureNodeData }) => {
             </div>
           )}
       </div>
-
-      {/*<NodeToolbar
-        className="feature_toolbar"
-        isVisible={data.forceToolbarVisible || undefined}
-        position={Position.Left}
-      >
-        <label>Name</label>
-        <input
-          value={label}
-          onChange={handleLabelChange}
-          className="feature_toolbar_input"
-        />
-      </NodeToolbar>*/}
     </div>
   );
 };
 
 export default FeatureNode;
-export type { FeatureNodeData };
