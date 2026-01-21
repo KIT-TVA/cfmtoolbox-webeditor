@@ -40,7 +40,7 @@ import { layoutFeatureModel } from "./components/LayoutFeatureModel";
 import demoModel from "./demo/multiplayer (1).json";
 import { flushSync } from "react-dom";
 
-const CFM_TOOLBOX_BACKEND = "http://193.196.37.174:3001";
+const CFM_TOOLBOX_BACKEND = "http://193.196.39.10:3001";
 // TODO: Make this configurable
 
 const nodeTypes = {
