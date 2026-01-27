@@ -175,8 +175,24 @@ export default function FeatureModelEditor() {
   }, []);
 
   useEffect(() => {
-    if (mode === "demo") {
-      const { nodes, edges, constraints } = importFeatureModel(demoModel);
+    // Load Model from local storage
+    const nodes = localStorage.getItem("nodes");
+    const edges = localStorage.getItem("edges");
+    const constraints = localStorage.getItem("constraints");
+
+    console.log("Loaded: ", nodes, edges, constraints);
+
+    if (nodes) setNodes(JSON.parse(nodes));
+    if (edges) setEdges(JSON.parse(edges));
+    if (constraints) setConstraints(JSON.parse(constraints));
+  }, []);
+
+  useEffect(() => {
+    // Store Model in local storage
+    localStorage.setItem("nodes", JSON.stringify(nodes));
+    localStorage.setItem("edges", JSON.stringify(edges));
+    localStorage.setItem("constraints", JSON.stringify(constraints));
+  }, [nodes, edges, constraints]);
 
       setNodes(nodes);
       setEdges(edges);

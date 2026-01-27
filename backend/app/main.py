@@ -29,7 +29,7 @@ app.add_middleware(
 @app.post("/convert/tojson/{file_type}/", status_code=214)  # 214 - Transformation applied
 async def convert_to_json(file_type: str, featuremodel: UploadFile):
     """
-    Endpoint for converting the specified format to the CFM toolbox JSON format.
+    Endpoint for converting from UVL to JSON format.
     """
     match file_type:
         case "UVL" | "uvl":
@@ -39,6 +39,32 @@ async def convert_to_json(file_type: str, featuremodel: UploadFile):
                 content="Unsupported file type",
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
+
+
+async def receive_uvl_file(featuremodel: UploadFile) -> dict:
+    """
+    Create a CFMJson from the provided UVL object.
+    """
+    filename = generate_random_filename(8, "uvl")
+    result_filename = filename.replace(".uvl", ".json")
+    async with aiofiles.open(filename, "wb") as out_file:
+        while content := await featuremodel.read(1024):  # Read in 1024b chunks
+            await out_file.write(content)
+    try:
+        call_cfm_toolbox_conversion(filename, result_filename)
+    except RuntimeError as e:
+        return Response(
+            content=f"Error during conversion: {str(e)}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    async with aiofiles.open(result_filename, "rb") as result_file:
+        content = await result_file.read()
+    featuremodel_json = json.loads(content)
+
+    # Cleanup temp files
+    os.remove(filename)
+    os.remove(result_filename)
+    return featuremodel_json
 
 
 @app.post("/convert/fromjson/{file_type}/", status_code=214)  # 214 - Transformation applied
