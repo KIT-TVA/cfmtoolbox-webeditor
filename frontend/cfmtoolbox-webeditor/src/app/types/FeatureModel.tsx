@@ -1,11 +1,15 @@
+type Interval = {
+  lower: string,
+  upper: string,
+};
+
+export type CompoundInterval = Interval[];
+
 interface NodeData {
   label: string;
-  featureInstanceCardinalityMin: string;
-  featureInstanceCardinalityMax: string;
-  groupTypeCardinalityMin: string;
-  groupTypeCardinalityMax: string;
-  groupInstanceCardinalityMin: string;
-  groupInstanceCardinalityMax: string;
+  featureInstanceCardinality: CompoundInterval;
+  groupTypeCardinality: CompoundInterval;
+  groupInstanceCardinality: CompoundInterval;
   parentId: string;
 };
 

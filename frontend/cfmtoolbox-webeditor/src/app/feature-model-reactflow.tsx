@@ -59,12 +59,18 @@ const initialNodes = [
     position: { x: 100, y: 100 },
     data: {
       label: "Root Feature",
-      featureInstanceCardinalityMin: "1",
-      featureInstanceCardinalityMax: "1",
-      groupTypeCardinalityMin: "1",
-      groupTypeCardinalityMax: "*",
-      groupInstanceCardinalityMin: "1",
-      groupInstanceCardinalityMax: "*",
+      featureInstanceCardinality: [{
+        lower: "1",
+        upper: "1",
+      }],
+      groupTypeCardinality: [{
+        lower: "1",
+        upper: "*",
+      }],
+      groupInstanceCardinality: [{
+        lower: "1",
+        upper: "*",
+      }],
       parentId: "0",
     },
   },
@@ -74,12 +80,18 @@ const initialNodes = [
     position: { x: 100, y: 250 },
     data: {
       label: "Feature",
-      featureInstanceCardinalityMin: "0",
-      featureInstanceCardinalityMax: "1",
-      groupTypeCardinalityMin: "1",
-      groupTypeCardinalityMax: "*",
-      groupInstanceCardinalityMin: "1",
-      groupInstanceCardinalityMax: "*",
+      featureInstanceCardinality: [{
+        lower: "0",
+        upper: "1",
+      }],
+      groupTypeCardinality: [{
+        lower: "1",
+        upper: "*",
+      }],
+      groupInstanceCardinality: [{
+        lower: "1",
+        upper: "*",
+      }],
       parentId: "root",
     },
   },
@@ -288,12 +300,18 @@ export default function FeatureModelEditor() {
       id: newId,
       data: {
         label: `${newFeatureName}`,
-        featureInstanceCardinalityMin: `${featureInstanceCardinalityMin}`,
-        featureInstanceCardinalityMax: `${featureInstanceCardinalityMax}`,
-        groupTypeCardinalityMin: `${groupTypeCardinalityMin}`,
-        groupTypeCardinalityMax: `${groupTypeCardinalityMax}`,
-        groupInstanceCardinalityMin: `${groupInstanceCardinalityMin}`,
-        groupInstanceCardinalityMax: `${groupInstanceCardinalityMax}`,
+        featureInstanceCardinality: [{
+          lower: `${featureInstanceCardinalityMin}`,
+          upper: `${featureInstanceCardinalityMax}`,
+        }],
+        groupTypeCardinality: [{
+          lower: `${groupTypeCardinalityMin}`,
+          upper: `${groupTypeCardinalityMax}`,
+        }],
+        groupInstanceCardinality: [{
+          lower: `${groupInstanceCardinalityMin}`,
+          upper: `${groupInstanceCardinalityMax}`,
+        }],
         parentId: `${parentId}`,
       },
       position: { x: positionX, y: positionY },
@@ -385,12 +403,18 @@ export default function FeatureModelEditor() {
               data: {
                 ...node.data,
                 label: newFeatureName,
-                featureInstanceCardinalityMin,
-                featureInstanceCardinalityMax,
-                groupTypeCardinalityMin,
-                groupTypeCardinalityMax,
-                groupInstanceCardinalityMin,
-                groupInstanceCardinalityMax,
+                featureInstanceCardinality: [{
+                  lower: featureInstanceCardinalityMin,
+                  upper: featureInstanceCardinalityMax,
+                }],
+                groupTypeCardinality: [{
+                  lower:  groupTypeCardinalityMin,
+                  upper:  groupTypeCardinalityMax,
+                }],
+                groupInstanceCardinality: [{
+                  lower: groupInstanceCardinalityMin,
+                  upper: groupInstanceCardinalityMax,
+                }],
                 parentId,
               },
             }
@@ -441,22 +465,22 @@ export default function FeatureModelEditor() {
   const handleEditClick = () => {
     setNewFeatureName(selectedNode?.data.label);
     setFeatureInstanceCardinalityMin(
-      selectedNode?.data.featureInstanceCardinalityMin
+      selectedNode?.data.featureInstanceCardinality[0].lower
     );
     setFeatureInstanceCardinalityMax(
-      selectedNode?.data.featureInstanceCardinalityMax
+      selectedNode?.data.featureInstanceCardinality[0].upper
     );
     setGroupTypeCardinalityMin(
-      selectedNode?.data.groupTypeCardinalityMin || ""
+      selectedNode?.data.groupTypeCardinality[0].lower || ""
     );
     setGroupTypeCardinalityMax(
-      selectedNode?.data.groupTypeCardinalityMax || ""
+      selectedNode?.data.groupTypeCardinality[0].upper || ""
     );
     setGroupInstanceCardinalityMin(
-      selectedNode?.data.groupInstanceCardinalityMin || ""
+      selectedNode?.data.groupInstanceCardinality[0].lower || ""
     );
     setGroupInstanceCardinalityMax(
-      selectedNode?.data.groupInstanceCardinalityMax || ""
+      selectedNode?.data.groupInstanceCardinality[0].upper || ""
     );
     setParentId(selectedNode?.data.parentId || "");
 

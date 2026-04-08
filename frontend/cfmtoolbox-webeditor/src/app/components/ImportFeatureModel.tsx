@@ -55,12 +55,18 @@ export function importFeatureModel(json: any): {
       },
       data: {
         label: feature.name,
-        featureInstanceCardinalityMin: fMin,
-        featureInstanceCardinalityMax: fMax,
-        groupTypeCardinalityMin: gtMin,
-        groupTypeCardinalityMax: gtMax,
-        groupInstanceCardinalityMin: giMin,
-        groupInstanceCardinalityMax: giMax,
+        featureInstanceCardinality: [{
+          lower: fMin,
+          upper: fMax,
+        }],
+        groupTypeCardinality: [{
+          lower: gtMin,
+          upper: gtMax,
+        }],
+        groupInstanceCardinality: [{
+          lower: giMin,
+          upper: giMax,
+        }],
         parentId: parentId, // Root has parentId "0"
       },
     };
