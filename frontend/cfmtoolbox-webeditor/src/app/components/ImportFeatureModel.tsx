@@ -1,30 +1,5 @@
-import { Constraint } from "./Constraints";
-
-type Node = {
-  id: string;
-  type: string;
-  position: { x: number; y: number };
-  data: {
-    label: string;
-    featureInstanceCardinalityMin: string;
-    featureInstanceCardinalityMax: string;
-    groupTypeCardinalityMin: string;
-    groupTypeCardinalityMax: string;
-    groupInstanceCardinalityMin: string;
-    groupInstanceCardinalityMax: string;
-    parentId: string;
-  };
-};
-
-type Edge = {
-  id: string;
-  source: string;
-  target: string;
-  type: string;
-  data: {
-    cardinality: string;
-  };
-};
+import { DisplayNode, Edge } from "../types/Editor";
+import { Constraint } from "../types/FeatureModel";
 
 /**
  * Function to import a cardinality-based feature model from a JSON object.
@@ -32,11 +7,11 @@ type Edge = {
  * @returns nodes, edges and constraints representing the feature model in a format suitable for the reactflow editor.
  */
 export function importFeatureModel(json: any): {
-  nodes: Node[];
+  nodes: DisplayNode[];
   edges: Edge[];
   constraints: Constraint[];
 } {
-  const nodes: Node[] = [];
+  const nodes: DisplayNode[] = [];
   const edges: Edge[] = [];
 
   // Recursive function to process features and their children
@@ -71,7 +46,7 @@ export function importFeatureModel(json: any): {
     const nodeType = parentId === "0" ? "root" : "feature";
 
     // Create Node
-    const node: Node = {
+    const node: DisplayNode = {
       id,
       type: nodeType,
       position: {
