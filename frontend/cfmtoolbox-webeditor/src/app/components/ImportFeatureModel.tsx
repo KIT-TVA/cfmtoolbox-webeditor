@@ -1,6 +1,31 @@
 import { DisplayNode, Edge } from "../types/Editor";
 import { Constraint } from "../types/FeatureModel";
 
+type SerializedInterval = {
+  lower: number
+  upper: number
+}
+
+type SerializedCardinality = {
+  intervals: SerializedInterval[]
+}
+
+/**
+ * Parse the cardinality compound interval and fill missing bound values.
+ * @param cardinality Object containing the serialized compound intervals of a cardinality type
+ * @returns parsed compound interval with filled 0 or *
+ */
+function parseCardinality(cardinality: null | SerializedCardinality) {
+  console.log("parseCardinality: ", cardinality);
+  return cardinality?.intervals.map((interval: SerializedInterval) => {
+    return {
+      lower: interval.lower?.toString() ?? "0",
+      upper: interval.upper?.toString() ?? "*"
+    }
+  })
+  ?? [];
+}
+
 /**
  * Function to import a cardinality-based feature model from a JSON object.
  * @param json The JSON object representing the cardinality-based feature model.
@@ -22,27 +47,7 @@ export function importFeatureModel(json: any): {
     positionY: number,
     level: number
   ) {
-    const hasChildren = feature.children && feature.children.length > 0;
     const id = feature.name;
-    const fMin =
-      feature.instance_cardinality?.intervals?.[0]?.lower?.toString() ?? "0";
-    const fMax =
-      feature.instance_cardinality?.intervals?.[0]?.upper?.toString() ?? "*";
-    const gtMin = hasChildren
-      ? feature.group_type_cardinality?.intervals?.[0]?.lower?.toString() ?? "0"
-      : "";
-    const gtMax = hasChildren
-      ? feature.group_type_cardinality?.intervals?.[0]?.upper?.toString() ?? "*"
-      : "";
-    const giMin = hasChildren
-      ? feature.group_instance_cardinality?.intervals?.[0]?.lower?.toString() ??
-        "0"
-      : "";
-    const giMax = hasChildren
-      ? feature.group_instance_cardinality?.intervals?.[0]?.upper?.toString() ??
-        "*"
-      : "";
-
     const nodeType = parentId === "0" ? "root" : "feature";
 
     // Create Node
@@ -55,18 +60,9 @@ export function importFeatureModel(json: any): {
       },
       data: {
         label: feature.name,
-        featureInstanceCardinality: [{
-          lower: fMin,
-          upper: fMax,
-        }],
-        groupTypeCardinality: [{
-          lower: gtMin,
-          upper: gtMax,
-        }],
-        groupInstanceCardinality: [{
-          lower: giMin,
-          upper: giMax,
-        }],
+        featureInstanceCardinality: parseCardinality(feature.instance_cardinality),
+        groupTypeCardinality: parseCardinality(feature.group_type_cardinality),
+        groupInstanceCardinality: parseCardinality(feature.group_instance_cardinality),
         parentId: parentId, // Root has parentId "0"
       },
     };
