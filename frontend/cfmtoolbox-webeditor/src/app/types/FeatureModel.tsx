@@ -5,7 +5,7 @@ type Interval = {
 
 export type CompoundInterval = Interval[];
 
-interface NodeData {
+export interface NodeData {
   label: string;
   featureInstanceCardinality: CompoundInterval;
   groupTypeCardinality: CompoundInterval;
