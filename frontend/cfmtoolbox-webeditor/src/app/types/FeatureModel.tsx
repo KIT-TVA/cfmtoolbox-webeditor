@@ -1,4 +1,4 @@
-type Interval = {
+export type Interval = {
   lower: string,
   upper: string,
 };
