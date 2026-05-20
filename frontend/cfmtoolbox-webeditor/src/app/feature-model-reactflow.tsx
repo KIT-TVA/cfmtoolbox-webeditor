@@ -96,9 +96,11 @@ const initialEdges = [
 ];
 
 export default function FeatureModelEditor() {
+  const { t } = useTranslation();
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
+  const [modelName, setModelName] = useState(t("main.unnamedModel"));
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -153,7 +155,6 @@ export default function FeatureModelEditor() {
     y: number;
     id?: string;
   } | null>(null);
-  const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [submenuOpenImport, setSubmenuImportOpen] = useState(false);
   const [submenuOpenExport, setSubmenuExportOpen] = useState(false);
@@ -731,6 +732,7 @@ export default function FeatureModelEditor() {
 
     const { nodes, edges, constraints } = importFeatureModel(json);
 
+    setModelName(file.name);
     setNodes(nodes);
     setEdges(edges);
     setConstraints(constraints);
@@ -758,6 +760,7 @@ export default function FeatureModelEditor() {
       if (resp.ok) {
         const json = await resp.json();
         const { nodes, edges, constraints } = importFeatureModel(json);
+        setModelName(file.name);
         setNodes(nodes);
         setEdges(edges);
         setConstraints(constraints);
@@ -1067,6 +1070,9 @@ export default function FeatureModelEditor() {
         message={errorMessage}
         onClose={() => setErrorModalOpen(false)}
       />
+
+      <hr/>
+      <p>{t("main.modelName")}: {modelName}</p>
     </div>
   );
 }

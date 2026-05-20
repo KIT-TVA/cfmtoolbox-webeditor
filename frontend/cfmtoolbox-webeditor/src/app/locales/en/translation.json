@@ -60,7 +60,9 @@
     "layoutModel": "Layout Model",
     "exportPng": "Export as PNG",
     "exportSvg": "Export as SVG",
-    "switchTheme": "Switch to"
+    "switchTheme": "Switch to",
+    "unnamedModel": "Unnamed Model",
+    "modelName": "Model"
   },
   "error_modal": {
     "title": "Error",
