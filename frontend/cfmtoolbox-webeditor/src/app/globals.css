@@ -17,6 +17,7 @@
   --error-color: #dc2626;
   --primary-color: #2563eb;
   --primary-hover: #1d4ed8;
+  --primary-disabled: #4b71c3;
   --card-bg: #ffffff;
   --card-shadow: rgba(0, 0, 0, 0.1);
   --list-bg: #f7f7f7;
@@ -39,6 +40,7 @@
   --error-color: #f87171;
   --primary-color: #3b82f6;
   --primary-hover: #2563eb;
+  --primary-disabled: #4b71c3;
   --card-bg: #111827;
   --card-shadow: rgba(0, 0, 0, 0.5);
   --list-bg: #1f2937;
@@ -161,6 +163,9 @@ body {
 }
 .feature-modal__btn--primary:hover {
   background: var(--primary-hover);
+}
+.feature-modal__btn--primary:disabled {
+  background: var(--primary-disabled);
 }
 .feature-modal__btn--icon {
   display: flex;

@@ -15,7 +15,8 @@
     "cancel": "Abbrechen",
     "save": "Speichern",
     "add": "Hinzufügen",
-    "cardinalityRequired": "Feature-Instanzkardinalität ist ein Pflichtfeld."
+    "cardinalityRequired": "Feature-Instanzkardinalität ist ein Pflichtfeld.",
+    "compoundIntervalParseError": "Ungültiges zusammengesetzes Intervall"
   },
   "constraint_modal": {
     "editTitle": "Constraint bearbeiten",

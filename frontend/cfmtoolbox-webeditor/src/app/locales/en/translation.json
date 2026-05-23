@@ -15,7 +15,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "add": "Add",
-    "cardinalityRequired": "Feature instance cardinality is required."
+    "cardinalityRequired": "Feature instance cardinality is required.",
+    "compoundIntervalParseError": "Invalid compound interval"
   },
   "constraint_modal": {
     "editTitle": "Edit Constraint",

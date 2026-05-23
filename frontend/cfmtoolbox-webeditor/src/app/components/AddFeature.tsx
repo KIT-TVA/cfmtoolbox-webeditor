@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import { useTranslation } from "react-i18next";
 import CompoundIntervalInput from "./CompoundIntervalInputField";
@@ -61,6 +61,10 @@ export default function AddFeatureModal({
 }: AddFeatureModalProps) {
   const { t } = useTranslation();
 
+  const [featureInstanceCardinalityParseError, setFeatureInstanceCardinalityParseError] = useState(false);
+  const [groupTypeCardinalityParseError, setGroupTypeCardinalityParseError] = useState(false);
+  const [groupInstanceCardinalityParseError, setGroupInstanceCardinalityParseError] = useState(false);
+
   if (!isOpen) return null;
   if (selectedNode?.type === "root" && editMode) isRootNode = true;
 
@@ -92,7 +96,7 @@ export default function AddFeatureModal({
               <CompoundIntervalInput
                 compoundInterval={featureInstanceCardinality}
                 setCompoundInterval={setFeatureInstanceCardinality}
-                setCompoundIntervalParseError={setFeatureInstanceError}
+                setCompoundIntervalParseError={setFeatureInstanceCardinalityParseError}
               />
             </div>
           </>
@@ -100,22 +104,33 @@ export default function AddFeatureModal({
         {(featureInstanceError) && (
           <p className="feature-modal__error">{t("feature_modal.cardinalityRequired")}</p>
         )}
+        {(featureInstanceCardinalityParseError) && (
+          <p className="feature-modal__error">{t("feature_modal.compoundIntervalParseError")}</p>
+        )}
 
         <label className="feature-modal__label">{t("feature_modal.groupTypeCardinality")}:</label>
         <div className="feature-modal__flex">
           <CompoundIntervalInput
             compoundInterval={groupTypeCardinality}
             setCompoundInterval={setGroupTypeCardinality}
+            setCompoundIntervalParseError={setGroupTypeCardinalityParseError}
           />
         </div>
+        {(groupTypeCardinalityParseError) && (
+          <p className="feature-modal__error">{t("feature_modal.compoundIntervalParseError")}</p>
+        )}
 
         <label className="feature-modal__label">{t("feature_modal.groupInstanceCardinality")}:</label>
         <div className="feature-modal__flex">
           <CompoundIntervalInput
             compoundInterval={groupInstanceCardinality}
             setCompoundInterval={setGroupInstanceCardinality}
+            setCompoundIntervalParseError={setGroupInstanceCardinalityParseError}
           />
         </div>
+        {(groupInstanceCardinalityParseError) && (
+          <p className="feature-modal__error">{t("feature_modal.compoundIntervalParseError")}</p>
+        )}
 
         {!isRootNode && (
           <>
@@ -150,12 +165,25 @@ export default function AddFeatureModal({
             </button>
           )}
           <div className="feature-modal__actions">
-            <button className="feature-modal__btn feature-modal__btn--cancel" onClick={onClose}>
+            <button
+              className="feature-modal__btn feature-modal__btn--cancel"
+              onClick={(e) => {
+                onClose()
+                setFeatureInstanceCardinalityParseError(false);
+                setGroupTypeCardinalityParseError(false);
+                setGroupInstanceCardinalityParseError(false);
+              }}
+            >
               {t("feature_modal.cancel")}
             </button>
             <button
               className="feature-modal__btn feature-modal__btn--primary"
               onClick={editMode ? onUpdateFeature : onAddFeature}
+              disabled={
+                featureInstanceCardinalityParseError
+                || groupTypeCardinalityParseError
+                || groupInstanceCardinalityParseError
+              }
             >
               {editMode ? t("feature_modal.save") : t("feature_modal.add")}
             </button>
