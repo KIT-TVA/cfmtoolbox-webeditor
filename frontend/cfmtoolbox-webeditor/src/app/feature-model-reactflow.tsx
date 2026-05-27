@@ -39,6 +39,7 @@ import { exportFeatureModelImage } from "./components/exportImage";
 import { layoutFeatureModel } from "./components/LayoutFeatureModel";
 import demoModel from "./demo/multiplayer (1).json";
 import { flushSync } from "react-dom";
+import { CompoundInterval } from "./types/FeatureModel";
 
 const CFM_TOOLBOX_BACKEND = "http://193.196.39.10:3001";
 // TODO: Make this configurable
@@ -59,12 +60,18 @@ const initialNodes = [
     position: { x: 100, y: 100 },
     data: {
       label: "Root Feature",
-      featureInstanceCardinalityMin: "1",
-      featureInstanceCardinalityMax: "1",
-      groupTypeCardinalityMin: "1",
-      groupTypeCardinalityMax: "*",
-      groupInstanceCardinalityMin: "1",
-      groupInstanceCardinalityMax: "*",
+      featureInstanceCardinality: [{
+        lower: "1",
+        upper: "1",
+      }],
+      groupTypeCardinality: [{
+        lower: "1",
+        upper: "*",
+      }],
+      groupInstanceCardinality: [{
+        lower: "1",
+        upper: "*",
+      }],
       parentId: "0",
     },
   },
@@ -74,12 +81,18 @@ const initialNodes = [
     position: { x: 100, y: 250 },
     data: {
       label: "Feature",
-      featureInstanceCardinalityMin: "0",
-      featureInstanceCardinalityMax: "1",
-      groupTypeCardinalityMin: "1",
-      groupTypeCardinalityMax: "*",
-      groupInstanceCardinalityMin: "1",
-      groupInstanceCardinalityMax: "*",
+      featureInstanceCardinality: [{
+        lower: "0",
+        upper: "1",
+      }],
+      groupTypeCardinality: [{
+        lower: "1",
+        upper: "*",
+      }],
+      groupInstanceCardinality: [{
+        lower: "1",
+        upper: "*",
+      }],
       parentId: "root",
     },
   },
@@ -105,23 +118,18 @@ export default function FeatureModelEditor() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newFeatureName, setNewFeatureName] = useState("");
-  const [featureInstanceCardinalityMin, setFeatureInstanceCardinalityMin] =
-    useState("");
-  const [featureInstanceCardinalityMax, setFeatureInstanceCardinalityMax] =
-    useState("");
-  const [groupTypeCardinalityMin, setGroupTypeCardinalityMin] = useState("");
-  const [groupTypeCardinalityMax, setGroupTypeCardinalityMax] = useState("");
-  const [groupInstanceCardinalityMin, setGroupInstanceCardinalityMin] =
-    useState("");
-  const [groupInstanceCardinalityMax, setGroupInstanceCardinalityMax] =
-    useState("");
+  const [featureInstanceCardinality, setFeatureInstanceCardinality] =
+    useState([] as CompoundInterval);
+  const [groupTypeCardinality, setGroupTypeCardinality] =
+    useState([] as CompoundInterval);
+  const [groupInstanceCardinality, setGroupInstanceCardinality] =
+    useState([] as CompoundInterval);
   const [parentId, setParentId] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [nameError, setNameError] = useState(false);
   const [parentError, setParentError] = useState(false);
-  const [featureInstanceMinError, setFeatureInstanceMinError] = useState(false);
-  const [featureInstanceMaxError, setFeatureInstanceMaxError] = useState(false);
+  const [featureInstanceError, setFeatureInstanceError] = useState(false);
   const [constraints, setConstraints] = useState(
     [] as {
       id: string;
@@ -254,15 +262,11 @@ export default function FeatureModelEditor() {
       hasError = true;
     }
 
-    if (!featureInstanceCardinalityMin.trim()) {
-      setFeatureInstanceMinError(true);
+    if (featureInstanceCardinality.length === 0) {
+      setFeatureInstanceError(true);
       hasError = true;
     }
 
-    if (!featureInstanceCardinalityMax.trim()) {
-      setFeatureInstanceMaxError(true);
-      hasError = true;
-    }
     if (hasError) return;
     const newId = `${nodes.length + 1}`;
     const parentnode = nodes.find((n) => n.id === parentId);
@@ -289,12 +293,9 @@ export default function FeatureModelEditor() {
       id: newId,
       data: {
         label: `${newFeatureName}`,
-        featureInstanceCardinalityMin: `${featureInstanceCardinalityMin}`,
-        featureInstanceCardinalityMax: `${featureInstanceCardinalityMax}`,
-        groupTypeCardinalityMin: `${groupTypeCardinalityMin}`,
-        groupTypeCardinalityMax: `${groupTypeCardinalityMax}`,
-        groupInstanceCardinalityMin: `${groupInstanceCardinalityMin}`,
-        groupInstanceCardinalityMax: `${groupInstanceCardinalityMax}`,
+        featureInstanceCardinality: featureInstanceCardinality,
+        groupTypeCardinality: groupTypeCardinality,
+        groupInstanceCardinality: groupInstanceCardinality,
         parentId: `${parentId}`,
       },
       position: { x: positionX, y: positionY },
@@ -316,17 +317,13 @@ export default function FeatureModelEditor() {
     setIsModalOpen(false);
     setNameError(false);
     setParentError(false);
-    setFeatureInstanceMinError(false);
-    setFeatureInstanceMaxError(false);
+    setFeatureInstanceError(false);
 
     // Reset Form
     setNewFeatureName("");
-    setFeatureInstanceCardinalityMin("");
-    setFeatureInstanceCardinalityMax("");
-    setGroupTypeCardinalityMax("");
-    setGroupTypeCardinalityMin("");
-    setGroupInstanceCardinalityMin("");
-    setGroupInstanceCardinalityMax("");
+    setFeatureInstanceCardinality([]);
+    setGroupTypeCardinality([]);
+    setGroupInstanceCardinality([]);
     setParentId("");
   };
 
@@ -356,13 +353,8 @@ export default function FeatureModelEditor() {
       hasError = true;
     }
 
-    if (!featureInstanceCardinalityMin.trim()) {
-      setFeatureInstanceMinError(true);
-      hasError = true;
-    }
-
-    if (!featureInstanceCardinalityMax.trim()) {
-      setFeatureInstanceMaxError(true);
+    if (featureInstanceCardinality.length === 0) {
+      setFeatureInstanceError(true);
       hasError = true;
     }
 
@@ -386,12 +378,9 @@ export default function FeatureModelEditor() {
               data: {
                 ...node.data,
                 label: newFeatureName,
-                featureInstanceCardinalityMin,
-                featureInstanceCardinalityMax,
-                groupTypeCardinalityMin,
-                groupTypeCardinalityMax,
-                groupInstanceCardinalityMin,
-                groupInstanceCardinalityMax,
+                featureInstanceCardinality: featureInstanceCardinality,
+                groupTypeCardinality: groupTypeCardinality,
+                groupInstanceCardinality: groupInstanceCardinality,
                 parentId,
               },
             }
@@ -430,34 +419,22 @@ export default function FeatureModelEditor() {
 
     // Reset Form
     setNewFeatureName("");
-    setFeatureInstanceCardinalityMin("");
-    setFeatureInstanceCardinalityMax("");
-    setGroupTypeCardinalityMax("");
-    setGroupTypeCardinalityMin("");
-    setGroupInstanceCardinalityMin("");
-    setGroupInstanceCardinalityMax("");
+    setFeatureInstanceCardinality([]);
+    setGroupTypeCardinality([]);
+    setGroupInstanceCardinality([]);
     setParentId("");
   };
 
   const handleEditClick = () => {
     setNewFeatureName(selectedNode?.data.label);
-    setFeatureInstanceCardinalityMin(
-      selectedNode?.data.featureInstanceCardinalityMin
+    setFeatureInstanceCardinality(
+      selectedNode?.data.featureInstanceCardinality
     );
-    setFeatureInstanceCardinalityMax(
-      selectedNode?.data.featureInstanceCardinalityMax
+    setGroupTypeCardinality(
+      selectedNode?.data.groupTypeCardinality
     );
-    setGroupTypeCardinalityMin(
-      selectedNode?.data.groupTypeCardinalityMin || ""
-    );
-    setGroupTypeCardinalityMax(
-      selectedNode?.data.groupTypeCardinalityMax || ""
-    );
-    setGroupInstanceCardinalityMin(
-      selectedNode?.data.groupInstanceCardinalityMin || ""
-    );
-    setGroupInstanceCardinalityMax(
-      selectedNode?.data.groupInstanceCardinalityMax || ""
+    setGroupInstanceCardinality(
+      selectedNode?.data.groupInstanceCardinality
     );
     setParentId(selectedNode?.data.parentId || "");
 
@@ -465,8 +442,7 @@ export default function FeatureModelEditor() {
     setIsModalOpen(true);
     setNameError(false);
     setParentError(false);
-    setFeatureInstanceMinError(false);
-    setFeatureInstanceMaxError(false);
+    setFeatureInstanceError(false);
 
     setIsNodeMenuOpen(false);
   };
@@ -486,12 +462,9 @@ export default function FeatureModelEditor() {
   const openAddFeatureModal = () => {
     // Reset Form
     setNewFeatureName("");
-    setFeatureInstanceCardinalityMin("");
-    setFeatureInstanceCardinalityMax("");
-    setGroupTypeCardinalityMin("");
-    setGroupTypeCardinalityMax("");
-    setGroupInstanceCardinalityMin("");
-    setGroupInstanceCardinalityMax("");
+    setFeatureInstanceCardinality([]);
+    setGroupTypeCardinality([]);
+    setGroupInstanceCardinality([]);
     setParentId("");
 
     setEditMode(false);
@@ -499,8 +472,7 @@ export default function FeatureModelEditor() {
     setIsModalOpen(true);
     setNameError(false);
     setParentError(false);
-    setFeatureInstanceMinError(false);
-    setFeatureInstanceMaxError(false);
+    setFeatureInstanceError(false);
   };
   const handleDeleteConstraint = (id: string) => {
     setConstraints((prev) => prev.filter((c) => c.id !== id));
@@ -969,18 +941,12 @@ export default function FeatureModelEditor() {
         onAddFeature={handleAddFeature}
         newFeatureName={newFeatureName}
         setNewFeatureName={setNewFeatureName}
-        featureInstanceCardinalityMin={featureInstanceCardinalityMin}
-        setFeatureInstanceCardinalityMin={setFeatureInstanceCardinalityMin}
-        featureInstanceCardinalityMax={featureInstanceCardinalityMax}
-        setFeatureInstanceCardinalityMax={setFeatureInstanceCardinalityMax}
-        groupTypeCardinalityMin={groupTypeCardinalityMin}
-        setGroupTypeCardinalityMin={setGroupTypeCardinalityMin}
-        groupTypeCardinalityMax={groupTypeCardinalityMax}
-        setGroupTypeCardinalityMax={setGroupTypeCardinalityMax}
-        groupInstanceCardinalityMin={groupInstanceCardinalityMin}
-        setGroupInstanceCardinalityMin={setGroupInstanceCardinalityMin}
-        groupInstanceCardinalityMax={groupInstanceCardinalityMax}
-        setGroupInstanceCardinalityMax={setGroupInstanceCardinalityMax}
+        featureInstanceCardinality={featureInstanceCardinality}
+        setFeatureInstanceCardinality={setFeatureInstanceCardinality}
+        groupTypeCardinality={groupTypeCardinality}
+        setGroupTypeCardinality={setGroupTypeCardinality}
+        groupInstanceCardinality={groupInstanceCardinality}
+        setGroupInstanceCardinality={setGroupInstanceCardinality}
         parentId={parentId}
         setParentId={setParentId}
         editMode={editMode}
@@ -991,10 +957,8 @@ export default function FeatureModelEditor() {
         setNameError={setNameError}
         parentError={parentError}
         setParentError={setParentError}
-        featureInstanceMinError={featureInstanceMinError}
-        setFeatureInstanceMinError={setFeatureInstanceMinError}
-        featureInstanceMaxError={featureInstanceMaxError}
-        setFeatureInstanceMaxError={setFeatureInstanceMaxError}
+        featureInstanceError={featureInstanceError}
+        setFeatureInstanceError={setFeatureInstanceError}
         onDeleteFeature={handleDeleteFeature}
       />
 

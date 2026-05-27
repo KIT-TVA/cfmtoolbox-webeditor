@@ -1,30 +1,30 @@
-import { Constraint } from "./Constraints";
+import { DisplayNode, Edge } from "../types/Editor";
+import { Constraint } from "../types/FeatureModel";
 
-type Node = {
-  id: string;
-  type: string;
-  position: { x: number; y: number };
-  data: {
-    label: string;
-    featureInstanceCardinalityMin: string;
-    featureInstanceCardinalityMax: string;
-    groupTypeCardinalityMin: string;
-    groupTypeCardinalityMax: string;
-    groupInstanceCardinalityMin: string;
-    groupInstanceCardinalityMax: string;
-    parentId: string;
-  };
-};
+type SerializedInterval = {
+  lower: number
+  upper: number
+}
 
-type Edge = {
-  id: string;
-  source: string;
-  target: string;
-  type: string;
-  data: {
-    cardinality: string;
-  };
-};
+type SerializedCardinality = {
+  intervals: SerializedInterval[]
+}
+
+/**
+ * Parse the cardinality compound interval and fill missing bound values.
+ * @param cardinality Object containing the serialized compound intervals of a cardinality type
+ * @returns parsed compound interval with filled 0 or *
+ */
+function parseCardinality(cardinality: null | SerializedCardinality) {
+  console.log("parseCardinality: ", cardinality);
+  return cardinality?.intervals.map((interval: SerializedInterval) => {
+    return {
+      lower: interval.lower?.toString() ?? "0",
+      upper: interval.upper?.toString() ?? "*"
+    }
+  })
+  ?? [];
+}
 
 /**
  * Function to import a cardinality-based feature model from a JSON object.
@@ -32,11 +32,11 @@ type Edge = {
  * @returns nodes, edges and constraints representing the feature model in a format suitable for the reactflow editor.
  */
 export function importFeatureModel(json: any): {
-  nodes: Node[];
+  nodes: DisplayNode[];
   edges: Edge[];
   constraints: Constraint[];
 } {
-  const nodes: Node[] = [];
+  const nodes: DisplayNode[] = [];
   const edges: Edge[] = [];
 
   // Recursive function to process features and their children
@@ -47,31 +47,11 @@ export function importFeatureModel(json: any): {
     positionY: number,
     level: number
   ) {
-    const hasChildren = feature.children && feature.children.length > 0;
     const id = feature.name;
-    const fMin =
-      feature.instance_cardinality?.intervals?.[0]?.lower?.toString() ?? "0";
-    const fMax =
-      feature.instance_cardinality?.intervals?.[0]?.upper?.toString() ?? "*";
-    const gtMin = hasChildren
-      ? feature.group_type_cardinality?.intervals?.[0]?.lower?.toString() ?? "0"
-      : "";
-    const gtMax = hasChildren
-      ? feature.group_type_cardinality?.intervals?.[0]?.upper?.toString() ?? "*"
-      : "";
-    const giMin = hasChildren
-      ? feature.group_instance_cardinality?.intervals?.[0]?.lower?.toString() ??
-        "0"
-      : "";
-    const giMax = hasChildren
-      ? feature.group_instance_cardinality?.intervals?.[0]?.upper?.toString() ??
-        "*"
-      : "";
-
     const nodeType = parentId === "0" ? "root" : "feature";
 
     // Create Node
-    const node: Node = {
+    const node: DisplayNode = {
       id,
       type: nodeType,
       position: {
@@ -80,12 +60,9 @@ export function importFeatureModel(json: any): {
       },
       data: {
         label: feature.name,
-        featureInstanceCardinalityMin: fMin,
-        featureInstanceCardinalityMax: fMax,
-        groupTypeCardinalityMin: gtMin,
-        groupTypeCardinalityMax: gtMax,
-        groupInstanceCardinalityMin: giMin,
-        groupInstanceCardinalityMax: giMax,
+        featureInstanceCardinality: parseCardinality(feature.instance_cardinality),
+        groupTypeCardinality: parseCardinality(feature.group_type_cardinality),
+        groupInstanceCardinality: parseCardinality(feature.group_instance_cardinality),
         parentId: parentId, // Root has parentId "0"
       },
     };

@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import { useTranslation } from "react-i18next";
+import CompoundIntervalInput from "./CompoundIntervalInputField";
+import { CompoundInterval } from "../types/FeatureModel";
 
 interface AddFeatureModalProps {
   isOpen: boolean;
@@ -8,18 +10,12 @@ interface AddFeatureModalProps {
   onAddFeature: () => void;
   newFeatureName: string;
   setNewFeatureName: React.Dispatch<React.SetStateAction<string>>;
-  featureInstanceCardinalityMin: string;
-  setFeatureInstanceCardinalityMin: React.Dispatch<React.SetStateAction<string>>;
-  featureInstanceCardinalityMax: string;
-  setFeatureInstanceCardinalityMax: React.Dispatch<React.SetStateAction<string>>;
-  groupTypeCardinalityMin: string;
-  setGroupTypeCardinalityMin: React.Dispatch<React.SetStateAction<string>>;
-  groupTypeCardinalityMax: string;
-  setGroupTypeCardinalityMax: React.Dispatch<React.SetStateAction<string>>;
-  groupInstanceCardinalityMin: string;
-  setGroupInstanceCardinalityMin: React.Dispatch<React.SetStateAction<string>>;
-  groupInstanceCardinalityMax: string;
-  setGroupInstanceCardinalityMax: React.Dispatch<React.SetStateAction<string>>;
+  featureInstanceCardinality: CompoundInterval;
+  setFeatureInstanceCardinality: React.Dispatch<React.SetStateAction<CompoundInterval>>;
+  groupTypeCardinality: CompoundInterval;
+  setGroupTypeCardinality: React.Dispatch<React.SetStateAction<CompoundInterval>>;
+  groupInstanceCardinality: CompoundInterval;
+  setGroupInstanceCardinality: React.Dispatch<React.SetStateAction<CompoundInterval>>;
   parentId: string;
   setParentId: React.Dispatch<React.SetStateAction<string>>;
   nodes: any[];
@@ -31,10 +27,8 @@ interface AddFeatureModalProps {
   setNameError?: React.Dispatch<React.SetStateAction<boolean>>;
   parentError?: boolean;
   setParentError?: React.Dispatch<React.SetStateAction<boolean>>;
-  featureInstanceMinError?: boolean;
-  setFeatureInstanceMinError?: React.Dispatch<React.SetStateAction<boolean>>;
-  featureInstanceMaxError?: boolean;
-  setFeatureInstanceMaxError?: React.Dispatch<React.SetStateAction<boolean>>;
+  featureInstanceError?: boolean;
+  setFeatureInstanceError?: React.Dispatch<React.SetStateAction<boolean>>;
   onDeleteFeature?: () => void;
 }
 
@@ -44,18 +38,12 @@ export default function AddFeatureModal({
   onAddFeature,
   newFeatureName,
   setNewFeatureName,
-  featureInstanceCardinalityMin,
-  setFeatureInstanceCardinalityMin,
-  featureInstanceCardinalityMax,
-  setFeatureInstanceCardinalityMax,
-  groupInstanceCardinalityMin,
-  setGroupInstanceCardinalityMin,
-  groupInstanceCardinalityMax,
-  setGroupInstanceCardinalityMax,
-  groupTypeCardinalityMin,
-  setGroupTypeCardinalityMin,
-  groupTypeCardinalityMax,
-  setGroupTypeCardinalityMax,
+  featureInstanceCardinality,
+  setFeatureInstanceCardinality,
+  groupTypeCardinality,
+  setGroupTypeCardinality,
+  groupInstanceCardinality,
+  setGroupInstanceCardinality,
   parentId,
   setParentId,
   nodes,
@@ -67,13 +55,15 @@ export default function AddFeatureModal({
   setNameError,
   parentError = false,
   setParentError,
-  featureInstanceMinError = false,
-  setFeatureInstanceMinError,
-  featureInstanceMaxError = false,
-  setFeatureInstanceMaxError,
+  featureInstanceError = false,
+  setFeatureInstanceError,
   onDeleteFeature
 }: AddFeatureModalProps) {
   const { t } = useTranslation();
+
+  const [featureInstanceCardinalityParseError, setFeatureInstanceCardinalityParseError] = useState(false);
+  const [groupTypeCardinalityParseError, setGroupTypeCardinalityParseError] = useState(false);
+  const [groupInstanceCardinalityParseError, setGroupInstanceCardinalityParseError] = useState(false);
 
   if (!isOpen) return null;
   if (selectedNode?.type === "root" && editMode) isRootNode = true;
@@ -103,94 +93,44 @@ export default function AddFeatureModal({
           <>
             <label className="feature-modal__label">{t("feature_modal.featureInstanceCardinality")}:</label>
             <div className="feature-modal__flex">
-              <input
-                type="text"
-                className="feature-modal__input feature-modal__input--half"
-                placeholder={t("feature_modal.min")}
-                value={featureInstanceCardinalityMin}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d*$/.test(value)) {
-                    setFeatureInstanceCardinalityMin(value);
-                  }
-                  if (featureInstanceMinError && setFeatureInstanceMinError) setFeatureInstanceMinError(false);
-                }}
-              />
-              <input
-                type="text"
-                className="feature-modal__input feature-modal__input--half"
-                placeholder={t("feature_modal.max")}
-                value={featureInstanceCardinalityMax}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d*$/.test(value) || value === "*") {
-                    setFeatureInstanceCardinalityMax(value);
-                  }
-                  if (featureInstanceMaxError && setFeatureInstanceMaxError) setFeatureInstanceMaxError(false);
-                }}
+              <CompoundIntervalInput
+                compoundInterval={featureInstanceCardinality}
+                setCompoundInterval={setFeatureInstanceCardinality}
+                setCompoundIntervalParseError={setFeatureInstanceCardinalityParseError}
               />
             </div>
           </>
         )}
-        {(featureInstanceMinError || featureInstanceMaxError) && (
+        {(featureInstanceError) && (
           <p className="feature-modal__error">{t("feature_modal.cardinalityRequired")}</p>
+        )}
+        {(featureInstanceCardinalityParseError) && (
+          <p className="feature-modal__error">{t("feature_modal.compoundIntervalParseError")}</p>
         )}
 
         <label className="feature-modal__label">{t("feature_modal.groupTypeCardinality")}:</label>
         <div className="feature-modal__flex">
-          <input
-            type="text"
-            className="feature-modal__input feature-modal__input--half"
-            placeholder={t("feature_modal.min")}
-            value={groupTypeCardinalityMin}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value)) {
-                setGroupTypeCardinalityMin(value);
-              }
-            }}
-          />
-          <input
-            type="text"
-            className="feature-modal__input feature-modal__input--half"
-            placeholder={t("feature_modal.max")}
-            value={groupTypeCardinalityMax}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value) || value === "*") {
-                setGroupTypeCardinalityMax(value);
-              }
-            }}
+          <CompoundIntervalInput
+            compoundInterval={groupTypeCardinality}
+            setCompoundInterval={setGroupTypeCardinality}
+            setCompoundIntervalParseError={setGroupTypeCardinalityParseError}
           />
         </div>
+        {(groupTypeCardinalityParseError) && (
+          <p className="feature-modal__error">{t("feature_modal.compoundIntervalParseError")}</p>
+        )}
 
         <label className="feature-modal__label">{t("feature_modal.groupInstanceCardinality")}:</label>
         <div className="feature-modal__flex">
-          <input
-            type="text"
-            className="feature-modal__input feature-modal__input--half"
-            placeholder={t("feature_modal.min")}
-            value={groupInstanceCardinalityMin}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value)) {
-                setGroupInstanceCardinalityMin(value);
-              }
-            }}
-          />
-          <input
-            type="text"
-            className="feature-modal__input feature-modal__input--half"
-            placeholder={t("feature_modal.max")}
-            value={groupInstanceCardinalityMax}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d*$/.test(value) || value === "*") {
-                setGroupInstanceCardinalityMax(value);
-              }
-            }}
+          <CompoundIntervalInput
+            compoundInterval={groupInstanceCardinality}
+            setCompoundInterval={setGroupInstanceCardinality}
+            setCompoundIntervalParseError={setGroupInstanceCardinalityParseError}
           />
         </div>
+        {(groupInstanceCardinalityParseError) && (
+          <p className="feature-modal__error">{t("feature_modal.compoundIntervalParseError")}</p>
+        )}
 
         {!isRootNode && (
           <>
@@ -225,12 +165,25 @@ export default function AddFeatureModal({
             </button>
           )}
           <div className="feature-modal__actions">
-            <button className="feature-modal__btn feature-modal__btn--cancel" onClick={onClose}>
+            <button
+              className="feature-modal__btn feature-modal__btn--cancel"
+              onClick={(e) => {
+                onClose()
+                setFeatureInstanceCardinalityParseError(false);
+                setGroupTypeCardinalityParseError(false);
+                setGroupInstanceCardinalityParseError(false);
+              }}
+            >
               {t("feature_modal.cancel")}
             </button>
             <button
               className="feature-modal__btn feature-modal__btn--primary"
               onClick={editMode ? onUpdateFeature : onAddFeature}
+              disabled={
+                featureInstanceCardinalityParseError
+                || groupTypeCardinalityParseError
+                || groupInstanceCardinalityParseError
+              }
             >
               {editMode ? t("feature_modal.save") : t("feature_modal.add")}
             </button>

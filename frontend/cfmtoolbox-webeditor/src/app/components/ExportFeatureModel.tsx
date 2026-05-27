@@ -1,29 +1,4 @@
-type NodeData = {
-  label: string;
-  featureInstanceCardinalityMin: string;
-  featureInstanceCardinalityMax: string;
-  groupTypeCardinalityMin: string;
-  groupTypeCardinalityMax: string;
-  groupInstanceCardinalityMin: string;
-  groupInstanceCardinalityMax: string;
-  parentId: string;
-};
-
-type Node = {
-  id: string;
-  data: NodeData;
-};
-
-type Constraint = {
-  id: string;
-  source: string;
-  target: string;
-  relation: string;
-  card1Min: string;
-  card1Max: string;
-  card2Min: string;
-  card2Max: string;
-};
+import { Node, Constraint, CompoundInterval } from "../types/FeatureModel";
 
 /**
  * Function to export the current feature model to a JSON string in the cardinality-based format.
@@ -36,14 +11,15 @@ export const exportFeatureModel = (
   constraints: Constraint[]
 ): string => {
   // Helper: convert min/max to numbers, handle "*" as null
-  const parseCardinality = (min: string, max: string) => ({
-    intervals: [
-      {
-        lower: parseInt(min, 10),
-        upper: max === "*" ? null : parseInt(max, 10),
-      },
-    ],
-  });
+  const parseCardinality = (cardinality: CompoundInterval) => {
+    return {
+      intervals: cardinality.map((interval) => {
+        return {
+          lower: parseInt(interval.lower, 10),
+          upper: interval.upper === "*" ? null : parseInt(interval.upper, 10),
+        }
+    })}
+  };
 
   // Helper: set of parentIds to check for leaf nodes
   const parentIdSet = new Set<string>(nodes.map((node) => node.data.parentId));
@@ -54,19 +30,16 @@ export const exportFeatureModel = (
     nodeMap.set(node.id, {
       name: node.data.label,
       instance_cardinality: parseCardinality(
-        node.data.featureInstanceCardinalityMin,
-        node.data.featureInstanceCardinalityMax
+        node.data.featureInstanceCardinality
       ),
       group_type_cardinality: parentIdSet.has(node.id)
         ? parseCardinality(
-            node.data.groupTypeCardinalityMin,
-            node.data.groupTypeCardinalityMax
+            node.data.groupTypeCardinality
           )
         : { intervals: [] }, // If leaf, no group type cardinality
       group_instance_cardinality: parentIdSet.has(node.id)
         ? parseCardinality(
-            node.data.groupInstanceCardinalityMin,
-            node.data.groupInstanceCardinalityMax
+            node.data.groupInstanceCardinality
           )
         : { intervals: [] }, // If leaf, no group instance cardinality
       children: [],
@@ -94,9 +67,9 @@ export const exportFeatureModel = (
   const formattedConstraints = constraints.map((c) => ({
     require: c.relation.toLowerCase() === "require",
     first_feature_name: c.source,
-    first_cardinality: parseCardinality(c.card1Min, c.card1Max),
+    first_cardinality: parseCardinality([{ lower: c.card1Min, upper: c.card1Max}]),
     second_feature_name: c.target,
-    second_cardinality: parseCardinality(c.card2Min, c.card2Max),
+    second_cardinality: parseCardinality([{ lower: c.card2Min, upper: c.card2Max }]),
   }));
 
   const exportJson = {
