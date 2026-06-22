@@ -29,7 +29,7 @@ app.add_middleware(
 @app.post("/convert/tojson/{file_type}/", status_code=214)  # 214 - Transformation applied
 async def convert_to_json(file_type: str, featuremodel: UploadFile):
     """
-    Endpoint for converting the specified format to the CFM toolbox JSON format.
+    Endpoint for converting from UVL to JSON format.
     """
     match file_type:
         case "UVL" | "uvl":
