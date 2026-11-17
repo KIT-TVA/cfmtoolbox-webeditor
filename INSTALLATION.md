@@ -27,7 +27,8 @@ services:
     depends_on:
       - backend
 ```
-4. Start the services using `docker compose up -d`
+4. Make sure to replace `<your IP or hostname>` with the actual IP address or hostname at which the frontend will be accessible/from which requests will be originating. You can supply multiple allowed origins by separating them with commas, e.g. `ALLOWED_ORIGINS: '["http://localhost:3000", "https://yourdomain.com"]'`.
+5. Start the services using `docker compose up -d`
 
 
 ## Building from source
@@ -44,11 +45,14 @@ use the following instructions.
 ```yaml
 services:
   backend:
-    build: backend/Dockerfile
+    build:
+      context: backend/Dockerfile
+      args:
+	CFM_TOOLBOX_BACKEND: "<your backend IP or hostanme>"
     ports:
       - "3001:8000"
     environment:
-      ALLOWED_ORIGINS: '["<your IP or hostname>"]'
+      ALLOWED_ORIGINS: '["<your frontend IP or hostname>"]'
   frontend:
     build: frontend/Dockerfile
     ports:
@@ -56,5 +60,7 @@ services:
     depends_on:
       - backend
 ```
-4. Start the service using `docker compose up -d`
+4. Make sure to replace `<your frontend IP or hostname>` with the actual IP address or hostname at which the frontend will be accessible/from which requests will be originating. You can supply multiple allowed origins by separating them with commas, e.g. `ALLOWED_ORIGINS: '["http://localhost:3000", "https://yourdomain.com"]'`.
+5. Make sure to replace `<your backend IP or hostname>` with the actual IP address or hostname at which the backend will be accessible/where requests should be routed to.
+6. Start the services using `docker compose up -d`
 
