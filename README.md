@@ -21,26 +21,7 @@ The CFM-Toolbox Webeditor is a web-based application designed to facilitate the 
 - **CFM Validation**: Ensure the integrity and correctness of your CFMs.
 
 ## Installation
-The CFM Webeditor can easily be installed and run on any system supporting Docker. 
-Simply adapt the following docker-compose file to your needs and run `docker-compose up` in the same directory. 
-
-Make sure to replace `<your IP or hostname>` with the actual IP address or hostname at which the frontend will be accessible/from which requests will be originating. You can supply multiple allowed origins by separating them with commas, e.g. `ALLOWED_ORIGINS: '["http://localhost:3000", "https://yourdomain.com"]'`.
-
-```yaml
-services:
-  backend:
-    image: ghcr.io/kit-tva/cfmtoolbox-webeditor-backend:main
-    ports:
-      - "3001:8000"
-    environment:
-      ALLOWED_ORIGINS: '["<your IP or hostname>"]'
-  frontend:
-    image: ghcr.io/kit-tva/cfmtoolbox-webeditor-frontend:main
-    ports:
-      - "80:3000"
-    depends_on:
-      - backend
-```
+For installation instructions see [[INSTALLATION.md]]
 
 ## Development
 
