@@ -9,8 +9,6 @@ on:
 
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -30,14 +28,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{secrets.KEY}}
           SSH_KNOWN_HOSTS: ${{secrets.KNOWN_HOSTS}}
           SSH_CONFIG: ${{secrets.CONFIG}}
-      - name: Build Images in BWC
-        run: |
-          # We're building the images on the server because we cannot pull from a private organization owned repo
-          ssh bwc "cd cfmtoolbox-webeditor && git pull"
-          ssh bwc "cd cfmtoolbox-webeditor/frontend && sudo docker build . -t ghcr.io/kit-tva/cfmtoolbox-webeditor-frontend:main"
-          ssh bwc "cd cfmtoolbox-webeditor/backend && sudo docker build . -t ghcr.io/kit-tva/cfmtoolbox-webeditor-backend:main"
-        shell: bash
       - name: Restart/Deploy Services in BWC
         run: |
-          ssh bwc "cd cfmtoolbox-webeditor && sudo docker compose down && sudo docker compose up -d"
+          ssh bwc "cd cfmtoolbox-webeditor && sudo docker compose pull && sudo docker compose down && sudo docker compose up -d"
         shell: bash
